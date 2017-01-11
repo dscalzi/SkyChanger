@@ -1,0 +1,16 @@
+#-----------------------------------------------
+#               Sky Changer Config
+#-----------------------------------------------
+
+#DO NOT CHANGE THIS VALUE.
+#CHANGING IT COULD RESULT IN DATA LOSS.
+ConfigVersion: 1.0
+
+#--------------[General Settings]---------------
+general_settings:
+
+  #Upper packet limit.
+  upper_limit: 50
+  
+  #Lower packet limit.
+  lower_limit: -50
