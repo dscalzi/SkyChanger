@@ -31,19 +31,19 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
 		
-		if(args.length > 0 && args[0].equalsIgnoreCase("version")){
-			this.cmdVersion(sender);
-			return true;
-		}
-		
-		if(!(sender.hasPermission("skychanger.use"))){
-			MessageManager.getInstance().noPermission(sender);
-			return false;
-		}
-		
 		if(args.length > 0){
 			if(args[0].matches("(\\d+|-\\d+)")){
 				this.cmdChangeSky(sender, args);
+				return true;
+			}
+			
+			if(args[0].equalsIgnoreCase("help")){
+				mm.helpMessage(sender);
+				return true;
+			}
+			
+			if(args[0].equalsIgnoreCase("version")){
+				this.cmdVersion(sender);
 				return true;
 			}
 			
@@ -53,12 +53,17 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			}
 		}
 		
-		mm.usage(sender, label);
+		mm.helpMessage(sender);
 		return false;
 	}
 	
 	@SuppressWarnings("deprecation")
 	private void cmdChangeSky(CommandSender sender, String[] args){
+		final String basePerm = "skychanger.changesky";
+		if(!sender.hasPermission(basePerm + ".self") && !sender.hasPermission(basePerm + ".others") && !sender.hasPermission(basePerm + ".all")){
+			mm.noPermission(sender);
+			return;
+		}
 		int pN = Integer.parseInt(args[0]);
 		if(!sender.hasPermission("skychanger.bypasslimit")){
 			int upper = ConfigManager.getInstance().getUpperLimit();
@@ -75,7 +80,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 		if(args.length > 1){
 			//Check if requested for all
 			if(args[1].equalsIgnoreCase("@a")){
-				if(!sender.hasPermission("skychanger.all")){
+				if(!sender.hasPermission("skychanger.changesky.all")){
 					mm.noPermission(sender);
 					return;
 				}
@@ -86,7 +91,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				return;
 			}
 			//Check if param is a player
-			if(!sender.hasPermission("skychanger.others")){
+			if(!sender.hasPermission("skychanger.changesky.others")){
 				mm.noPermission(sender);
 				return;
 			}
@@ -100,14 +105,20 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				mm.playerNotFound(sender, target == null || target.getName() == null ? args[1] : target.getName());
 				return;
 			}
-			
-			sendPacket(target.getPlayer(), pN);
-			mm.packetSent(sender, target.getName());
-			return;
+			if(!(sender instanceof Player) || !target.getUniqueId().equals(((Player)sender).getUniqueId())){
+				sendPacket(target.getPlayer(), pN);
+				mm.packetSent(sender, target.getName());
+				return;
+			}
 		}
 		
 		if(!(sender instanceof Player)){
 			MessageManager.getInstance().denyNonPlayer(sender);
+			return;
+		}
+		
+		if(!sender.hasPermission("skychanger.changesky.self")){
+			mm.noPermission(sender);
 			return;
 		}
 		
@@ -155,6 +166,8 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 		List<String> ret = new ArrayList<String>();
 		
 		if(args.length == 1){
+			if("help".startsWith(args[0].toLowerCase()))
+				ret.add("help");
 			if("version".startsWith(args[0].toLowerCase()))
 				ret.add("version");
 			if(sender.hasPermission("skychanger.reload") && "reload".startsWith(args[0].toLowerCase()))

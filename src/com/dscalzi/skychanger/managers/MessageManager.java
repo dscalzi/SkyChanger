@@ -1,5 +1,7 @@
 package com.dscalzi.skychanger.managers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -81,6 +83,24 @@ public class MessageManager {
 	
 	/* Messages */
 	
+	public void helpMessage(CommandSender sender){
+		final String listPrefix = cMessage + " • ";
+		
+		String header = prefix + cMessage + " Command List - <Required> [Optional]";
+		List<String> cmds = new ArrayList<String>();
+		
+		cmds.add(listPrefix + "/SkyChanger help " + ChatColor.RESET + "- View the command list.");
+		if(sender.hasPermission("skychanger.changesky.self") || sender.hasPermission("skychanger.changesky.others") || sender.hasPermission("skychanger.changesky.all")){
+			cmds.add(listPrefix + this.generateUsage(sender) + ChatColor.RESET + " - Change the sky.");
+		}
+		if(sender.hasPermission("skychanger.reload"))
+			cmds.add(listPrefix + "/SkyChanger reload " + ChatColor.RESET + "- Reload the configuration.");
+		cmds.add(listPrefix + "/SkyChanger version " + ChatColor.RESET + "- View version information.");
+		
+		sender.sendMessage(header);
+		for(String s : cmds) sender.sendMessage(s);
+	}
+	
 	public void noPermission(CommandSender sender){
 		sendError(sender, "You do not have permission to do this.");
 	}
@@ -89,13 +109,14 @@ public class MessageManager {
 		sendError(sender, "Only players may use this command.");
 	}
 	
-	public void usage(CommandSender sender, String label){
-		String u = "Proper usage /" + label + " <#>";
-		boolean o = sender.hasPermission("skychanger.others"), a = sender.hasPermission("skychanger.all");
+	private String generateUsage(CommandSender sender){
+		String u = "/SkyChanger <#>";
+		String b = sender.hasPermission("skychanger.changesky.self") ? "[]" : "<>";
+		boolean o = sender.hasPermission("skychanger.changesky.others"), a = sender.hasPermission("skychanger.changesky.all");
 		
-		String opti = (o|a) ? " [" + (o ? "player" + (a ? " | @a]" : "]") : "@a]"): "";
+		String opti = (o|a) ? " " + b.charAt(0) + (o ? "player" + (a ? " | @a" + b.charAt(1) : b.charAt(1)) : "@a" + b.charAt(1)): "";
 		
-		sendError(sender, u + opti);
+		return u+opti;
 	}
 	
 	public void playerNotFound(CommandSender sender, String name){

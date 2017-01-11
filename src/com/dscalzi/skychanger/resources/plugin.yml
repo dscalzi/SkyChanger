@@ -9,8 +9,10 @@ commands:
 permissions:
   skychanger.*:
     children:
-      skychanger.use: true
-      skychanger.others: true
-      skychanger.all: true
+      skychanger.changesky.*:
+        children:
+          skychanger.changesky.self: true
+          skychanger.changesky.others: true
+          skychanger.changesky.all: true
       skychanger.bypasslimit: true
       skychanger.reload: true
