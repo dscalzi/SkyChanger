@@ -4,17 +4,20 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import com.dscalzi.skychanger.managers.ConfigManager;
 import com.dscalzi.skychanger.managers.MessageManager;
 
-public class MainExecutor implements CommandExecutor{
+public class MainExecutor implements CommandExecutor, TabCompleter{
 
 	private final MessageManager mm;
 	
@@ -144,6 +147,28 @@ public class MainExecutor implements CommandExecutor{
 		} catch (Exception e) {
 			mm.getLogger().severe("Packet could not be sent.");
 		}
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+		
+		List<String> ret = new ArrayList<String>();
+		
+		if(args.length == 1){
+			if("version".startsWith(args[0].toLowerCase()))
+				ret.add("version");
+			if(sender.hasPermission("skychanger.reload") && "reload".startsWith(args[0].toLowerCase()))
+				ret.add("reload");
+		}
+		
+		if(args.length == 2){
+			if(sender.hasPermission("skychanger.others"))
+				plugin.getServer().getOnlinePlayers().forEach(player -> {if(player.getName().toLowerCase().startsWith(args[1].toLowerCase())) ret.add(player.getName());});
+			if(sender.hasPermission("skychanger.all") && "@a".startsWith(args[1].toLowerCase()))
+				ret.add("@a");
+		}
+		
+		return ret.size() > 0 ? ret : null;
 	}
 	
 }

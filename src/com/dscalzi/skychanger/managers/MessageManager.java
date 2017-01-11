@@ -90,7 +90,12 @@ public class MessageManager {
 	}
 	
 	public void usage(CommandSender sender, String label){
-		sendError(sender, "Proper usage /" + label + " <#> [player | @a]");
+		String u = "Proper usage /" + label + " <#>";
+		boolean o = sender.hasPermission("skychanger.others"), a = sender.hasPermission("skychanger.all");
+		
+		String opti = (o|a) ? " [" + (o ? "player" + (a ? " | @a]" : "]") : "@a]"): "";
+		
+		sendError(sender, u + opti);
 	}
 	
 	public void playerNotFound(CommandSender sender, String name){
@@ -114,7 +119,7 @@ public class MessageManager {
 	}
 	
 	public void reloadSuccessful(CommandSender sender){
-		sendSuccess(sender, "Plugin successfully reloaded");
+		sendSuccess(sender, "Plugin successfully reloaded.");
 	}
 	
 	public void reloadFailed(CommandSender sender){
