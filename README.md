@@ -45,7 +45,7 @@ Also, if a player does not have permission for a command altogether they will no
 
 ####**Packet Number Key**
 
-The packet numbers will be bound to the range you specify in the config.yml, however anyone with the permission `skychanger.bypasslimit` will be able to specify any number for the packet. **The internal limit for the magnitude of a packet number is `2147483647` due to the fact that this is the largest number that can be stored in a 32-bit signed integer.**
+The packet numbers will be bound to the range you specify in the config.yml, however anyone with the permission `skychanger.bypasslimit` will be able to specify any number for the packet. **The highest and lowest numbers for a packet are `2147483647` and `-12147483648`, respectively. This is because the packet number is a 32-bit signed integer.**
 
 *Below is a table of useful packet numbers to know*
 
@@ -53,7 +53,7 @@ The packet numbers will be bound to the range you specify in the config.yml, how
 
 Number/Range | Description
 :----------- | :----------
-[`-2147483647`, `-2`] | No observable difference from -1, however there will be more rain and particles.
+[`-2147483648`, `-2`] | No observable difference from -1, however there will be more rain and particles.
 `-1` | Makes the stars brighter at night.
 `0` | Sunny sky.
 `1` | Rain.
