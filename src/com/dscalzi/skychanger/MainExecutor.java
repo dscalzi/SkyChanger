@@ -64,7 +64,13 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			mm.noPermission(sender);
 			return;
 		}
-		int pN = Integer.parseInt(args[0]);
+		int pN;
+		try {
+			pN = Integer.parseInt(args[0]);
+		} catch (NumberFormatException e){
+			mm.integerOverflow(sender, args[0]);
+			return;
+		}
 		if(!sender.hasPermission("skychanger.bypasslimit")){
 			int upper = ConfigManager.getInstance().getUpperLimit();
 			int lower = ConfigManager.getInstance().getLowerLimit();

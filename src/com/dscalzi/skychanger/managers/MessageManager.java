@@ -119,6 +119,13 @@ public class MessageManager {
 		return u+opti;
 	}
 	
+	public void integerOverflow(CommandSender sender, String request){
+		if(request.matches("(-\\d+)"))
+			sendError(sender, "Packet must not be smaller than -2147483648.");
+		else
+			sendError(sender, "Packet must not exceed 2147483647.");
+	}
+	
 	public void playerNotFound(CommandSender sender, String name){
 		sendError(sender, "Could not find player " + name + ". Are they online?");
 	}
@@ -136,7 +143,7 @@ public class MessageManager {
 	}
 	
 	public void outOfBoundsLower(CommandSender sender, int limit){
-		sendError(sender, "The packet number must be larger than " + limit + ".");
+		sendError(sender, "The packet number must not be smaller than " + limit + ".");
 	}
 	
 	public void reloadSuccessful(CommandSender sender){
