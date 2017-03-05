@@ -1,3 +1,8 @@
+/*
+ * SkyChanger
+ * Copyright (C) 2017 Daniel D. Scalzi
+ * See License.txt for license information.
+ */
 package com.dscalzi.skychanger;
 
 import java.lang.reflect.Method;
