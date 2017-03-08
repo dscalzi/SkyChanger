@@ -34,6 +34,38 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.4.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <minimizeJar>true</minimizeJar>
+              <finalName>SkyChanger</finalName>
+              <relocations>
+              	<relocation>
+              		<pattern>org.bstats</pattern>
+              		<shadedPattern>lib.org.bstats</shadedPattern>
+              	</relocation>
+              </relocations>
+              <filters>
+                <filter>
+                  <artifact>org.mcstats.bukkit:metrics</artifact>
+                  <includes>
+                     <include>org.bstats:*</include>
+                  </includes> 
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   
@@ -41,6 +73,10 @@
 	<repository>
 		<id>spigot-repo</id>
 		<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+	</repository>
+	<repository>
+  		<id>bstats-repo</id>
+  		<url>http://repo.bstats.org/content/repositories/releases/</url>
 	</repository>
   </repositories>
   
@@ -51,5 +87,10 @@
         <version>1.11.2-R0.1-SNAPSHOT</version>
         <scope>provided</scope>
      </dependency>
+     <dependency>
+  		<groupId>org.bstats</groupId>
+ 		<artifactId>bstats-bukkit</artifactId>
+  		<version>1.1</version>
+	</dependency>
   </dependencies>
 </project>

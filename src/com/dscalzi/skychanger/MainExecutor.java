@@ -142,12 +142,15 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			mm.noPermission(sender);
 			return;
 		}
-		if(ConfigManager.reload()) mm.reloadSuccessful(sender);
+		if(ConfigManager.reload()){
+			plugin.enableMetrics();
+			mm.reloadSuccessful(sender);
+		}
 		else mm.reloadFailed(sender);
 	}
 	
 	private void cmdVersion(CommandSender sender){
-		mm.sendMessage(sender, "SkyChanger Version " + plugin.getDescription().getVersion());
+		mm.versionMessage(sender);
 	}
 	
 	private Object getConnection(Player player) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {

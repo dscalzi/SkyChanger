@@ -64,15 +64,23 @@ public class ConfigManager {
 	/* Configuration Accessors */
 	
 	public int getUpperLimit(){
-		return config.getInt("general_settings.upper_limit");
+		return config.getInt("general_settings.upper_limit", 50);
 	}
 	
 	public int getLowerLimit(){
-		return config.getInt("general_settings.lower_limit");
+		return config.getInt("general_settings.lower_limit", 50);
+	}
+	
+	public boolean metricsOptOut(){
+		return config.getBoolean("general_settings.metrics_opt_out", false);
 	}
 	
 	public double getSystemConfigVersion(){
 		return this.configVersion;
+	}
+	
+	public double getConfigVersion(){
+		return config.getDouble("ConfigVersion", getSystemConfigVersion());
 	}
 	
 }
