@@ -286,19 +286,25 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 		
 		List<String> ret = new ArrayList<String>();
 		
+		boolean b = sender.hasPermission("skychanger.freeze.self") || sender.hasPermission("skychanger.freeze.others") || sender.hasPermission("skychanger.freeze.all");
+		
 		if(args.length == 1){
 			if("help".startsWith(args[0].toLowerCase()))
 				ret.add("help");
+			if(b && "freeze".startsWith(args[0].toLowerCase()))
+				ret.add("freeze");
+			if(b && "unfreeze".startsWith(args[0].toLowerCase()))
+				ret.add("unfreeze");
 			if("version".startsWith(args[0].toLowerCase()))
 				ret.add("version");
 			if(sender.hasPermission("skychanger.reload") && "reload".startsWith(args[0].toLowerCase()))
 				ret.add("reload");
 		}
 		
-		if(args.length == 2){
-			if(sender.hasPermission("skychanger.others"))
+		if(args.length == 2 && (packetNum.matcher(args[0]).matches() || args[0].equalsIgnoreCase("freeze") || args[0].equalsIgnoreCase("unfreeze"))){
+			if(sender.hasPermission("skychanger.changesky.others") || sender.hasPermission("skychanger.freeze.others"))
 				plugin.getServer().getOnlinePlayers().forEach(player -> {if(player.getName().toLowerCase().startsWith(args[1].toLowerCase())) ret.add(player.getName());});
-			if(sender.hasPermission("skychanger.all") && "@a".startsWith(args[1].toLowerCase()))
+			if((sender.hasPermission("skychanger.changesky.all") || sender.hasPermission("skychanger.freeze.all")) && "@a".startsWith(args[1].toLowerCase()))
 				ret.add("@a");
 		}
 		
