@@ -257,7 +257,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 		}
 		return true;
 	}
-
+	
 	@SuppressWarnings("deprecation")
 	private boolean sendFreezePacket(Player player){
 		try {
@@ -272,6 +272,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			Object packet = packetConstructor.newInstance(w.getEnvironment().getId(), diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null), gmGetById.invoke(null, player.getGameMode().getValue()));
 			Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket", ReflectionUtil.getNMSClass("Packet"));
 			sendPacket.invoke(this.getConnection(player), packet);
+			player.updateInventory();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchFieldException | SecurityException | NoSuchMethodException e) {
 			mm.getLogger().severe("Packet could not be sent.");
