@@ -11,8 +11,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -24,6 +26,7 @@ import com.dscalzi.skychanger.managers.MessageManager;
 
 public class MainExecutor implements CommandExecutor, TabCompleter{
 
+	private static final Pattern packetNum = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
 	private final MessageManager mm;
 	
 	private SkyChanger plugin;
@@ -37,13 +40,23 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
 		
 		if(args.length > 0){
-			if(args[0].matches("(\\d+|-\\d+)")){
+			if(packetNum.matcher(args[0]).matches()){
 				this.cmdChangeSky(sender, args);
 				return true;
 			}
 			
 			if(args[0].equalsIgnoreCase("help")){
 				mm.helpMessage(sender);
+				return true;
+			}
+			
+			if(args[0].equalsIgnoreCase("freeze")){
+				this.cmdFreeze((Player)sender, false, args);
+				return true;
+			}
+			
+			if(args[0].equalsIgnoreCase("unfreeze")){
+				this.cmdFreeze((Player)sender, true, args);
 				return true;
 			}
 			
@@ -69,11 +82,11 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			mm.noPermission(sender);
 			return;
 		}
-		int pN;
+		float pN;
 		try {
-			pN = Integer.parseInt(args[0]);
+			pN = Float.parseFloat(args[0]);
 		} catch (NumberFormatException e){
-			mm.integerOverflow(sender, args[0]);
+			mm.floatingPointOverflow(sender, args[0]);
 			return;
 		}
 		if(!sender.hasPermission("skychanger.bypasslimit")){
@@ -117,8 +130,10 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				return;
 			}
 			if(!(sender instanceof Player) || !target.getUniqueId().equals(((Player)sender).getUniqueId())){
-				sendPacket(target.getPlayer(), pN);
-				mm.packetSent(sender, target.getName());
+				if(sendPacket(target.getPlayer(), pN))
+					mm.packetSent(sender, target.getName());
+				else
+					mm.packetError(sender, target.getName());
 				return;
 			}
 		}
@@ -133,8 +148,74 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			return;
 		}
 		
-		sendPacket((Player)sender, pN);
-		mm.packetSent(sender);
+		if(sendPacket((Player)sender, pN))
+			mm.packetSent(sender);
+		else
+			mm.packetError(sender);
+	}
+	
+	@SuppressWarnings("deprecation")
+	private void cmdFreeze(CommandSender sender, boolean unfreeze, String[] args){
+		final String basePerm = "skychanger.freeze";
+		if(!sender.hasPermission(basePerm + ".self") && !sender.hasPermission(basePerm + ".others") && !sender.hasPermission(basePerm + ".all")){
+			mm.noPermission(sender);
+			return;
+		}
+		if(args.length > 1){
+			//Check if requested for all
+			if(args[1].equalsIgnoreCase("@a")){
+				if(!sender.hasPermission("skychanger.freeze.all")){
+					mm.noPermission(sender);
+					return;
+				}
+				for(Player p : plugin.getServer().getOnlinePlayers()){
+					if(unfreeze) p.teleport(p.getLocation());
+					else sendFreezePacket(p);
+				}
+				if(unfreeze) mm.packetUnfreeze(sender, "@a (everyone)");
+				else mm.packetSent(sender, "@a (everyone)");
+				return;
+			}
+			//Check if param is a player
+			if(!sender.hasPermission("skychanger.freeze.others")){
+				mm.noPermission(sender);
+				return;
+			}
+			OfflinePlayer target;
+			try {
+        		target = plugin.getServer().getOfflinePlayer(MessageManager.formatFromInput(args[1]));
+        	} catch(IllegalArgumentException e){
+        		target = plugin.getServer().getOfflinePlayer(args[1]);
+        	}
+			if(target == null || !target.isOnline()) {
+				mm.playerNotFound(sender, target == null || target.getName() == null ? args[1] : target.getName());
+				return;
+			}
+			if(!(sender instanceof Player) || !target.getUniqueId().equals(((Player)sender).getUniqueId())){
+				if((!unfreeze && sendFreezePacket(target.getPlayer())) || (unfreeze && target.getPlayer().teleport(target.getPlayer().getLocation())))
+					if(unfreeze) mm.packetUnfreeze(sender, target.getName());
+					else mm.packetSent(sender, target.getName());
+				else
+					mm.packetError(sender, target.getName());
+				return;
+			}
+		}
+		
+		if(!(sender instanceof Player)){
+			MessageManager.getInstance().denyNonPlayer(sender);
+			return;
+		}
+		
+		if(!sender.hasPermission("skychanger.freeze.self")){
+			mm.noPermission(sender);
+			return;
+		}
+		Player p = (Player)sender;
+		if((!unfreeze && sendFreezePacket(p.getPlayer())) || (unfreeze && p.teleport(p.getLocation())))
+			if(unfreeze) mm.packetUnfreeze(sender);
+			else mm.packetSent(sender);
+		else
+			mm.packetError(sender);
 	}
 	
 	private void cmdReload(CommandSender sender){
@@ -162,7 +243,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 		return con;
 	}
 	
-	private void sendPacket(Player player, int number){
+	private boolean sendPacket(Player player, float number){
 		try	{
 			Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutGameStateChange");
 			Constructor<?> packetConstructor = packetClass.getConstructor(int.class, float.class);
@@ -171,9 +252,35 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			sendPacket.invoke(this.getConnection(player), packet);
 		} catch (Exception e) {
 			mm.getLogger().severe("Packet could not be sent.");
+			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
+	@SuppressWarnings("deprecation")
+	private boolean sendFreezePacket(Player player){
+		try {
+			World w = player.getWorld();
+			Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
+			Class<?> diffClass = ReflectionUtil.getNMSClass("EnumDifficulty");
+			Class<?> wtClass = ReflectionUtil.getNMSClass("WorldType");
+			Class<?> gameModeClass = ReflectionUtil.getNMSClass("EnumGamemode");
+			Method diffGetById = ReflectionUtil.getMethod(diffClass, "getById", int.class);
+			Method gmGetById = ReflectionUtil.getMethod(gameModeClass, "getById", int.class);
+			Constructor<?> packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, gameModeClass);
+			Object packet = packetConstructor.newInstance(w.getEnvironment().getId(), diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null), gmGetById.invoke(null, player.getGameMode().getValue()));
+			Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket", ReflectionUtil.getNMSClass("Packet"));
+			sendPacket.invoke(this.getConnection(player), packet);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchFieldException | SecurityException | NoSuchMethodException e) {
+			mm.getLogger().severe("Packet could not be sent.");
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
 		

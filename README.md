@@ -24,6 +24,7 @@ SkyChanger is a light-weight plugin built using the Spigot API. The main functio
 * Change the sky color for everyone online.
 * Configurable limits to the range of packets that can be sent.
 * Usage messages tailored to specific users based on permission level.
+* Metrics tracking by [bStats](https://bstats.org/plugin/bukkit/SkyChanger).
 
 ***
 
@@ -109,18 +110,26 @@ skychanger.*
 #               Sky Changer Config
 #-----------------------------------------------
 
-#DO NOT CHANGE THIS VALUE.
-#CHANGING IT COULD RESULT IN DATA LOSS.
+# DO NOT CHANGE THIS VALUE.
+# CHANGING IT COULD RESULT IN DATA LOSS.
 ConfigVersion: 1.0
 
 #--------------[General Settings]---------------
 general_settings:
 
-  #Upper packet limit.
+  # Upper packet limit.
   upper_limit: 50
   
-  #Lower packet limit.
+  # Lower packet limit.
   lower_limit: -50
+
+  # Opt out of metrics collection by https://bstats.org/
+  # Note that if opting out you must fully restart
+  # your server for the changes to take effect. If opting
+  # back in you may simply run /SkyChanger reload.
+  #
+  # Please consider keeping this value false :)
+  metrics_opt_out: false
 
 ```
 

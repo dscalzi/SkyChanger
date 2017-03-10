@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.dscalzi</groupId>
   <artifactId>SkyChanger</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
   <name>SkyChanger</name>
   <description>Spigot plugin to change the color of the sky in your Minecraft world.</description>
   

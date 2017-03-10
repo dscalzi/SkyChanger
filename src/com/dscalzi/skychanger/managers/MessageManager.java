@@ -20,6 +20,7 @@ public class MessageManager {
 
 	private static boolean initialized;
 	private static MessageManager instance;
+	private static final char b = (char)8226;
 	
 	private SkyChanger plugin;
 	private final Logger logger;
@@ -89,7 +90,7 @@ public class MessageManager {
 	/* Messages */
 	
 	public void helpMessage(CommandSender sender){
-		final String listPrefix = cMessage + " • ";
+		final String listPrefix = cMessage + " "+b+" ";
 		
 		String header = prefix + cMessage + " Command List - <Required> [Optional]";
 		List<String> cmds = new ArrayList<String>();
@@ -97,6 +98,10 @@ public class MessageManager {
 		cmds.add(listPrefix + "/SkyChanger help " + ChatColor.RESET + "- View the command list.");
 		if(sender.hasPermission("skychanger.changesky.self") || sender.hasPermission("skychanger.changesky.others") || sender.hasPermission("skychanger.changesky.all")){
 			cmds.add(listPrefix + this.generateUsage(sender) + ChatColor.RESET + " - Change the sky.");
+		}
+		if(sender.hasPermission("skychanger.freeze.self") || sender.hasPermission("skychanger.freeze.others") || sender.hasPermission("skychanger.freeze.all")){
+			cmds.add(listPrefix + this.generateFreezeUsage(sender, false) + ChatColor.RESET + " - Freeze the world.");
+			cmds.add(listPrefix + this.generateFreezeUsage(sender, true) + ChatColor.RESET + " - Unfreeze the world.");
 		}
 		if(sender.hasPermission("skychanger.reload"))
 			cmds.add(listPrefix + "/SkyChanger reload " + ChatColor.RESET + "- Reload the configuration.");
@@ -124,11 +129,18 @@ public class MessageManager {
 		return u+opti;
 	}
 	
-	public void integerOverflow(CommandSender sender, String request){
-		if(request.matches("(-\\d+)"))
-			sendError(sender, "Packet must not be smaller than -2147483648.");
-		else
-			sendError(sender, "Packet must not exceed 2147483647.");
+	private String generateFreezeUsage(CommandSender sender, boolean unfreeze){
+		String u = "/SkyChanger " + (unfreeze ? "unfreeze" : "freeze");
+		String b = sender.hasPermission("skychanger.freeze.self") ? "[]" : "<>";
+		boolean o = sender.hasPermission("skychanger.freeze.others"), a = sender.hasPermission("skychanger.freeze.all");
+		
+		String opti = (o|a) ? " " + b.charAt(0) + (o ? "player" + (a ? " | @a" + b.charAt(1) : b.charAt(1)) : "@a" + b.charAt(1)): "";
+		
+		return u+opti;
+	}
+	
+	public void floatingPointOverflow(CommandSender sender, String request){
+		sendError(sender, "Packet could not be sent, number is out of range.");
 	}
 	
 	public void playerNotFound(CommandSender sender, String name){
@@ -141,6 +153,22 @@ public class MessageManager {
 	
 	public void packetSent(CommandSender sender, String name){
 		sendSuccess(sender, "Sent packet to " + name + ".");
+	}
+	
+	public void packetUnfreeze(CommandSender sender){
+		sendSuccess(sender, "Packet sent (F3+A to reload chunks).");
+	}
+	
+	public void packetUnfreeze(CommandSender sender, String name){
+		sendSuccess(sender, "Sent packet to " + name + " (F3+A to reload chunks).");
+	}
+	
+	public void packetError(CommandSender sender){
+		sendError(sender, "Failed to send packet.");
+	}
+	
+	public void packetError(CommandSender sender, String name){
+		sendError(sender, "Failed to send packet to " + name + ".");
 	}
 	
 	public void outOfBoundsUpper(CommandSender sender, int limit){
