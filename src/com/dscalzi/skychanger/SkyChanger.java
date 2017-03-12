@@ -7,7 +7,6 @@ package com.dscalzi.skychanger;
 
 import org.bstats.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
-
 import com.dscalzi.skychanger.managers.ConfigManager;
 import com.dscalzi.skychanger.managers.MessageManager;
 

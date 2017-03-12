@@ -268,8 +268,23 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			Class<?> gameModeClass = ReflectionUtil.getNMSClass("EnumGamemode");
 			Method diffGetById = ReflectionUtil.getMethod(diffClass, "getById", int.class);
 			Method gmGetById = ReflectionUtil.getMethod(gameModeClass, "getById", int.class);
-			Constructor<?> packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, gameModeClass);
-			Object packet = packetConstructor.newInstance(w.getEnvironment().getId(), diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null), gmGetById.invoke(null, player.getGameMode().getValue()));
+			Constructor<?> packetConstructor = null;
+			Object packet = null;
+			try{
+				packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, gameModeClass);
+				packet = packetConstructor.newInstance(w.getEnvironment().getId(), diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null), gmGetById.invoke(null, player.getGameMode().getValue()));
+			} catch (NoSuchMethodException e){
+				//Try 1.9 method.
+				Class<?> worldSettings = ReflectionUtil.getNMSClass("WorldSettings");
+				Class<?>[] innerClasses = worldSettings.getDeclaredClasses();
+				Class<?> wsGameMode = null;
+				for(Class<?> cl : innerClasses)
+					if(cl.getSimpleName().equals("EnumGamemode"))
+						wsGameMode = cl;
+				Method a = ReflectionUtil.getMethod(worldSettings, "a", int.class);
+				packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, wsGameMode);
+				packet =  packetConstructor.newInstance(w.getEnvironment().getId(), diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null), a.invoke(null, player.getGameMode().getValue()));
+			}
 			Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket", ReflectionUtil.getNMSClass("Packet"));
 			sendPacket.invoke(this.getConnection(player), packet);
 			player.updateInventory();
