@@ -9,11 +9,13 @@ ConfigVersion: 1.0
 #--------------[General Settings]---------------
 general_settings:
 
-  # Upper packet limit.
-  upper_limit: 50
+  # Upper packet limit. Scientific notation is accepted.
+  # Must be less than 3.4028236E38 or there will be no limit.
+  upper_limit: 50.0
   
-  # Lower packet limit.
-  lower_limit: -50
+  # Lower packet limit. Scientific notation is accepted.
+  # Must be greater than -3.4028236E38 or there will be no limit.
+  lower_limit: -50.0
 
   # Opt out of metrics collection by https://bstats.org/
   # Note that if opting out you must fully restart

@@ -171,11 +171,11 @@ public class MessageManager {
 		sendError(sender, "Failed to send packet to " + name + ".");
 	}
 	
-	public void outOfBoundsUpper(CommandSender sender, int limit){
-		sendError(sender, "The packet number must not exceed " + limit + ".");
+	public void outOfBoundsUpper(CommandSender sender, float upper){
+		sendError(sender, "The packet number must not exceed " + upper + ".");
 	}
 	
-	public void outOfBoundsLower(CommandSender sender, int limit){
+	public void outOfBoundsLower(CommandSender sender, float limit){
 		sendError(sender, "The packet number must not be smaller than " + limit + ".");
 	}
 	

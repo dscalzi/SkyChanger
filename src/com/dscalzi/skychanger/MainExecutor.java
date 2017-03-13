@@ -90,8 +90,8 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			return;
 		}
 		if(!sender.hasPermission("skychanger.bypasslimit")){
-			int upper = ConfigManager.getInstance().getUpperLimit();
-			int lower = ConfigManager.getInstance().getLowerLimit();
+			float upper = ConfigManager.getInstance().getUpperLimit();
+			float lower = ConfigManager.getInstance().getLowerLimit();
 			if(pN > upper){
 				mm.outOfBoundsUpper(sender, upper);
 				return;

@@ -63,12 +63,12 @@ public class ConfigManager {
 	
 	/* Configuration Accessors */
 	
-	public int getUpperLimit(){
-		return config.getInt("general_settings.upper_limit", 50);
+	public float getUpperLimit(){
+		return Float.parseFloat(config.getString("general_settings.upper_limit", "50.0"));
 	}
 	
-	public int getLowerLimit(){
-		return config.getInt("general_settings.lower_limit", 50);
+	public float getLowerLimit(){
+		return Float.parseFloat(config.getString("general_settings.lower_limit", "50.0"));
 	}
 	
 	public boolean metricsOptOut(){
