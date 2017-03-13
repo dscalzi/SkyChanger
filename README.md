@@ -23,4 +23,5 @@ You can find more extensive details on the [wiki](https://bitbucket.org/Aventium
 #Links
 
 * [Spigot Resource Page](https://www.spigotmc.org/resources/skychanger.37524/)
+* [Dev Bukkit Page](https://dev.bukkit.org/projects/skychanger)
 * [Suggest Features or Report Bugs](https://bitbucket.org/AventiumSoftworks/skychanger/issues)
