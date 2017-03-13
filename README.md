@@ -1,23 +1,12 @@
 ![# Header](http://i.imgur.com/6TxDQ3W.png?1)
 
-##Contents##
-* [Feature List](#markdown-header-feature-list)
-* [Commands](#markdown-header-commands)
-    * [Packet Number Key](#markdown-header-packet-number-key)
-* [Permissions](#markdown-header-permissions)
-    * [Permission Tree](#markdown-header-permission-tree)
-* [Configuration File](#markdown-header-configuration-file)
-* [Screenshots](#markdown-header-screenshots)
+[![](http://ci.aventiumsoftworks.com/jenkins/job/SkyChanger/badge/icon)](http://ci.aventiumsoftworks.com/jenkins/job/SkyChanger/) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://bitbucket.org/AventiumSoftworks/skychanger/src/025b9ba3b4495921193754e839c75cc78dfb8a93/src/com/dscalzi/skychanger/resources/License.txt) ![](https://img.shields.io/badge/Spigot-1.8--1.11.2-orange.svg) ![](https://img.shields.io/badge/Java-8+-ec2025.svg)
 
-***
-
-SkyChanger is a light-weight plugin built using the Spigot API. The main function of this plugin is to change the color of the sky for yourself, a specific player, or everyone. This plugin functions by sending a packet with a specified ID to the target player(s). **Every packet number that is not 0 will cause rain to appear, and higher magnitude packer numbers increase the intensity of the rain. For an optimal experience it is recommended to use this plugin with [Optifine][optifinelink] and to turn rain and rain particles off. If this is not possible or inconvenient, rain is automatically turned off in `Desert` and `Mesa` biomes. You may want to use this plugin exclusively there.** 
+SkyChanger is a light-weight plugin built using the Spigot API. The main function of this plugin is to change the color of the sky for yourself, a specific player, or everyone. This plugin functions by sending packets with a specified value to the target player(s).
 
 ***
 
 #Feature List
-
-
 
 * Allow players to change the color of their personal sky.
 * Change the sky color for specific players.
@@ -27,175 +16,11 @@ SkyChanger is a light-weight plugin built using the Spigot API. The main functio
 * Usage messages tailored to specific users based on permission level.
 * Metrics tracking by [bStats](https://bstats.org/plugin/bukkit/SkyChanger).
 
-***
-
-#Commands
-
-
-
-Command | Description | Required Permission
-:------ | :---- | :-----------
-**/SkyChanger <#>** | Change the color of your personal sky using a packet number. | `skychanger.changesky.self`
-**/SkyChanger <#> [player]** | Change the sky color for a specific player. The player argument may either be a name or UUID. | `skychanger.changesky.others`
-**/SkyChanger <#> [@​a]** | Change the sky color for everyone online. | `skychanger.changesky.all`
-**/SkyChanger freeze/unfreeze** | Freeze/unfreeze yourself. | `skychanger.freeze.self`
-**/SkyChanger freeze/unfreeze [player]** | Freeze/unfreeze a specific player. | `skychanger.freeze.others`
-**/SkyChanger freeze/unfreeze [@​a]** | Freeze/unfreeze everyone online. | `skychanger.freeze.all`
-**/SkyChanger reload** | Reload the configuration file. | `skychanger.reload`
-**/SkyChanger version** | Display plugin version information. | -
-
-The freeze command only freezes the player's client and it stays frozen until there is a packet update that will effectively unfreeze them. This means that they will not be protected or immune on the server and will still be subject to damage. A freeze is not harmful, as the only observable affect is unloading chunks on a client and rendering them unable to move. The unfreeze command will unfreeze the player, however sometimes the chunks may not reload. In order to force reload them you may use the keybind `F3 + A`. A player will also be automatically unfrozen if they teleport somewhere (for example to spawn or their home). As always the best way for a player to be fully unfrozen is to relog. Freezing only appears to work in the Overworld.
-
-Command usage messages are tailored to the permission level of each user. For example, if a user only had the permission `skychanger.changesky.self`, the usage message they would see is `/SkyChanger <#>`. If a user had the permission `skychanger.changesky.*`, the usage message would be `/SkyChanger <#> [player | @​a]`. Further, if a user only had the permission `skychanger.changesky.others`, the usage message would be displayed as `/SkyChanger <#> <player>`
-
-Also, if a player does not have permission for a command altogether they will not see it on the help page brought up by typing either `/SkyChanger` or `/SkyChanger help`.
-
-####**Packet Number Key**
-
-The packet numbers will be bound to the range you specify in the config.yml, however anyone with the permission `skychanger.bypasslimit` will be able to specify any number for the packet. The packet numbers are floating points (decimals, ex 1.2) and are subject to the maximum and minimum values of floating point numbers. For some reason these numbers seem to have no limit when using in the command, however the traditional max and min values are `3.4028235E38` and `1.4E-45`, respectively.
-
-Packet numbers are accepted in scientific notation as well as standard notation, that is [number]E[power].
-
-*Below is a table of useful packet numbers to know*
-
-**NUMBERS OF HIGH MAGNITUDE WILL INCREASE RAIN AND RAIN PARTICLES, THIS CAN CAUSE YOU TO LAG OUT AT A CERTAIN POINT. TAKE CAUTION WHEN PICKING A PACKET NUMBER!**
-
-Number/Range | Description
-:----------- | :----------
-[`infinity`, `-2`] | No observable difference from -1, however there will be more rain and particles.
-`-1` | Makes the stars brighter at night.
-`0` | Sunny sky.
-`1` | Rain.
-`2` | Brown colored sky.
-[`3`, `6`] | Nether sky, larger numbers cause more darkness.
-[`7`, `~15`] | Black sky with yellow tinted light. Reduced shadows with higher numbers.
-[`~15`, `-infinity`] | No observable change, however there will be more rain and particles.
-
-These numbers are just the standard effects. The effects will change if you have night vision on, for example. The effects work best in the Overworld and may not produce any changes in the Nether or End.
-
-**If you want to reset your sky, your best option is to use a packer number of `0` or reconnect to the server you're on.**
+You can find more extensive details on the [wiki](https://bitbucket.org/AventiumSoftworks/skychanger/wiki/).
 
 ***
 
-#Permissions
+#Links
 
-Permission | Descrption | Default
-:--------- | :--------- | :-----
-`skychanger.*` | Access to all SkyChanger commands. | OP
-`skychanger.changesky.*` | Access to every part of the main SkyChanger command. | OP
-`skychanger.changesky.self` | Access to change your personal sky color. | OP
-`skychanger.changesky.others` | Access to changing a specific person's sky color. | OP
-`skychanger.changesky.all` | Access to changing the sky color of all online players. | OP
-`skychanger.freeze.*` | Access to every part of the SkyChanger freeze and unfreeze commands. | OP
-`skychanger.freeze.self` | Access to freeze/unfreeze yourself. | OP
-`skychanger.freeze.others` | Access to freeze/unfreeze a specific person. | OP
-`skychanger.freeze.all` | Access to freeze/unfreeze all online players. | OP
-`skychanger.bypasslimit` | Bypass the packet range limits set in the config.yml. | OP
-`skychanger.reload` | Access to reload the configuration. | OP
-
-####**Permission Tree**
-
-skychanger.*
->
-> skychanger.changesky.*
->
->> skychanger.changesky.self
->>
->> skychanger.changesky.others
->>
->> skychanger.changesky.all
->
-> skychanger.freeze.*
->
->> skychanger.freeze.self
->>
->> skychanger.freeze.others
->>
->> skychanger.freeze.all
->
-> skychanger.bypasslimit
->
-> skychanger.reload
-
-***
-
-#Configuration File
-
-
-
-```
-#!YAML
-
-#-----------------------------------------------
-#               Sky Changer Config
-#-----------------------------------------------
-
-# DO NOT CHANGE THIS VALUE.
-# CHANGING IT COULD RESULT IN DATA LOSS.
-ConfigVersion: 1.0
-
-#--------------[General Settings]---------------
-general_settings:
-
-  # Upper packet limit.
-  upper_limit: 50
-  
-  # Lower packet limit.
-  lower_limit: -50
-
-  # Opt out of metrics collection by https://bstats.org/
-  # Note that if opting out you must fully restart
-  # your server for the changes to take effect. If opting
-  # back in you may simply run /SkyChanger reload.
-  #
-  # Please consider keeping this value false :)
-  metrics_opt_out: false
-
-```
-
-***
-
-#Screenshots
-
-*All screenshots taken with [Optifine][optifinelink] and with both rain and rain particles off.*
-
-![Packet 0 at Night](http://i.imgur.com/SysNS9s.png "Packet 0 at Night")
-*Packet 0 at Night*
-
-![Packet -1 at Night](http://i.imgur.com/CAwAPre.png "Packet -1 at Night")
-*Packet -1 at Night*
-
-![Packet 0 at Day](http://i.imgur.com/CJR9Rkt.png "Packet 0 at Day")
-*Packet 0 at Day*
-
-![Packet 2 at Day](http://i.imgur.com/352OY2Y.png "Packet 2 at Day")
-*Packet 2 at Day*
-
-![Packet 3 at Day](http://i.imgur.com/c57mFUf.png "Packet 3 at Day")
-*Packet 3 at Day*
-
-![Packet 4 at Day](http://i.imgur.com/idaYiJs.png "Packet 4 at Day")
-*Packet 4 at Day*
-
-![Packet 5 at Day](http://i.imgur.com/w3ikbvn.png "Packet 5 at Day")
-*Packet 5 at Day*
-
-![Packet 6 at Day](http://i.imgur.com/FG7ywbz.png "Packet 6 at Day")
-*Packet 6 at Day*
-
-![Packet 7 at Day](http://i.imgur.com/razF75g.png "Packet 7 at Day")
-*Packet 7 at Day*
-
-![Packet 8 at Day](http://i.imgur.com/c7TPui3.png "Packet 8 at Day")
-*Packet 8 at Day*
-
-![Packet 15 at Day](http://i.imgur.com/ISq65Rl.png "Packet 15 at Day")
-*Packet 15 at Day*
-
-![Packet 7 with NightVision at Day](http://i.imgur.com/VqRHsl2.png "Packet 7 with NightVision at Day")
-*Packet 7 with NightVision at Day*
-
-![Packet -1 at Night while Frozen](http://i.imgur.com/lfs10p6.png "Packet -1 at Night while Frozen")
-*Packet -1 at Night while Frozen*
-
-[optifinelink]: http://optifine.net/ "Optifine Website"
+* [Spigot Resource Page](https://www.spigotmc.org/resources/skychanger.37524/)
+* [Suggest Features or Report Bugs](https://bitbucket.org/AventiumSoftworks/skychanger/issues)
