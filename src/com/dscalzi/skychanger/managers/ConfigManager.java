@@ -71,10 +71,6 @@ public class ConfigManager {
 		return Float.parseFloat(config.getString("general_settings.lower_limit", "50.0"));
 	}
 	
-	public boolean metricsOptOut(){
-		return config.getBoolean("general_settings.metrics_opt_out", false);
-	}
-	
 	public double getSystemConfigVersion(){
 		return this.configVersion;
 	}

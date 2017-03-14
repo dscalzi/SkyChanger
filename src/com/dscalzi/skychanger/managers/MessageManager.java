@@ -187,11 +187,6 @@ public class MessageManager {
 		sendError(sender, "Plugin failed to reload, see console for details..");
 	}
 	
-	public void logMetricsOptOut(){
-			getLogger().info("Opted out of metrics collection by bStats, please consider"
-					+ " opting back in by updating the config.yml.");
-	}
-	
 	public void versionMessage(CommandSender sender){
 		sendMessage(sender, "SkyChanger Version " + plugin.getDescription().getVersion() + 
 				"\n" + cPrimary + "| " + cSuccess + "Metrics" + cPrimary + " | " + cMessage + "https://bstats.org/plugin/bukkit/SkyChanger" + 

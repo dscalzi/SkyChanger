@@ -16,11 +16,3 @@ general_settings:
   # Lower packet limit. Scientific notation is accepted.
   # Must be greater than -3.4028236E38 or there will be no limit.
   lower_limit: -50.0
-
-  # Opt out of metrics collection by https://bstats.org/
-  # Note that if opting out you must fully restart
-  # your server for the changes to take effect. If opting
-  # back in you may simply run /SkyChanger reload.
-  #
-  # Please consider keeping this value false :)
-  metrics_opt_out: false

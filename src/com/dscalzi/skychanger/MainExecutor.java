@@ -223,10 +223,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			mm.noPermission(sender);
 			return;
 		}
-		if(ConfigManager.reload()){
-			plugin.enableMetrics();
-			mm.reloadSuccessful(sender);
-		}
+		if(ConfigManager.reload()) mm.reloadSuccessful(sender);
 		else mm.reloadFailed(sender);
 	}
 	
