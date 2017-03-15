@@ -12,7 +12,6 @@ import java.io.Reader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -58,7 +57,7 @@ public class MessageManager {
 	
 	private void loadLanguage(){
 		String l = ConfigManager.getInstance().getLanguage();
-		try(InputStream utf8in = plugin.getClass().getResourceAsStream("lang/Messages_"+l+".properties");
+		try(InputStream utf8in = plugin.getClass().getResourceAsStream("/lang/Messages_"+l+".properties");
 			Reader reader = new InputStreamReader(utf8in, "UTF-8");){
 			props = new Properties();
 			props.load(reader);
@@ -130,17 +129,16 @@ public class MessageManager {
 	}
 	
 	public String getString(String key, Object... args){
-		try {
-			String s = props.getProperty(key);
-			if(args.length > 0){
-				MessageFormat m = new MessageFormat(s);
-				s = m.format(args);
-			}
-			return s;
-		} catch (MissingResourceException e){
-			getLogger().severe("Missing resource " + key + " for " + lang);
-			return "{" + key + "}";
+		String s = props.getProperty(key);
+		if(args.length > 0){
+			MessageFormat m = new MessageFormat(s);
+			s = m.format(args);
 		}
+		if(s == null) {
+			getLogger().severe("Missing resource " + key + " for " + lang);
+			s = "{" + key + "}";
+		}
+		return s;
 	}
 	
 	/* Messages */
