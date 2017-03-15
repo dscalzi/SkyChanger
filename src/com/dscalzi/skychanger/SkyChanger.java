@@ -12,7 +12,6 @@ import com.dscalzi.skychanger.managers.MessageManager;
 
 public class SkyChanger extends JavaPlugin{
 	
-	@SuppressWarnings("unused")
 	private Metrics metrics;
 	
 	@Override
@@ -21,6 +20,12 @@ public class SkyChanger extends JavaPlugin{
 		MessageManager.initialize(this);
 		this.getCommand("skychanger").setExecutor(new MainExecutor(this));
 		metrics = new Metrics(this);
+		metrics.addCustomChart(new Metrics.SimplePie("used_language") {
+	        @Override
+	        public String getValue() {
+	            return MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable();
+	        }
+	    });
 	}
 	
 	@Override

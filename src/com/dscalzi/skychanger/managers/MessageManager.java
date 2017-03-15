@@ -275,4 +275,40 @@ public class MessageManager {
 		return UUID.fromString(builder.toString());
 	}
 	
+	public enum Languages{
+		
+		en_US("English", "United States"),
+		it_IT("Italiano", "Italia"),
+		de_DE("Deutsche", "Deutschland"),
+		nl_NL("Nederlands", "Nederland");
+		
+		private String lang;
+		private String country;
+		
+		private Languages(String lang, String country){
+			this.lang = lang;
+			this.country = country;
+		}
+		
+		public static Languages getByID(String id){
+			for(Languages l : values())
+				if(l.name().equals(id))
+					return l;
+			//default to English
+			return en_US;
+		}
+		
+		public String getLanguage(){
+			return this.lang;
+		}
+		
+		public String getCountry(){
+			return this.country;
+		}
+		
+		public String getReadable(){
+			return lang + " (" + country + ")";
+		}
+	}
+	
 }

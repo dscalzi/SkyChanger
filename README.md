@@ -14,7 +14,10 @@ SkyChanger is a light-weight plugin built using the Spigot API. The main functio
 * Freeze/Unfreeze yourself, others, or everyone online.
 * Configurable limits to the range of packets that can be sent.
 * Usage messages tailored to specific users based on permission level.
+* Multilanguage support.
 * Metrics tracking by [bStats](https://bstats.org/plugin/bukkit/SkyChanger).
+
+**Submit translations on our [issue tracker](https://bitbucket.org/AventiumSoftworks/skychanger/issues).**
 
 You can find more extensive details on the [wiki](https://bitbucket.org/AventiumSoftworks/skychanger/wiki/).
 
