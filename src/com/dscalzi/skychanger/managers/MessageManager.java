@@ -280,7 +280,8 @@ public class MessageManager {
 		en_US("English", "United States"),
 		it_IT("Italiano", "Italia"),
 		de_DE("Deutsche", "Deutschland"),
-		nl_NL("Nederlands", "Nederland");
+		nl_NL("Nederlands", "Nederland"),
+		es_EC("Español", "Ecuador");
 		
 		private String lang;
 		private String country;
