@@ -71,6 +71,10 @@ public class ConfigManager {
 		return Float.parseFloat(config.getString("general_settings.lower_limit", "50.0"));
 	}
 	
+	public String getLanguage(){
+		return config.getString("general_settings.language", "en_US");
+	}
+	
 	public double getSystemConfigVersion(){
 		return this.configVersion;
 	}

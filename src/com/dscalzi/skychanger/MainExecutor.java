@@ -111,7 +111,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				for(Player p : plugin.getServer().getOnlinePlayers()){
 					sendPacket(p, pN);
 				}
-				mm.packetSent(sender, "@a (everyone)");
+				mm.packetSent(sender, "@a (" + mm.getString("message.everyone") + ")");
 				return;
 			}
 			//Check if param is a player
@@ -172,8 +172,8 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 					if(unfreeze) p.teleport(p.getLocation());
 					else sendFreezePacket(p);
 				}
-				if(unfreeze) mm.packetUnfreeze(sender, "@a (everyone)");
-				else mm.packetSent(sender, "@a (everyone)");
+				if(unfreeze) mm.packetUnfreeze(sender, "@a (" + mm.getString("message.everyone") + ")");
+				else mm.packetSent(sender, "@a (" + mm.getString("message.everyone") + ")");
 				return;
 			}
 			//Check if param is a player
@@ -223,7 +223,10 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			mm.noPermission(sender);
 			return;
 		}
-		if(ConfigManager.reload()) mm.reloadSuccessful(sender);
+		if(ConfigManager.reload()) {
+			MessageManager.reload();
+			mm.reloadSuccessful(sender);
+		}
 		else mm.reloadFailed(sender);
 	}
 	
@@ -248,7 +251,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket", ReflectionUtil.getNMSClass("Packet"));
 			sendPacket.invoke(this.getConnection(player), packet);
 		} catch (Exception e) {
-			mm.getLogger().severe("Packet could not be sent.");
+			mm.logPacketError();
 			e.printStackTrace();
 			return false;
 		}
@@ -287,7 +290,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			player.updateInventory();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchFieldException | SecurityException | NoSuchMethodException e) {
-			mm.getLogger().severe("Packet could not be sent.");
+			mm.logPacketError();
 			e.printStackTrace();
 			return false;
 		}

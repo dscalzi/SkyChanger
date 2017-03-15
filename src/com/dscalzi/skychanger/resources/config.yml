@@ -16,3 +16,11 @@ general_settings:
   # Lower packet limit. Scientific notation is accepted.
   # Must be greater than -3.4028236E38 or there will be no limit.
   lower_limit: -50.0
+  
+  # Choose the language of this plugin. The value must be supported
+  # and follow the format "language_COUNTRY". For example en_US.
+  # Supported languages:
+  # - en_US (English, United States)
+  # - it_IT (Italiano, Italia)
+  # - de_DE (Deutsche, Deutschland)
+  language: en_US
