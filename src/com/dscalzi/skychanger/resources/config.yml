@@ -26,4 +26,5 @@ general_settings:
   # - de_DE (Deutsche, Deutschland)
   # - nl_NL (Nederlands, Nederland)
   # - es_EC (Español, Ecuador)
+  # - es_AR (Español, Argentina)
   language: en_US
