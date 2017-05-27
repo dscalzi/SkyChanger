@@ -17,7 +17,7 @@ SkyChanger is a light-weight plugin built using the Spigot API. The main functio
 * Multilanguage support.
 * Metrics tracking by [bStats](https://bstats.org/plugin/bukkit/SkyChanger).
 
-**+If you would like to contribute your language or correct an incorrect translation, [follow this quick guide](https://bitbucket.org/AventiumSoftworks/skychanger/wiki/Translation%20Guide).**
+**If you would like to contribute your language or correct an incorrect translation, [follow this quick guide](https://bitbucket.org/AventiumSoftworks/skychanger/wiki/Translation%20Guide).**
 
 You can find more extensive details on the [wiki](https://bitbucket.org/AventiumSoftworks/skychanger/wiki/).
 
