@@ -2,9 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.dscalzi</groupId>
   <artifactId>SkyChanger</artifactId>
-  <version>1.2.1</version>
+  <version>1.2.2</version>
   <name>SkyChanger</name>
-  <description>Spigot plugin to change the color of the sky in your Minecraft world.</description>
+  <description>Change the color of your personal sky</description>
   
   <developers>
   	<developer>
@@ -18,11 +18,10 @@
   <build>
  	<defaultGoal>package</defaultGoal>
  	<finalName>SkyChanger</finalName>
-    <sourceDirectory>src</sourceDirectory>
     <resources>
        <resource>
-            <targetPath>.</targetPath>
-            <directory>${basedir}/src/com/dscalzi/skychanger/resources/</directory>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
         </resource>
     </resources>
     <plugins>
@@ -84,7 +83,7 @@
  	 <dependency>
         <groupId>org.spigotmc</groupId>
         <artifactId>spigot-api</artifactId>
-        <version>1.11.2-R0.1-SNAPSHOT</version>
+        <version>1.12-R0.1-SNAPSHOT</version>
         <scope>provided</scope>
      </dependency>
      <dependency>
