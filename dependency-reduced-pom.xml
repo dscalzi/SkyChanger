@@ -18,7 +18,6 @@
     <defaultGoal>package</defaultGoal>
     <resources>
       <resource>
-        <filtering>true</filtering>
         <directory>src/main/resources</directory>
       </resource>
     </resources>
