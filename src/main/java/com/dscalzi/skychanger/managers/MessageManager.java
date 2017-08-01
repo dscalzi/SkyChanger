@@ -21,6 +21,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.dscalzi.skychanger.SkyChanger;
+import com.dscalzi.skychanger.WorldPermissionUtil;
 
 public class MessageManager {
 
@@ -150,10 +151,10 @@ public class MessageManager {
 		List<String> cmds = new ArrayList<String>();
 		
 		cmds.add(listPrefix + "/SkyChanger help " + ChatColor.RESET + "- " + getString("message.descHelp"));
-		if(sender.hasPermission("skychanger.changesky.self") || sender.hasPermission("skychanger.changesky.others") || sender.hasPermission("skychanger.changesky.all")){
-			cmds.add(listPrefix + this.generateUsage(sender) + ChatColor.RESET + " - " + getString("message.descChangeSky"));
+		if(sender.hasPermission("skychanger.changesky.self") || sender.hasPermission("skychanger.changesky.others") || sender.hasPermission("skychanger.changesky.all") || WorldPermissionUtil.hasGeneralChangeskyPerm(sender)){
+			cmds.add(listPrefix + this.generateChangeSkyUsage(sender) + ChatColor.RESET + " - " + getString("message.descChangeSky"));
 		}
-		if(sender.hasPermission("skychanger.freeze.self") || sender.hasPermission("skychanger.freeze.others") || sender.hasPermission("skychanger.freeze.all")){
+		if(sender.hasPermission("skychanger.freeze.self") || sender.hasPermission("skychanger.freeze.others") || sender.hasPermission("skychanger.freeze.all") || WorldPermissionUtil.hasGeneralFreezePerm(sender)){
 			cmds.add(listPrefix + this.generateFreezeUsage(sender, false) + ChatColor.RESET + " - " + getString("message.descFreeze"));
 			cmds.add(listPrefix + this.generateFreezeUsage(sender, true) + ChatColor.RESET + " - " + getString("message.descUnfreeze"));
 		}
@@ -173,24 +174,52 @@ public class MessageManager {
 		sendError(sender, getString("error.denyNonPlayer"));
 	}
 	
-	private String generateUsage(CommandSender sender){
+	private String generateChangeSkyUsage(CommandSender sender){
 		String u = "/SkyChanger <#>";
-		String b = sender.hasPermission("skychanger.changesky.self") ? "[]" : "<>";
 		boolean o = sender.hasPermission("skychanger.changesky.others"), a = sender.hasPermission("skychanger.changesky.all");
+		boolean w = WorldPermissionUtil.hasGeneralChangeskyPerm(sender);
 		
-		String opti = (o|a) ? " " + b.charAt(0) + (o ? getString("message.player") + (a ? " | @a" + b.charAt(1) : b.charAt(1)) : "@a" + b.charAt(1)): "";
-		
-		return u+opti;
+		return u + genOpti(sender, o, a, w);
 	}
 	
 	private String generateFreezeUsage(CommandSender sender, boolean unfreeze){
 		String u = "/SkyChanger " + (unfreeze ? "unfreeze" : "freeze");
-		String b = sender.hasPermission("skychanger.freeze.self") ? "[]" : "<>";
 		boolean o = sender.hasPermission("skychanger.freeze.others"), a = sender.hasPermission("skychanger.freeze.all");
+		boolean w = WorldPermissionUtil.hasGeneralFreezePerm(sender);
 		
-		String opti = (o|a) ? " " + b.charAt(0) + (o ? getString("message.player") + (a ? " | @a" + b.charAt(1) : b.charAt(1)) : "@a" + b.charAt(1)): "";
-		
-		return u+opti;
+		return u + genOpti(sender, o, a, w);
+	}
+	
+	public String genOpti(CommandSender sender, boolean o, boolean a, boolean w) {
+		String opti = "";
+		if(o|a|w) {
+			boolean flowthrough = false;
+			opti += " [";
+			if(o) {
+				opti += getString("message.player");
+				flowthrough = true;
+			}
+			if(a) {
+				if(flowthrough) {
+					opti += " | ";
+				}
+				opti += "-a";
+				flowthrough = true;
+			}
+			if(w) {
+				if(flowthrough) {
+					opti += " | ";
+				}
+				opti += "-w";
+				if(!(sender instanceof Player)) {
+					opti += " <" + getString("message.world") + ">";
+				} else {
+					opti += " [" + getString("message.world") + "]";
+				}
+			}
+			opti += "]";
+		}
+		return opti;
 	}
 	
 	public void floatingPointOverflow(CommandSender sender, String request){
@@ -215,6 +244,14 @@ public class MessageManager {
 	
 	public void packetUnfreeze(CommandSender sender, String name){
 		sendSuccess(sender, getString("success.packetUnfreezeSentTo", name));
+	}
+	
+	public void mustSpecifyWorld(CommandSender sender) {
+		sendError(sender, getString("error.specifyWorld"));
+	}
+	
+	public void worldDoesntExist(CommandSender sender, String name) {
+		sendError(sender, getString("error.worldNotFound", name));
 	}
 	
 	public void packetError(CommandSender sender){

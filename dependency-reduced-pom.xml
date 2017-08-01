@@ -5,7 +5,7 @@
   <artifactId>SkyChanger</artifactId>
   <name>SkyChanger</name>
   <version>1.2.2</version>
-  <description>Change the color of your personal sky</description>
+  <description>Change the color of your personal sky.</description>
   <developers>
     <developer>
       <name>Daniel Scalzi (TheKraken7)</name>
@@ -108,5 +108,8 @@
       </exclusions>
     </dependency>
   </dependencies>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 </project>
 
