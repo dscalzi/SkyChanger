@@ -2,7 +2,7 @@
 
 [![](http://ci.aventiumsoftworks.com/jenkins/job/SkyChanger/badge/icon)](http://ci.aventiumsoftworks.com/jenkins/job/SkyChanger/) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://bitbucket.org/AventiumSoftworks/skychanger/src/025b9ba3b4495921193754e839c75cc78dfb8a93/src/com/dscalzi/skychanger/resources/License.txt) ![](https://img.shields.io/badge/Spigot-1.8--1.12-orange.svg) ![](https://img.shields.io/badge/Java-8+-ec2025.svg) [![](https://discordapp.com/api/guilds/211524927831015424/widget.png)](https://discordapp.com/invite/MkmRnhd)
 
-SkyChanger is a light-weight plugin built using the Spigot API. The main function of this plugin is to change the color of the sky for yourself, a specific player, or everyone. This plugin functions by sending packets with a specified value to the target player(s).
+SkyChanger is a light-weight plugin built using the Spigot API. The main function of this plugin is to change the color of the sky for yourself, a specific player, a specific world, or everyone. This plugin functions by sending packets with a specified value to the target player(s).
 
 ***
 
@@ -10,8 +10,9 @@ SkyChanger is a light-weight plugin built using the Spigot API. The main functio
 
 * Allow players to change the color of their personal sky.
 * Change the sky color for specific players.
+* Change the sky color for a specific world.
 * Change the sky color for everyone online.
-* Freeze/Unfreeze yourself, others, or everyone online.
+* Freeze/Unfreeze yourself, others, a world, or everyone online.
 * Configurable limits to the range of packets that can be sent.
 * Usage messages tailored to specific users based on permission level.
 * Multilanguage support.
@@ -20,6 +21,18 @@ SkyChanger is a light-weight plugin built using the Spigot API. The main functio
 **If you would like to contribute your language or correct an incorrect translation, [follow this quick guide](https://bitbucket.org/AventiumSoftworks/skychanger/wiki/Translation%20Guide).**
 
 You can find more extensive details on the [wiki](https://bitbucket.org/AventiumSoftworks/skychanger/wiki/).
+
+***
+
+#Building and Contributing
+
+If you would like to contribute to SkyChanger, feel free to submit a pull request. The project does not use a specific code style, however please keep to the conventions used throughout the code.
+
+To build this project you will need [Maven](https://maven.apache.org/), or an IDE which supports it, and to run the following command:
+
+```shell
+mvn clean install
+```
 
 ***
 
