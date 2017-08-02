@@ -65,14 +65,14 @@ public class MessageManager {
 			lang = l;
 		} catch (NullPointerException e){
 			getLogger().severe("Could not find language file for " + l + ". Defaulting to en_US (English).");
-			try(InputStream utf8in = plugin.getClass().getResourceAsStream("lang/Messages_en_US.properties");
+			try(InputStream utf8in = plugin.getClass().getResourceAsStream("/lang/Messages_en_US.properties");
 					Reader reader = new InputStreamReader(utf8in, "UTF-8");){
 					props = new Properties();
 					props.load(reader);
 					lang = "en_US";
 			} catch (IOException | NullPointerException e1) {
-				getLogger().severe("Fatal error, no valid language file found (this may be due to a server"
-						+ "reload). Shutting down..");
+				getLogger().severe("Fatal error, no valid language file found. This may be due to a server"
+						+ " reload or an internal error. Please restart the server. Shutting down..");
 				e1.printStackTrace();
 				plugin.getServer().getPluginManager().disablePlugin(plugin);
 			}
