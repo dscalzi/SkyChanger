@@ -25,7 +25,8 @@ general_settings:
   # - it_IT (Italiano, Italia)
   # - de_DE (Deutsche, Deutschland)
   # - nl_NL (Nederlands, Nederland)
-  # - es_EC (Espa�ol, Ecuador)
-  # - es_AR (Espa�ol, Argentina)
+  # - es_EC (Español, Ecuador)
+  # - es_AR (Español, Argentina)
   # - no_NO (Norsk, Norge)
+  # - iw_IL (ישראל, עברית)
   language: en_US
