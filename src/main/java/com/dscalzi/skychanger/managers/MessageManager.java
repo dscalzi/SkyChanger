@@ -318,7 +318,10 @@ public class MessageManager {
 		it_IT("Italiano", "Italia"),
 		de_DE("Deutsche", "Deutschland"),
 		nl_NL("Nederlands", "Nederland"),
-		es_EC("Espa�ol", "Ecuador");
+		es_EC("Español", "Ecuador"),
+		es_AR("Español", "Argentina"),
+		no_NO("Norsk", "Norge"),
+		iw_IL("עברית", "ישראל");
 		
 		private String lang;
 		private String country;
