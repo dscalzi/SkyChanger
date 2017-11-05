@@ -29,4 +29,5 @@ general_settings:
   # - es_AR (Español, Argentina)
   # - no_NO (Norsk, Norge)
   # - iw_IL (ישראל, עברית)
+  # - hu_HU (Magyar, Magyarország)
   language: en_US

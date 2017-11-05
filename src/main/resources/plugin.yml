@@ -2,7 +2,7 @@ author: Daniel Scalzi
 description: Spigot plugin to change the color of the sky in your Minecraft world.
 main: com.dscalzi.skychanger.SkyChanger
 name: SkyChanger
-version: 1.3.4
+version: 1.3.5
 commands:
   skychanger:
     description: Main plugin command
