@@ -34,7 +34,84 @@ To build this project you will need [Maven](https://maven.apache.org/), or an ID
 mvn clean install
 ```
 
-***
+---
+
+#Developer API
+
+If you want to hook SkyChanger into your own plugin or simply want to extend functionality, you may use the provided API. If you feel the API is missing anything, or should be changed, please [let us know](https://bitbucket.org/AventiumSoftworks/skychanger/issues?status=new&status=open).
+
+**Download Latest**: [![bintray](https://api.bintray.com/packages/dscalzi/maven/SkyChanger/images/download.svg)](https://bintray.com/dscalzi/maven/SkyChanger/_latestVersion)
+
+*Javadocs are not hosted, however they are provided on the maven repository.*
+
+###Maven
+
+```XML
+<repository>
+    <id>jcenter</id>
+    <name>jcenter-bintray</name>
+    <url>http://jcenter.bintray.com</url>
+</repository>
+
+<dependency>
+  <groupId>com.dscalzi</groupId>
+  <artifactId>SkyChanger</artifactId>
+  <version>VERSION</version>
+</dependency>
+```
+
+###Gradle
+
+```gradle
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'com.dscalzi:SkyChanger:VERSION'
+}
+```
+
+###Example Usage
+
+```java
+/**
+* Example usage of the API. The following implementation
+* would not be practical, it exists only to demonstrate
+* the API capabilities.
+* 
+* @param player The player to experiment on.
+*/
+public void skychangerTests(Player player) {
+	// Get a reference to the API.
+	final SkyAPI api = SkyChanger.getAPI();
+	
+	// Change the sky and save the result.
+	boolean result = api.changeSky(player, 3F);
+	
+	if(result) {
+		player.sendMessage("Why did the sky turn red?");
+	}
+	
+	// Freeze the player.
+	result = api.freeze(player);
+	
+	if(result) {
+		player.sendMessage("Where did the land go?");
+		
+		// Unfreeze the player.
+		result = api.unfreeze(player);
+		
+		if(result) {
+			player.sendMessage("You've been unfrozen! Press (F3 + A) to reload chunks.");
+		}
+	}
+}
+```
+
+
+---
 
 #Links
 

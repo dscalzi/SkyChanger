@@ -3,7 +3,7 @@
  * Copyright (C) 2017-2018 Daniel D. Scalzi
  * See License.txt for license information.
  */
-package com.dscalzi.skychanger;
+package com.dscalzi.skychanger.internal;
 
 import org.bukkit.World;
 import org.bukkit.permissions.Permissible;

@@ -7,12 +7,20 @@ package com.dscalzi.skychanger;
 
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.dscalzi.skychanger.internal.MainExecutor;
 import com.dscalzi.skychanger.managers.ConfigManager;
 import com.dscalzi.skychanger.managers.MessageManager;
 
-public class SkyChanger extends JavaPlugin{
+public class SkyChangerPlugin extends JavaPlugin {
+	
+	private static SkyChangerPlugin inst;
 	
 	private Metrics metrics;
+	
+	public SkyChangerPlugin() {
+		inst = this;
+	}
 	
 	@Override
 	public void onEnable(){
@@ -23,9 +31,13 @@ public class SkyChanger extends JavaPlugin{
 		metrics.addCustomChart(new Metrics.SimplePie("used_language", () -> MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable()));
 	}
 	
-	@Override
-	public void onDisable(){
-		//Nothing for now.
+	/**
+	 * Get the current instance of SkyChanger.
+	 * 
+	 * @return SkyChangerPlugin instance.
+	 */
+	public static SkyChangerPlugin inst() {
+		return inst;
 	}
 	
 }

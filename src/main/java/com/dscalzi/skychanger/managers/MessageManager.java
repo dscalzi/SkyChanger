@@ -20,8 +20,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.dscalzi.skychanger.SkyChanger;
-import com.dscalzi.skychanger.WorldPermissionUtil;
+import com.dscalzi.skychanger.SkyChangerPlugin;
+import com.dscalzi.skychanger.internal.WorldPermissionUtil;
 
 public class MessageManager {
 
@@ -29,7 +29,7 @@ public class MessageManager {
 	private static MessageManager instance;
 	private static final char b = (char)8226;
 	
-	private SkyChanger plugin;
+	private SkyChangerPlugin plugin;
 	private final Logger logger;
 	private final String prefix;
 	private final ChatColor cPrimary;
@@ -41,7 +41,7 @@ public class MessageManager {
 	private String lang;
 	private Properties props;
 	
-	private MessageManager(SkyChanger plugin){
+	private MessageManager(SkyChangerPlugin plugin){
 		this.plugin = plugin;
 		this.logger = plugin.getLogger();
 		this.cPrimary = ChatColor.GRAY;
@@ -81,7 +81,7 @@ public class MessageManager {
 		}
 	}
 	
-	public static void initialize(SkyChanger plugin){
+	public static void initialize(SkyChangerPlugin plugin){
 		if(!initialized){
 			instance = new MessageManager(plugin);
 			initialized = true;

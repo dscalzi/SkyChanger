@@ -9,7 +9,7 @@ import java.io.File;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import com.dscalzi.skychanger.SkyChanger;
+import com.dscalzi.skychanger.SkyChangerPlugin;
 
 public class ConfigManager {
 	
@@ -18,10 +18,10 @@ public class ConfigManager {
 	
 	//TODO Will be implemented in a later version
 	private final double configVersion = 1.0;
-	private SkyChanger plugin;
+	private SkyChangerPlugin plugin;
 	private FileConfiguration config;
 	
-	private ConfigManager(SkyChanger plugin){
+	private ConfigManager(SkyChangerPlugin plugin){
 		this.plugin = plugin;
 		loadConfig();
 	}
@@ -39,7 +39,7 @@ public class ConfigManager {
 		}
     }
 	
-	public static void initialize(SkyChanger plugin){
+	public static void initialize(SkyChangerPlugin plugin){
 		if(!initialized){
 			instance = new ConfigManager(plugin);
 			initialized = true;

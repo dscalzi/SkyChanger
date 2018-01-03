@@ -3,12 +3,8 @@
  * Copyright (C) 2017-2018 Daniel D. Scalzi
  * See License.txt for license information.
  */
-package com.dscalzi.skychanger;
+package com.dscalzi.skychanger.internal;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -21,17 +17,21 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+
+import com.dscalzi.skychanger.SkyChangerPlugin;
+import com.dscalzi.skychanger.api.SkyAPI;
+import com.dscalzi.skychanger.api.SkyChanger;
 import com.dscalzi.skychanger.managers.ConfigManager;
 import com.dscalzi.skychanger.managers.MessageManager;
 
-public class MainExecutor implements CommandExecutor, TabCompleter{
+public class MainExecutor implements CommandExecutor, TabCompleter {
 
 	private static final Pattern packetNum = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
 	private final MessageManager mm;
 	
-	private SkyChanger plugin;
+	private SkyChangerPlugin plugin;
 	
-	public MainExecutor(SkyChanger plugin){
+	public MainExecutor(SkyChangerPlugin plugin){
 		this.plugin = plugin;
 		this.mm = MessageManager.getInstance();
 	}
@@ -105,6 +105,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 				return;
 			}
 		}
+		final SkyAPI api = SkyChanger.getAPI();
 		if(args.length > 1){
 			//Check if requested for all
 			if(args[1].equalsIgnoreCase("-a")){
@@ -113,7 +114,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 					return;
 				}
 				for(Player p : plugin.getServer().getOnlinePlayers()){
-					sendPacket(p, pN);
+					api.changeSky(p, pN);
 				}
 				mm.packetSent(sender, "-a (" + mm.getString("message.everyone") + ")");
 				return;
@@ -139,7 +140,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 					}
 				}
 				for(Player p : t.getPlayers()) {
-					sendPacket(p, pN);
+					api.changeSky(p, pN);
 				}
 				mm.packetSent(sender, mm.getString("message.allPlayersIn") + " " + t.getName());
 				return;
@@ -162,7 +163,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			//If a player specified their own name, we run the command as if the player param was not
 			//given. The others permission therefore includes the self.
 			if(!(sender instanceof Player) || !target.getUniqueId().equals(((Player)sender).getUniqueId())){
-				if(sendPacket(target.getPlayer(), pN))
+				if(api.changeSky(target.getPlayer(), pN))
 					mm.packetSent(sender, target.getName());
 				else
 					mm.packetError(sender, target.getName());
@@ -175,7 +176,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			return;
 		}
 		
-		if(sendPacket((Player)sender, pN))
+		if(api.changeSky((Player)sender, pN))
 			mm.packetSent(sender);
 		else
 			mm.packetError(sender);
@@ -192,6 +193,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			mm.noPermission(sender);
 			return;
 		}
+		final SkyAPI api = SkyChanger.getAPI();
 		if(args.length > 1){
 			//Check if requested for all
 			if(args[1].equalsIgnoreCase("-a")){
@@ -200,8 +202,8 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 					return;
 				}
 				for(Player p : plugin.getServer().getOnlinePlayers()){
-					if(unfreeze) p.teleport(p.getLocation());
-					else sendFreezePacket(p);
+					if(unfreeze) api.unfreeze(p);
+					else api.freeze(p);
 				}
 				if(unfreeze) mm.packetUnfreeze(sender, "-a (" + mm.getString("message.everyone") + ")");
 				else mm.packetSent(sender, "@a (" + mm.getString("message.everyone") + ")");
@@ -228,8 +230,8 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 					}
 				}
 				for(Player p : t.getPlayers()) {
-					if(unfreeze) p.teleport(p.getLocation());
-					else sendFreezePacket(p);
+					if(unfreeze) api.unfreeze(p);
+					else api.freeze(p);
 				}
 				if(unfreeze) mm.packetUnfreeze(sender, mm.getString("message.allPlayersIn") + " " + t.getName());
 				else mm.packetSent(sender, mm.getString("message.allPlayersIn") + " " + t.getName());
@@ -253,7 +255,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 			//If a player specified their own name, we run the command as if the player param was not
 			//given. The others permission therefore includes the self.
 			if(!(sender instanceof Player) || !target.getUniqueId().equals(((Player)sender).getUniqueId())){
-				if((!unfreeze && sendFreezePacket(target.getPlayer())) || (unfreeze && target.getPlayer().teleport(target.getPlayer().getLocation())))
+				if((!unfreeze && api.freeze(target.getPlayer())) || (unfreeze && target.getPlayer().teleport(target.getPlayer().getLocation())))
 					if(unfreeze) mm.packetUnfreeze(sender, target.getName());
 					else mm.packetSent(sender, target.getName());
 				else
@@ -268,7 +270,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 		}
 		
 		Player p = (Player)sender;
-		if((!unfreeze && sendFreezePacket(p.getPlayer())) || (unfreeze && p.teleport(p.getLocation())))
+		if((!unfreeze && api.freeze(p.getPlayer())) || (unfreeze && api.unfreeze(p)))
 			if(unfreeze) mm.packetUnfreeze(sender);
 			else mm.packetSent(sender);
 		else
@@ -288,70 +290,8 @@ public class MainExecutor implements CommandExecutor, TabCompleter{
 	}
 	
 	private void cmdVersion(CommandSender sender){
+		System.out.println(SkyChanger.getPlugin());
 		mm.versionMessage(sender);
-	}
-	
-	private Object getConnection(Player player) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
-		Class<?> ocbPlayer = ReflectionUtil.getOCBClass("entity.CraftPlayer");
-		Method getHandle = ReflectionUtil.getMethod(ocbPlayer, "getHandle");
-		Object nmsPlayer = getHandle.invoke(player);
-		Field conField = nmsPlayer.getClass().getField("playerConnection");
-		Object con = conField.get(nmsPlayer);
-		return con;
-	}
-	
-	private boolean sendPacket(Player player, float number){
-		try	{
-			Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutGameStateChange");
-			Constructor<?> packetConstructor = packetClass.getConstructor(int.class, float.class);
-			Object packet = packetConstructor.newInstance(7, number);
-			Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket", ReflectionUtil.getNMSClass("Packet"));
-			sendPacket.invoke(this.getConnection(player), packet);
-		} catch (Exception e) {
-			mm.logPacketError();
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-	}
-	
-	@SuppressWarnings("deprecation")
-	private boolean sendFreezePacket(Player player){
-		try {
-			World w = player.getWorld();
-			Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
-			Class<?> diffClass = ReflectionUtil.getNMSClass("EnumDifficulty");
-			Class<?> wtClass = ReflectionUtil.getNMSClass("WorldType");
-			Class<?> gameModeClass = ReflectionUtil.getNMSClass("EnumGamemode");
-			Method diffGetById = ReflectionUtil.getMethod(diffClass, "getById", int.class);
-			Method gmGetById = ReflectionUtil.getMethod(gameModeClass, "getById", int.class);
-			Constructor<?> packetConstructor = null;
-			Object packet = null;
-			try{
-				packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, gameModeClass);
-				packet = packetConstructor.newInstance(w.getEnvironment().getId(), diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null), gmGetById.invoke(null, player.getGameMode().getValue()));
-			} catch (NoSuchMethodException e){
-				//Try 1.9 method.
-				Class<?> worldSettings = ReflectionUtil.getNMSClass("WorldSettings");
-				Class<?>[] innerClasses = worldSettings.getDeclaredClasses();
-				Class<?> wsGameMode = null;
-				for(Class<?> cl : innerClasses)
-					if(cl.getSimpleName().equals("EnumGamemode"))
-						wsGameMode = cl;
-				Method a = ReflectionUtil.getMethod(worldSettings, "a", int.class);
-				packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, wsGameMode);
-				packet =  packetConstructor.newInstance(w.getEnvironment().getId(), diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null), a.invoke(null, player.getGameMode().getValue()));
-			}
-			Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket", ReflectionUtil.getNMSClass("Packet"));
-			sendPacket.invoke(this.getConnection(player), packet);
-			player.updateInventory();
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchFieldException | SecurityException | NoSuchMethodException e) {
-			mm.logPacketError();
-			e.printStackTrace();
-			return false;
-		}
-		return true;
 	}
 	
 	@Override
