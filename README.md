@@ -18,9 +18,9 @@ SkyChanger is a light-weight plugin built using the Spigot API. The main functio
 * Multilanguage support.
 * Metrics tracking by [bStats](https://bstats.org/plugin/bukkit/SkyChanger).
 
-**If you would like to contribute your language or correct an incorrect translation, [follow this quick guide](https://bitbucket.org/AventiumSoftworks/skychanger/wiki/Translation%20Guide).**
+**If you would like to contribute your language or correct an incorrect translation, [follow this quick guide](https://github.com/dscalzi/SkyChanger/wiki/Translation-Guide).**
 
-You can find more extensive details on the [wiki](https://bitbucket.org/AventiumSoftworks/skychanger/wiki/).
+You can find more extensive details on the [wiki](https://github.com/dscalzi/SkyChanger/wiki).
 
 ***
 
@@ -38,7 +38,7 @@ mvn clean install
 
 # Developer API
 
-If you want to hook SkyChanger into your own plugin or simply want to extend functionality, you may use the provided API. If you feel the API is missing anything, or should be changed, please [let us know](https://bitbucket.org/AventiumSoftworks/skychanger/issues?status=new&status=open).
+If you want to hook SkyChanger into your own plugin or simply want to extend functionality, you may use the provided API. If you feel the API is missing anything, or should be changed, please [let us know](https://github.com/dscalzi/SkyChanger/issues).
 
 **Download Latest**: [![bintray](https://api.bintray.com/packages/dscalzi/maven/SkyChanger/images/download.svg)](https://bintray.com/dscalzi/maven/SkyChanger/_latestVersion)
 
@@ -117,4 +117,4 @@ public void skychangerTests(Player player) {
 
 * [Spigot Resource Page](https://www.spigotmc.org/resources/skychanger.37524/)
 * [Dev Bukkit Page](https://dev.bukkit.org/projects/skychanger)
-* [Suggest Features or Report Bugs](https://bitbucket.org/AventiumSoftworks/skychanger/issues)
+* [Suggest Features or Report Bugs](https://github.com/dscalzi/SkyChanger/issues)
