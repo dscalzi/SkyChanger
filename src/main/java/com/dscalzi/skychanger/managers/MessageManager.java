@@ -285,7 +285,7 @@ public class MessageManager {
 	public void versionMessage(CommandSender sender){
 		sendMessage(sender, "SkyChanger " + getString("message.version") + " " + plugin.getDescription().getVersion() + 
 				"\n" + cPrimary + "| " + cSuccess + getString("message.metrics") + cPrimary + " | " + cMessage + "https://bstats.org/plugin/bukkit/SkyChanger" + 
-				"\n" + cPrimary + "| " + cSuccess + getString("message.source") + cPrimary + " | " + cMessage + "https://bitbucket.org/AventiumSoftworks/skychanger");
+				"\n" + cPrimary + "| " + cSuccess + getString("message.source") + cPrimary + " | " + cMessage + "https://github.com/dscalzi/SkyChanger");
 	}
 	
 	/* Static Utility */
