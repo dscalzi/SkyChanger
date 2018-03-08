@@ -19,7 +19,7 @@ general_settings:
   
   # Choose the language of this plugin. The value must be supported
   # and follow the format "language_COUNTRY". For example en_US.
-  # Submit Translations: https://bitbucket.org/AventiumSoftworks/skychanger/issues
+  # Submit Translations: https://github.com/dscalzi/SkyChanger/wiki/Translation-Guide
   # Supported languages:
   # - en_US (English, United States)
   # - it_IT (Italiano, Italia)
