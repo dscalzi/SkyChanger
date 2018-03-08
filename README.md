@@ -6,7 +6,7 @@ SkyChanger is a light-weight plugin built using the Spigot API. The main functio
 
 ***
 
-#Feature List
+# Feature List
 
 * Allow players to change the color of their personal sky.
 * Change the sky color for specific players.
@@ -24,7 +24,7 @@ You can find more extensive details on the [wiki](https://bitbucket.org/Aventium
 
 ***
 
-#Building and Contributing
+# Building and Contributing
 
 If you would like to contribute to SkyChanger, feel free to submit a pull request. The project does not use a specific code style, however please keep to the conventions used throughout the code.
 
@@ -36,7 +36,7 @@ mvn clean install
 
 ---
 
-#Developer API
+# Developer API
 
 If you want to hook SkyChanger into your own plugin or simply want to extend functionality, you may use the provided API. If you feel the API is missing anything, or should be changed, please [let us know](https://bitbucket.org/AventiumSoftworks/skychanger/issues?status=new&status=open).
 
@@ -44,7 +44,7 @@ If you want to hook SkyChanger into your own plugin or simply want to extend fun
 
 *Javadocs are not hosted, however they are provided on the maven repository.*
 
-###Maven
+### Maven
 
 ```XML
 <repository>
@@ -60,7 +60,7 @@ If you want to hook SkyChanger into your own plugin or simply want to extend fun
 </dependency>
 ```
 
-###Gradle
+### Gradle
 
 ```gradle
 
@@ -73,7 +73,7 @@ dependencies {
 }
 ```
 
-###Example Usage
+### Example Usage
 
 ```java
 /**
@@ -113,7 +113,7 @@ public void skychangerTests(Player player) {
 
 ---
 
-#Links
+# Links
 
 * [Spigot Resource Page](https://www.spigotmc.org/resources/skychanger.37524/)
 * [Dev Bukkit Page](https://dev.bukkit.org/projects/skychanger)

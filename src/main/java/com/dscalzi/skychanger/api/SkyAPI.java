@@ -15,6 +15,8 @@ public interface SkyAPI {
 	 * @param player The target of the sky change.
 	 * @param number The packet number which will determine the type of sky.
 	 * @return True if the sky change was successful, otherwise false.
+	 * 
+	 * @since 1.4.0
 	 */
 	public boolean changeSky(Player player, float number);
 	
@@ -23,6 +25,8 @@ public interface SkyAPI {
 	 * 
 	 * @param player The targer of the freeze.
 	 * @return True if the freeze was successful, otherwise false.
+	 * 
+	 * @since 1.4.0
 	 */
 	public boolean freeze(Player player);
 	
@@ -30,7 +34,9 @@ public interface SkyAPI {
 	 * Unfreeze a player.
 	 * 
 	 * @param player The target of the unfreeze.
-	 * @return True if the unfreeze was successful, otherwise false. 
+	 * @return True if the unfreeze was successful, otherwise false.
+	 * 
+	 * @since 1.4.0
 	 */
 	public boolean unfreeze(Player player);
 	

@@ -290,7 +290,6 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
 	}
 	
 	private void cmdVersion(CommandSender sender){
-		System.out.println(SkyChanger.getPlugin());
 		mm.versionMessage(sender);
 	}
 	
