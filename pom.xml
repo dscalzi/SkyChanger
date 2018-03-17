@@ -85,8 +85,15 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <transformers>
+-	              <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+-	                  <manifestEntries>
+-	                    <Implementation-Version>${project.version}</Implementation-Version>
+-	                  </manifestEntries>
+-	              </transformer>
+-	          </transformers>
               <minimizeJar>true</minimizeJar>
-              <finalName>SkyChanger-${version}</finalName>
+              <finalName>SkyChanger-${project.version}</finalName>
               <relocations>
               	<relocation>
               		<pattern>org.bstats</pattern>

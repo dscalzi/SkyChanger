@@ -1,7 +1,7 @@
 /*
  * SkyChanger
  * Copyright (C) 2017-2018 Daniel D. Scalzi
- * See License.txt for license information.
+ * See LICENSE for license information.
  */
 package com.dscalzi.skychanger.managers;
 
