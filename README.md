@@ -1,6 +1,6 @@
 ![# Header](http://i.imgur.com/6TxDQ3W.png?1)
 
-[![](http://ci.aventiumsoftworks.com/jenkins/job/SkyChanger/badge/icon)](http://ci.aventiumsoftworks.com/jenkins/job/SkyChanger/) [![](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/dscalzi/SkyChanger/blob/master/LICENSE) ![](https://img.shields.io/badge/Spigot-1.8--1.12-orange.svg) ![](https://img.shields.io/badge/Java-8+-ec2025.svg) [![](https://discordapp.com/api/guilds/211524927831015424/widget.png)](https://discordapp.com/invite/Fcrh6PT)
+[<img src="https://ci.appveyor.com/api/projects/status/3j1tc074rvi6a3mr?retina=true" height='20.74px'></img>](https://ci.appveyor.com/project/dscalzi/skychanger) [![](https://img.shields.io/github/license/dscalzi/SkyChanger.svg)](https://github.com/dscalzi/SkyChanger/blob/master/LICENSE) ![](https://img.shields.io/badge/Spigot-1.8.x--1.12.x-orange.svg) ![](https://img.shields.io/badge/Java-8+-ec2025.svg) [![](https://discordapp.com/api/guilds/211524927831015424/widget.png)](https://discordapp.com/invite/Fcrh6PT)
 
 SkyChanger is a light-weight plugin built using the Spigot API. The main function of this plugin is to change the color of the sky for yourself, a specific player, a specific world, or everyone. This plugin functions by sending packets with a specified value to the target player(s).
 
