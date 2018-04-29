@@ -322,7 +322,8 @@ public class MessageManager {
 		es_AR("Español", "Argentina"),
 		no_NO("Norsk", "Norge"),
 		iw_IL("עברית", "ישראל"),
-		hu_HU("Magyar", "Magyarország");
+		hu_HU("Magyar", "Magyarország"),
+		zh_CN("简体中文", "中国");
 		
 		private String lang;
 		private String country;
