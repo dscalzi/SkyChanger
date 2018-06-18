@@ -13,31 +13,32 @@ import com.dscalzi.skychanger.managers.ConfigManager;
 import com.dscalzi.skychanger.managers.MessageManager;
 
 public class SkyChangerPlugin extends JavaPlugin {
-	
-	private static SkyChangerPlugin inst;
-	
-	private Metrics metrics;
-	
-	public SkyChangerPlugin() {
-		inst = this;
-	}
-	
-	@Override
-	public void onEnable(){
-		ConfigManager.initialize(this);
-		MessageManager.initialize(this);
-		this.getCommand("skychanger").setExecutor(new MainExecutor(this));
-		metrics = new Metrics(this);
-		metrics.addCustomChart(new Metrics.SimplePie("used_language", () -> MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable()));
-	}
-	
-	/**
-	 * Get the current instance of SkyChanger.
-	 * 
-	 * @return SkyChangerPlugin instance.
-	 */
-	public static SkyChangerPlugin inst() {
-		return inst;
-	}
-	
+
+    private static SkyChangerPlugin inst;
+
+    private Metrics metrics;
+
+    public SkyChangerPlugin() {
+        inst = this;
+    }
+
+    @Override
+    public void onEnable() {
+        ConfigManager.initialize(this);
+        MessageManager.initialize(this);
+        this.getCommand("skychanger").setExecutor(new MainExecutor(this));
+        metrics = new Metrics(this);
+        metrics.addCustomChart(new Metrics.SimplePie("used_language",
+                () -> MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable()));
+    }
+
+    /**
+     * Get the current instance of SkyChanger.
+     * 
+     * @return SkyChangerPlugin instance.
+     */
+    public static SkyChangerPlugin inst() {
+        return inst;
+    }
+
 }
