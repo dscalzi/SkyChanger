@@ -1,0 +1,50 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '2.0.4'
+}
+
+allprojects {
+    group = 'com.dscalzi'
+    version = '1.4.3'
+}
+
+description = """Change the color of your personal sky."""
+
+apply plugin: 'eclipse'
+
+subprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+    
+    configurations {
+        testImplementation.extendsFrom compileOnly
+    }
+    
+    jar {
+        baseName = project.name
+        manifest {
+            attributes 'Implementation-Version': version, 'Specification-Version': version
+        }
+    }
+
+    shadowJar {
+        classifier 'dist'
+    }
+
+    build {
+        dependsOn clean
+        dependsOn shadowJar
+
+        jar.mustRunAfter clean
+        shadowJar.mustRunAfter jar
+    }
+    
+}

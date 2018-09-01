@@ -1,6 +1,37 @@
-/bin/
-/target/
+# Gradle
+# -----
+/.gradle
+/build
+/buildSrc/build
+*/build
 
-/.settings/
-/.classpath
-/.project
+# Maven
+# -----
+/target/
+dependency-reduced-pom.xml
+
+# IDEA
+# ----
+.idea
+.shelf
+/*.iml
+/*.ipr
+/*.iws
+/buildSrc/*.iml
+/buildSrc/*.ipr
+/buildSrc/*.iws
+/buildSrc/out
+/out
+*/*.iml
+*/out
+/.teamcity/*.iml
+/.teamcity/target
+
+# Eclipse
+# -------
+*.classpath
+*.project
+*.settings
+/bin
+*/bin
+atlassian-ide-plugin.xml
