@@ -3,9 +3,9 @@
  * Copyright (C) 2017-2018 Daniel D. Scalzi
  * See LICENSE for license information.
  */
-package com.dscalzi.skychanger.api;
+package com.dscalzi.skychanger.sponge.api;
 
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.living.player.Player;
 
 public interface SkyAPI {
 
