@@ -1,0 +1,43 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+    }
+
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'org.spongepowered.plugin' version '0.9.0'
+    id 'net.minecrell.vanillagradle.server' version '2.2-6'
+}
+
+minecraft {
+    version = '1.12.2'
+    mappings = 'stable_39'
+}
+
+repositories {
+    maven { url "http://repo.bstats.org/content/repositories/releases/" }
+}
+
+dependencies {
+    compile 'org.bstats:bstats-sponge:1.2'
+    compileOnly 'org.spongepowered:spongeapi:7.0.0'
+}
+
+shadowJar {
+    mainSpec.sourcePaths.clear()
+    dependsOn reobfJar
+
+    classifier 'dist'
+
+    relocate 'org.bstats', 'com.dscalzi.skychanger.sponge.lib.org.bstats'
+
+    exclude 'dummyThing'
+	afterEvaluate {
+        from zipTree(reobfJar.jar)
+    }
+    
+}

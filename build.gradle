@@ -35,10 +35,6 @@ subprojects {
         }
     }
 
-    shadowJar {
-        classifier 'dist'
-    }
-
     build {
         dependsOn clean
         dependsOn shadowJar
