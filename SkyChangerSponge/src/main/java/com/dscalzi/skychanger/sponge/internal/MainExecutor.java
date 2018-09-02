@@ -1,83 +1,75 @@
-/*
- * SkyChanger
- * Copyright (C) 2017-2018 Daniel D. Scalzi
- * See LICENSE for license information.
- */
-package com.dscalzi.skychanger.internal;
+package com.dscalzi.skychanger.sponge.internal;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.command.CommandException;
+import org.spongepowered.api.command.CommandResult;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.command.spec.CommandExecutor;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.World;
 
-import com.dscalzi.skychanger.SkyChangerPlugin;
-import com.dscalzi.skychanger.api.SkyAPI;
-import com.dscalzi.skychanger.api.SkyChanger;
-import com.dscalzi.skychanger.managers.ConfigManager;
-import com.dscalzi.skychanger.managers.MessageManager;
+import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
+import com.dscalzi.skychanger.sponge.api.SkyAPI;
+import com.dscalzi.skychanger.sponge.api.SkyChanger;
+import com.dscalzi.skychanger.sponge.managers.ConfigManager;
+import com.dscalzi.skychanger.sponge.managers.MessageManager;
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+public class MainExecutor implements CommandExecutor {
 
     private static final Pattern packetNum = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
     private MessageManager mm;
-
     private SkyChangerPlugin plugin;
-
+    
     public MainExecutor(SkyChangerPlugin plugin) {
         this.plugin = plugin;
     }
-
+    
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-
+    public CommandResult execute(CommandSource src, CommandContext cc) throws CommandException {
+        final String[] args = ((String)cc.getOne(Text.of("args")).get()).split(" ");
         this.mm = MessageManager.getInstance();
         
         if (args.length > 0) {
             if (packetNum.matcher(args[0]).matches()) {
-                this.cmdChangeSky(sender, args);
-                return true;
+                this.cmdChangeSky(src, args);
+                return CommandResult.success();
             }
 
             if (args[0].equalsIgnoreCase("help")) {
-                mm.helpMessage(sender);
-                return true;
+                mm.helpMessage(src);
+                return CommandResult.success();
             }
 
             if (args[0].equalsIgnoreCase("freeze")) {
-                this.cmdFreeze((Player) sender, false, args);
-                return true;
+                this.cmdFreeze((Player) src, false, args);
+                return CommandResult.success();
             }
 
             if (args[0].equalsIgnoreCase("unfreeze")) {
-                this.cmdFreeze((Player) sender, true, args);
-                return true;
+                this.cmdFreeze((Player) src, true, args);
+                return CommandResult.success();
             }
 
             if (args[0].equalsIgnoreCase("version")) {
-                this.cmdVersion(sender);
-                return true;
+                this.cmdVersion(src);
+                return CommandResult.success();
             }
 
             if (args[0].equalsIgnoreCase("reload")) {
-                this.cmdReload(sender);
-                return true;
+                this.cmdReload(src);
+                return CommandResult.success();
             }
         }
 
-        mm.helpMessage(sender);
-        return false;
+        mm.helpMessage(src);
+        return CommandResult.success();
     }
-
-    @SuppressWarnings("deprecation")
-    private void cmdChangeSky(CommandSender sender, String[] args) {
+    
+    private void cmdChangeSky(CommandSource sender, String[] args) {
         final String basePerm = "skychanger.changesky";
         boolean s = sender.hasPermission(basePerm + ".self");
         boolean o = sender.hasPermission(basePerm + ".others");
@@ -114,7 +106,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
                     mm.noPermission(sender);
                     return;
                 }
-                for (Player p : plugin.getServer().getOnlinePlayers()) {
+                for (Player p : plugin.getGame().getServer().getOnlinePlayers()) {
                     api.changeSky(p, pN);
                 }
                 mm.packetSent(sender, "-a (" + mm.getString("message.everyone") + ")");
@@ -124,11 +116,12 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
             if (args[1].equalsIgnoreCase("-w")) {
                 World t = null;
                 if (args.length > 2) {
-                    t = Bukkit.getWorld(args[2]);
-                    if (t == null) {
+                    Optional<World> tOpt = plugin.getGame().getServer().getWorld(args[2]);
+                    if (!tOpt.isPresent()) {
                         mm.worldDoesntExist(sender, args[2]);
                         return;
                     }
+                    t = tOpt.get();
                 } else {
                     if (!(sender instanceof Player)) {
                         mm.mustSpecifyWorld(sender);
@@ -151,21 +144,22 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
                 mm.noPermission(sender);
                 return;
             }
-            OfflinePlayer target;
+            Optional<Player> targetOpt;
             try {
-                target = plugin.getServer().getOfflinePlayer(MessageManager.formatFromInput(args[1]));
+                targetOpt = plugin.getGame().getServer().getPlayer(MessageManager.formatFromInput(args[1]));
             } catch (IllegalArgumentException e) {
-                target = plugin.getServer().getOfflinePlayer(args[1]);
+                targetOpt = plugin.getGame().getServer().getPlayer(args[1]);
             }
-            if (target == null || !target.isOnline()) {
-                mm.playerNotFound(sender, target == null || target.getName() == null ? args[1] : target.getName());
+            if (!targetOpt.isPresent() || !targetOpt.get().isOnline()) {
+                mm.playerNotFound(sender, !targetOpt.isPresent() || targetOpt.get().getName() == null ? args[1] : targetOpt.get().getName());
                 return;
             }
             // If a player specified their own name, we run the command as if the player
             // param was not
             // given. The others permission therefore includes the self.
+            Player target = targetOpt.get();
             if (!(sender instanceof Player) || !target.getUniqueId().equals(((Player) sender).getUniqueId())) {
-                if (api.changeSky(target.getPlayer(), pN))
+                if (api.changeSky(target, pN))
                     mm.packetSent(sender, target.getName());
                 else
                     mm.packetError(sender, target.getName());
@@ -184,8 +178,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
             mm.packetError(sender);
     }
 
-    @SuppressWarnings("deprecation")
-    private void cmdFreeze(CommandSender sender, boolean unfreeze, String[] args) {
+    private void cmdFreeze(CommandSource sender, boolean unfreeze, String[] args) {
         final String basePerm = "skychanger.freeze";
         boolean s = sender.hasPermission(basePerm + ".self");
         boolean o = sender.hasPermission(basePerm + ".others");
@@ -203,7 +196,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
                     mm.noPermission(sender);
                     return;
                 }
-                for (Player p : plugin.getServer().getOnlinePlayers()) {
+                for (Player p : plugin.getGame().getServer().getOnlinePlayers()) {
                     if (unfreeze)
                         api.unfreeze(p);
                     else
@@ -219,11 +212,12 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
             if (args[1].equalsIgnoreCase("-w")) {
                 World t = null;
                 if (args.length > 2) {
-                    t = Bukkit.getWorld(args[2]);
-                    if (t == null) {
+                    Optional<World> tOpt = plugin.getGame().getServer().getWorld(args[2]);
+                    if (!tOpt.isPresent()) {
                         mm.worldDoesntExist(sender, args[2]);
                         return;
                     }
+                    t = tOpt.get();
                 } else {
                     if (!(sender instanceof Player)) {
                         mm.mustSpecifyWorld(sender);
@@ -252,22 +246,23 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
                 mm.noPermission(sender);
                 return;
             }
-            OfflinePlayer target;
+            Optional<Player> targetOpt;
             try {
-                target = plugin.getServer().getOfflinePlayer(MessageManager.formatFromInput(args[1]));
+                targetOpt = plugin.getGame().getServer().getPlayer(MessageManager.formatFromInput(args[1]));
             } catch (IllegalArgumentException e) {
-                target = plugin.getServer().getOfflinePlayer(args[1]);
+                targetOpt = plugin.getGame().getServer().getPlayer(args[1]);
             }
-            if (target == null || !target.isOnline()) {
-                mm.playerNotFound(sender, target == null || target.getName() == null ? args[1] : target.getName());
+            if (!targetOpt.isPresent() || !targetOpt.get().isOnline()) {
+                mm.playerNotFound(sender, !targetOpt.isPresent() || targetOpt.get().getName() == null ? args[1] : targetOpt.get().getName());
                 return;
             }
             // If a player specified their own name, we run the command as if the player
             // param was not
             // given. The others permission therefore includes the self.
+            Player target = targetOpt.get();
             if (!(sender instanceof Player) || !target.getUniqueId().equals(((Player) sender).getUniqueId())) {
-                if ((!unfreeze && api.freeze(target.getPlayer()))
-                        || (unfreeze && target.getPlayer().teleport(target.getPlayer().getLocation())))
+                if ((!unfreeze && api.freeze(target))
+                        || (unfreeze && api.unfreeze(target)))
                     if (unfreeze)
                         mm.packetUnfreeze(sender, target.getName());
                     else
@@ -284,7 +279,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
         }
 
         Player p = (Player) sender;
-        if ((!unfreeze && api.freeze(p.getPlayer())) || (unfreeze && api.unfreeze(p)))
+        if ((!unfreeze && api.freeze(p)) || (unfreeze && api.unfreeze(p)))
             if (unfreeze)
                 mm.packetUnfreeze(sender);
             else
@@ -293,7 +288,7 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
             mm.packetError(sender);
     }
 
-    private void cmdReload(CommandSender sender) {
+    private void cmdReload(CommandSource sender) {
         if (!sender.hasPermission("skychanger.reload")) {
             mm.noPermission(sender);
             return;
@@ -305,77 +300,8 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
             mm.reloadFailed(sender);
     }
 
-    private void cmdVersion(CommandSender sender) {
+    private void cmdVersion(CommandSource sender) {
         mm.versionMessage(sender);
-    }
-
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-
-        List<String> ret = new ArrayList<String>();
-
-        boolean b = sender.hasPermission("skychanger.freeze.self") || sender.hasPermission("skychanger.freeze.others")
-                || sender.hasPermission("skychanger.freeze.all") || WorldPermissionUtil.hasGeneralFreezePerm(sender);
-
-        if (args.length == 1) {
-            if ("help".startsWith(args[0].toLowerCase()))
-                ret.add("help");
-            if (b && "freeze".startsWith(args[0].toLowerCase()))
-                ret.add("freeze");
-            if (b && "unfreeze".startsWith(args[0].toLowerCase()))
-                ret.add("unfreeze");
-            if ("version".startsWith(args[0].toLowerCase()))
-                ret.add("version");
-            if (sender.hasPermission("skychanger.reload") && "reload".startsWith(args[0].toLowerCase()))
-                ret.add("reload");
-        }
-
-        if (args.length == 2 && (packetNum.matcher(args[0]).matches() || args[0].equalsIgnoreCase("freeze")
-                || args[0].equalsIgnoreCase("unfreeze"))) {
-            // Players
-            if (sender.hasPermission("skychanger.changesky.others") || sender.hasPermission("skychanger.freeze.others"))
-                plugin.getServer().getOnlinePlayers().forEach(player -> {
-                    if (player.getName().toLowerCase().startsWith(args[1].toLowerCase())) {
-                        ret.add(player.getName());
-                    }
-                });
-            // All flag
-            if ((sender.hasPermission("skychanger.changesky.all") || sender.hasPermission("skychanger.freeze.all"))
-                    && "-a".startsWith(args[1].toLowerCase())) {
-                ret.add("-a");
-            }
-            // World flag
-            if (args[0].equalsIgnoreCase("freeze") || args[0].equalsIgnoreCase("unfreeze")) {
-                if ("-w".startsWith(args[1].toLowerCase()) && WorldPermissionUtil.hasGeneralFreezePerm(sender)) {
-                    ret.add("-w");
-                }
-            } else {
-                if ("-w".startsWith(args[1].toLowerCase()) && WorldPermissionUtil.hasGeneralChangeskyPerm(sender)) {
-                    ret.add("-w");
-                }
-            }
-        }
-
-        // World names
-        if (args.length == 3) {
-            if (packetNum.matcher(args[0]).matches()) {
-                for (World w : plugin.getServer().getWorlds()) {
-                    if (w.getName().toLowerCase().startsWith(args[2].toLowerCase())
-                            && WorldPermissionUtil.hasChangeskyPerm(sender, w)) {
-                        ret.add(w.getName());
-                    }
-                }
-            } else if (args[0].equalsIgnoreCase("freeze") || args[0].equalsIgnoreCase("unfreeze")) {
-                for (World w : plugin.getServer().getWorlds()) {
-                    if (w.getName().toLowerCase().startsWith(args[2].toLowerCase())
-                            && WorldPermissionUtil.hasFreezePerm(sender, w)) {
-                        ret.add(w.getName());
-                    }
-                }
-            }
-        }
-
-        return ret.size() > 0 ? ret : null;
     }
 
 }

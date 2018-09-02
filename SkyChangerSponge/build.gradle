@@ -18,6 +18,16 @@ minecraft {
     mappings = 'stable_39'
 }
 
+sponge {
+    plugin {
+        meta {
+            name = 'skychanger'
+            version = version
+            description = description
+        }
+    }
+}
+
 repositories {
     maven { url "http://repo.bstats.org/content/repositories/releases/" }
 }
