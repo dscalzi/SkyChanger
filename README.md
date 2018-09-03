@@ -2,7 +2,7 @@
 
 [<img src="https://ci.appveyor.com/api/projects/status/3j1tc074rvi6a3mr?retina=true" height='20.74px'></img>](https://ci.appveyor.com/project/dscalzi/skychanger) [![](https://img.shields.io/github/license/dscalzi/SkyChanger.svg)](https://github.com/dscalzi/SkyChanger/blob/master/LICENSE) ![](https://img.shields.io/badge/Spigot-1.8.x--1.13.x-orange.svg) ![](https://img.shields.io/badge/Java-8+-ec2025.svg) [![](https://discordapp.com/api/guilds/211524927831015424/widget.png)](https://discordapp.com/invite/Fcrh6PT)
 
-SkyChanger is a light-weight plugin built using the Spigot API. The main function of this plugin is to change the color of the sky for yourself, a specific player, a specific world, or everyone. This plugin functions by sending packets with a specified value to the target player(s).
+SkyChanger is a light-weight plugin for Spigot and Sponge. The main function of this plugin is to change the color of the sky for yourself, a specific player, a specific world, or everyone. This plugin functions by sending packets with a specified value to the target player(s).
 
 ***
 
@@ -28,10 +28,10 @@ You can find more extensive details on the [wiki](https://github.com/dscalzi/Sky
 
 If you would like to contribute to SkyChanger, feel free to submit a pull request. The project does not use a specific code style, however please keep to the conventions used throughout the code.
 
-To build this project you will need [Maven](https://maven.apache.org/), or an IDE which supports it, and to run the following command:
+You can build SkyChanger using [Gradle](https://gradle.org/). Clone the repository and run the following command.
 
 ```shell
-mvn clean install
+$ gradlew build
 ```
 
 ---
@@ -53,9 +53,17 @@ If you want to hook SkyChanger into your own plugin or simply want to extend fun
     <url>http://jcenter.bintray.com</url>
 </repository>
 
+<!-- For Bukkit -->
 <dependency>
   <groupId>com.dscalzi</groupId>
-  <artifactId>SkyChanger</artifactId>
+  <artifactId>SkyChanger-Bukkit</artifactId>
+  <version>VERSION</version>
+</dependency>
+
+<!-- For Sponge -->
+<dependency>
+  <groupId>com.dscalzi</groupId>
+  <artifactId>SkyChanger-Sponge</artifactId>
   <version>VERSION</version>
 </dependency>
 ```
@@ -69,7 +77,10 @@ repositories {
 }
 
 dependencies {
-    compile 'com.dscalzi:SkyChanger:VERSION'
+    // For Bukkit
+    compile 'com.dscalzi:SkyChanger-Bukkit:VERSION'
+    // For Sponge
+    compile 'com.dscalzi:SkyChanger-Sponge:VERSION'
 }
 ```
 
