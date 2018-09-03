@@ -154,10 +154,10 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
                         return;
                     }
                     t = ((Player) sender).getWorld();
-                    if (!WorldPermissionUtil.hasChangeskyPerm(sender, t)) {
-                        mm.noPermission(sender);
-                        return;
-                    }
+                }
+                if (!WorldPermissionUtil.hasChangeskyPerm(sender, t)) {
+                    mm.noPermission(sender);
+                    return;
                 }
                 for (Player p : t.getPlayers()) {
                     api.changeSky(p, pN);
@@ -249,10 +249,10 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
                         return;
                     }
                     t = ((Player) sender).getWorld();
-                    if (!WorldPermissionUtil.hasFreezePerm(sender, t)) {
-                        mm.noPermission(sender);
-                        return;
-                    }
+                }
+                if (!WorldPermissionUtil.hasFreezePerm(sender, t)) {
+                    mm.noPermission(sender);
+                    return;
                 }
                 for (Player p : t.getPlayers()) {
                     if (unfreeze)

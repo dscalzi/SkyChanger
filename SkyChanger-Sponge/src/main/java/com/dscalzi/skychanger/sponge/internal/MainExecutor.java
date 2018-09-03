@@ -56,7 +56,7 @@ public class MainExecutor implements CommandCallable {
     
     @Override
     public CommandResult process(CommandSource src, String arguments) throws CommandException {
-        final String[] args = arguments.isEmpty() ? new String[0] : arguments.split(" ");
+        final String[] args = arguments.isEmpty() ? new String[0] : arguments.replaceAll("\\s{2,}", " ").split(" ");
         this.mm = MessageManager.getInstance();
         
         if (args.length > 0) {
@@ -154,10 +154,10 @@ public class MainExecutor implements CommandCallable {
                         return;
                     }
                     t = ((Player) sender).getWorld();
-                    if (!WorldPermissionUtil.hasChangeskyPerm(sender, t)) {
-                        mm.noPermission(sender);
-                        return;
-                    }
+                }
+                if (!WorldPermissionUtil.hasChangeskyPerm(sender, t)) {
+                    mm.noPermission(sender);
+                    return;
                 }
                 for (Player p : t.getPlayers()) {
                     api.changeSky(p, pN);
@@ -250,10 +250,10 @@ public class MainExecutor implements CommandCallable {
                         return;
                     }
                     t = ((Player) sender).getWorld();
-                    if (!WorldPermissionUtil.hasFreezePerm(sender, t)) {
-                        mm.noPermission(sender);
-                        return;
-                    }
+                }
+                if (!WorldPermissionUtil.hasFreezePerm(sender, t)) {
+                    mm.noPermission(sender);
+                    return;
                 }
                 for (Player p : t.getPlayers()) {
                     if (unfreeze)
@@ -333,7 +333,7 @@ public class MainExecutor implements CommandCallable {
     @Override
     public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition)
             throws CommandException {
-        String[] argsDirty = arguments.split(" ");
+        String[] argsDirty = arguments.replaceAll("\\s{2,}", " ").split(" ");
         String[] args = arguments.endsWith(" ") ? new String[argsDirty.length + 1] : argsDirty;
         if(args != argsDirty) {
             System.arraycopy(argsDirty, 0, args, 0, argsDirty.length);

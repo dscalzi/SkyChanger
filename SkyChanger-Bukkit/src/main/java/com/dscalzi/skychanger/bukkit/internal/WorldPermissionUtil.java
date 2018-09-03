@@ -66,7 +66,7 @@ public class WorldPermissionUtil {
             final String effective = i.getPermission().toLowerCase();
             if (effective.equals(perm + ".*")) {
                 canByRight = i.getValue();
-            } else if (effective.equals(perm + "." + w.getName().toLowerCase())) {
+            } else if (effective.indexOf(perm) > -1 && i.getPermission().substring(perm.length() + 1).equals(w.getName())) {
                 return i.getValue();
             }
         }

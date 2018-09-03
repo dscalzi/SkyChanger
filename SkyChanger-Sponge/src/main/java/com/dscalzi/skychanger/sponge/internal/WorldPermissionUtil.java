@@ -26,6 +26,7 @@ package com.dscalzi.skychanger.sponge.internal;
 
 import java.util.Map;
 
+import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.world.World;
 
@@ -43,6 +44,9 @@ public class WorldPermissionUtil {
     }
 
     private static boolean hasGeneralPerm(Subject p, String perm) {
+        if(p instanceof ConsoleSource) {
+            return true;
+        }
         for (Map<String, Boolean> d : p.getSubjectData().getAllPermissions().values()) {
             for(Map.Entry<String, Boolean> s : d.entrySet()) {
                 if(s.getKey().toLowerCase().startsWith(perm)) {
@@ -64,13 +68,16 @@ public class WorldPermissionUtil {
     }
 
     private static boolean hasWorldPerm(Subject p, World w, String perm) {
+        if(p instanceof ConsoleSource) {
+            return true;
+        }
         boolean canByRight = false;
         for (Map<String, Boolean> d : p.getSubjectData().getAllPermissions().values()) {
             for(Map.Entry<String, Boolean> s : d.entrySet()) {
                 final String effective = s.getKey().toLowerCase();
                 if (effective.equals(perm)) {
                     canByRight = s.getValue();
-                } else if (effective.equals(perm + "." + w.getName().toLowerCase())) {
+                } else if (effective.indexOf(perm) > -1 && s.getKey().substring(perm.length() + 1).equals(w.getName())) {
                     return s.getValue();
                 }
             }
