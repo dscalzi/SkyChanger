@@ -24,16 +24,18 @@
 
 package com.dscalzi.skychanger.sponge.internal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.args.CommandContext;
-import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
@@ -42,7 +44,7 @@ import com.dscalzi.skychanger.sponge.api.SkyChanger;
 import com.dscalzi.skychanger.sponge.managers.ConfigManager;
 import com.dscalzi.skychanger.sponge.managers.MessageManager;
 
-public class MainExecutor implements CommandExecutor {
+public class MainExecutor implements CommandCallable {
 
     private static final Pattern packetNum = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
     private MessageManager mm;
@@ -53,9 +55,8 @@ public class MainExecutor implements CommandExecutor {
     }
     
     @Override
-    public CommandResult execute(CommandSource src, CommandContext cc) throws CommandException {
-        final String argStr = ((String)cc.getOne(Text.of("args")).orElse(null));
-        final String[] args = argStr != null ? argStr.split(" ") : new String[0];
+    public CommandResult process(CommandSource src, String arguments) throws CommandException {
+        final String[] args = arguments.isEmpty() ? new String[0] : arguments.split(" ");
         this.mm = MessageManager.getInstance();
         
         if (args.length > 0) {
@@ -327,6 +328,104 @@ public class MainExecutor implements CommandExecutor {
 
     private void cmdVersion(CommandSource sender) {
         mm.versionMessage(sender);
+    }
+
+    @Override
+    public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition)
+            throws CommandException {
+        String[] argsDirty = arguments.split(" ");
+        String[] args = arguments.endsWith(" ") ? new String[argsDirty.length + 1] : argsDirty;
+        if(args != argsDirty) {
+            System.arraycopy(argsDirty, 0, args, 0, argsDirty.length);
+            args[args.length-1] = new String();
+        }
+
+        List<String> ret = new ArrayList<String>();
+
+        boolean b = source.hasPermission("skychanger.freeze.self") || source.hasPermission("skychanger.freeze.others")
+                || source.hasPermission("skychanger.freeze.all") || WorldPermissionUtil.hasGeneralFreezePerm(source);
+
+        if (args.length == 1) {
+            if ("help".startsWith(args[0].toLowerCase()))
+                ret.add("help");
+            if (b && "freeze".startsWith(args[0].toLowerCase()))
+                ret.add("freeze");
+            if (b && "unfreeze".startsWith(args[0].toLowerCase()))
+                ret.add("unfreeze");
+            if ("version".startsWith(args[0].toLowerCase()))
+                ret.add("version");
+            if (source.hasPermission("skychanger.reload") && "reload".startsWith(args[0].toLowerCase()))
+                ret.add("reload");
+        }
+
+        if (args.length == 2 && (packetNum.matcher(args[0]).matches() || args[0].equalsIgnoreCase("freeze")
+                || args[0].equalsIgnoreCase("unfreeze"))) {
+            // Players
+            if (source.hasPermission("skychanger.changesky.others") || source.hasPermission("skychanger.freeze.others"))
+                plugin.getGame().getServer().getOnlinePlayers().forEach(player -> {
+                    if (player.getName().toLowerCase().startsWith(args[1].toLowerCase())) {
+                        ret.add(player.getName());
+                    }
+                });
+            // All flag
+            if ((source.hasPermission("skychanger.changesky.all") || source.hasPermission("skychanger.freeze.all"))
+                    && "-a".startsWith(args[1].toLowerCase())) {
+                ret.add("-a");
+            }
+            // World flag
+            if (args[0].equalsIgnoreCase("freeze") || args[0].equalsIgnoreCase("unfreeze")) {
+                if ("-w".startsWith(args[1].toLowerCase()) && WorldPermissionUtil.hasGeneralFreezePerm(source)) {
+                    ret.add("-w");
+                }
+            } else {
+                if ("-w".startsWith(args[1].toLowerCase()) && WorldPermissionUtil.hasGeneralChangeskyPerm(source)) {
+                    ret.add("-w");
+                }
+            }
+        }
+
+        // World names
+        if (args.length == 3) {
+            if(args[1].equalsIgnoreCase("-w")) {
+                if (packetNum.matcher(args[0]).matches()) {
+                    for (World w : plugin.getGame().getServer().getWorlds()) {
+                        if (w.getName().toLowerCase().startsWith(args[2].toLowerCase())
+                                && WorldPermissionUtil.hasChangeskyPerm(source, w)) {
+                            ret.add(w.getName());
+                        }
+                    }
+                } else if (args[0].equalsIgnoreCase("freeze") || args[0].equalsIgnoreCase("unfreeze")) {
+                    for (World w : plugin.getGame().getServer().getWorlds()) {
+                        if (w.getName().toLowerCase().startsWith(args[2].toLowerCase())
+                                && WorldPermissionUtil.hasFreezePerm(source, w)) {
+                            ret.add(w.getName());
+                        }
+                    }
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    @Override
+    public boolean testPermission(CommandSource source) {
+        return true;
+    }
+
+    @Override
+    public Optional<Text> getShortDescription(CommandSource source) {
+        return Optional.of(Text.of("Change the color of the sky."));
+    }
+
+    @Override
+    public Optional<Text> getHelp(CommandSource source) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Text getUsage(CommandSource source) {
+        return mm.getExtendedHelp();
     }
 
 }

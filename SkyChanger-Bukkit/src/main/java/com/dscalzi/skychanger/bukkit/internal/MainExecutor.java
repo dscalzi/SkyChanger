@@ -377,24 +377,26 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
 
         // World names
         if (args.length == 3) {
-            if (packetNum.matcher(args[0]).matches()) {
-                for (World w : plugin.getServer().getWorlds()) {
-                    if (w.getName().toLowerCase().startsWith(args[2].toLowerCase())
-                            && WorldPermissionUtil.hasChangeskyPerm(sender, w)) {
-                        ret.add(w.getName());
+            if(args[1].equalsIgnoreCase("-w")) {
+                if (packetNum.matcher(args[0]).matches()) {
+                    for (World w : plugin.getServer().getWorlds()) {
+                        if (w.getName().toLowerCase().startsWith(args[2].toLowerCase())
+                                && WorldPermissionUtil.hasChangeskyPerm(sender, w)) {
+                            ret.add(w.getName());
+                        }
                     }
-                }
-            } else if (args[0].equalsIgnoreCase("freeze") || args[0].equalsIgnoreCase("unfreeze")) {
-                for (World w : plugin.getServer().getWorlds()) {
-                    if (w.getName().toLowerCase().startsWith(args[2].toLowerCase())
-                            && WorldPermissionUtil.hasFreezePerm(sender, w)) {
-                        ret.add(w.getName());
+                } else if (args[0].equalsIgnoreCase("freeze") || args[0].equalsIgnoreCase("unfreeze")) {
+                    for (World w : plugin.getServer().getWorlds()) {
+                        if (w.getName().toLowerCase().startsWith(args[2].toLowerCase())
+                                && WorldPermissionUtil.hasFreezePerm(sender, w)) {
+                            ret.add(w.getName());
+                        }
                     }
                 }
             }
         }
 
-        return ret.size() > 0 ? ret : null;
+        return ret;
     }
 
 }
