@@ -70,7 +70,6 @@ subprojects {
 
     jar {
         baseName = project.name
-        from(rootProject.projectDir.toString() + '/resources')
 
         manifest {
             attributes 'Implementation-Version': version, 'Specification-Version': version

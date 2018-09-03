@@ -22,39 +22,45 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.bukkit.skychanger.api;
+package com.dscalzi.skychanger.bukkit.api;
 
-import com.dscalzi.bukkit.skychanger.SkyChangerPlugin;
-import com.dscalzi.bukkit.skychanger.internal.SkyChangeImpl;
+import org.bukkit.entity.Player;
 
-/**
- * Utility class to obtain references to components of SkyChanger.
- */
-public class SkyChanger {
-
-    private static final SkyAPI api = new SkyChangeImpl();
+public interface SkyAPI {
 
     /**
-     * Get the SkyChanger plugin. If SkyChanger is not loaded yet, then this will
-     * return null.
-     * <p>
-     * If you are depending on SkyChanger in your plugin, you should place
-     * <code>softdepend: [SkyChanger]</code> or <code>depend: [SkyChanger]</code> in
-     * your plugin.yml so that this won't return null for you.
-     *
-     * @return the SkyChanger plugin if it is loaded, otherwise null.
-     */
-    public static final SkyChangerPlugin getPlugin() {
-        return SkyChangerPlugin.inst();
-    }
-
-    /**
-     * Get an instance of the SkyChanger API.
+     * Change the sky for a player.
      * 
-     * @return An instance of the SkyChanger API.
+     * @param player
+     *            The target of the sky change.
+     * @param number
+     *            The packet number which will determine the type of sky.
+     * @return True if the sky change was successful, otherwise false.
+     * 
+     * @since 1.4.0
      */
-    public static final SkyAPI getAPI() {
-        return api;
-    }
+    public boolean changeSky(Player player, float number);
+
+    /**
+     * Freeze a player.
+     * 
+     * @param player
+     *            The target of the freeze.
+     * @return True if the freeze was successful, otherwise false.
+     * 
+     * @since 1.4.0
+     */
+    public boolean freeze(Player player);
+
+    /**
+     * Unfreeze a player.
+     * 
+     * @param player
+     *            The target of the unfreeze.
+     * @return True if the unfreeze was successful, otherwise false.
+     * 
+     * @since 1.4.0
+     */
+    public boolean unfreeze(Player player);
 
 }

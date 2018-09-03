@@ -22,45 +22,39 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.bukkit.skychanger.api;
+package com.dscalzi.skychanger.bukkit.api;
 
-import org.bukkit.entity.Player;
+import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+import com.dscalzi.skychanger.bukkit.internal.SkyChangeImpl;
 
-public interface SkyAPI {
+/**
+ * Utility class to obtain references to components of SkyChanger.
+ */
+public class SkyChanger {
 
-    /**
-     * Change the sky for a player.
-     * 
-     * @param player
-     *            The target of the sky change.
-     * @param number
-     *            The packet number which will determine the type of sky.
-     * @return True if the sky change was successful, otherwise false.
-     * 
-     * @since 1.4.0
-     */
-    public boolean changeSky(Player player, float number);
+    private static final SkyAPI api = new SkyChangeImpl();
 
     /**
-     * Freeze a player.
-     * 
-     * @param player
-     *            The target of the freeze.
-     * @return True if the freeze was successful, otherwise false.
-     * 
-     * @since 1.4.0
+     * Get the SkyChanger plugin. If SkyChanger is not loaded yet, then this will
+     * return null.
+     * <p>
+     * If you are depending on SkyChanger in your plugin, you should place
+     * <code>softdepend: [SkyChanger]</code> or <code>depend: [SkyChanger]</code> in
+     * your plugin.yml so that this won't return null for you.
+     *
+     * @return the SkyChanger plugin if it is loaded, otherwise null.
      */
-    public boolean freeze(Player player);
+    public static final SkyChangerPlugin getPlugin() {
+        return SkyChangerPlugin.inst();
+    }
 
     /**
-     * Unfreeze a player.
+     * Get an instance of the SkyChanger API.
      * 
-     * @param player
-     *            The target of the unfreeze.
-     * @return True if the unfreeze was successful, otherwise false.
-     * 
-     * @since 1.4.0
+     * @return An instance of the SkyChanger API.
      */
-    public boolean unfreeze(Player player);
+    public static final SkyAPI getAPI() {
+        return api;
+    }
 
 }

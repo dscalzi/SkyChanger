@@ -22,13 +22,13 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.bukkit.skychanger.managers;
+package com.dscalzi.skychanger.bukkit.managers;
 
 import java.io.File;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import com.dscalzi.bukkit.skychanger.SkyChangerPlugin;
+import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
 
 public class ConfigManager {
 

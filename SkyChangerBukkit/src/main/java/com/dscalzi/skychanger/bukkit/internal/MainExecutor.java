@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.bukkit.skychanger.internal;
+package com.dscalzi.skychanger.bukkit.internal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,11 +37,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import com.dscalzi.bukkit.skychanger.SkyChangerPlugin;
-import com.dscalzi.bukkit.skychanger.api.SkyAPI;
-import com.dscalzi.bukkit.skychanger.api.SkyChanger;
-import com.dscalzi.bukkit.skychanger.managers.ConfigManager;
-import com.dscalzi.bukkit.skychanger.managers.MessageManager;
+import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+import com.dscalzi.skychanger.bukkit.api.SkyAPI;
+import com.dscalzi.skychanger.bukkit.api.SkyChanger;
+import com.dscalzi.skychanger.bukkit.managers.ConfigManager;
+import com.dscalzi.skychanger.bukkit.managers.MessageManager;
 
 public class MainExecutor implements CommandExecutor, TabCompleter {
 

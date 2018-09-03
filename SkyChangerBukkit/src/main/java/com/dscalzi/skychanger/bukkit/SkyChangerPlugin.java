@@ -22,14 +22,14 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.bukkit.skychanger;
+package com.dscalzi.skychanger.bukkit;
 
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.dscalzi.bukkit.skychanger.internal.MainExecutor;
-import com.dscalzi.bukkit.skychanger.managers.ConfigManager;
-import com.dscalzi.bukkit.skychanger.managers.MessageManager;
+import com.dscalzi.skychanger.bukkit.internal.MainExecutor;
+import com.dscalzi.skychanger.bukkit.managers.ConfigManager;
+import com.dscalzi.skychanger.bukkit.managers.MessageManager;
 
 public class SkyChangerPlugin extends JavaPlugin {
 
