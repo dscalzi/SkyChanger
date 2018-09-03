@@ -21,9 +21,12 @@ minecraft {
 sponge {
     plugin {
         meta {
-            name = 'skychanger'
+            id = 'skychanger'
+            name = 'SkyChanger'
             version = version
-            description = description
+            description = 'Change the color of your personal sky.'
+            url = 'https://github.com/dscalzi/skychanger'
+            authors = ['Daniel Scalzi (TheKraken7)']
         }
     }
 }

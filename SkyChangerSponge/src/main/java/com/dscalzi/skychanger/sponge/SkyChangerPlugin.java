@@ -1,5 +1,6 @@
 package com.dscalzi.skychanger.sponge;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -9,6 +10,8 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
+import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
@@ -27,6 +30,9 @@ import com.dscalzi.skychanger.sponge.managers.MessageManager;
 import com.dscalzi.skychanger.sponge.internal.MainExecutor;
 import com.google.inject.Inject;
 
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+
 @Plugin(id = "skychanger")
 public class SkyChangerPlugin {
 
@@ -34,6 +40,13 @@ public class SkyChangerPlugin {
     @Inject private Logger logger;
     @Inject private Game game;
     @Inject private Metrics metrics;
+    
+    @Inject
+    @DefaultConfig(sharedRoot = false)
+    private ConfigurationLoader<CommentedConfigurationNode> configLoader;
+    @Inject
+    @ConfigDir(sharedRoot = false)
+    private File configDir;
     
     private static SkyChangerPlugin inst;
 
@@ -62,6 +75,14 @@ public class SkyChangerPlugin {
         return game;
     }
     
+    public ConfigurationLoader<CommentedConfigurationNode> getConfigLoader(){
+        return configLoader;
+    }
+    
+    public File getConfigDir() {
+        return configDir;
+    }
+    
     public void disable() {
         game.getEventManager().unregisterPluginListeners(this);
         game.getCommandManager().getOwnedBy(this).forEach(game.getCommandManager()::removeMapping);
@@ -70,13 +91,14 @@ public class SkyChangerPlugin {
     
     @Listener
     public void onGamePreInitialization(GamePreInitializationEvent e){
-        logger.info("Enabling " + plugin.getName() + " version " + plugin.getVersion().orElse("") + ".");
+        logger.info("Enabling " + plugin.getName() + " version " + plugin.getVersion().orElse("dev") + ".");
 
         ConfigManager.initialize(this);
         MessageManager.initialize(this);
         
         Sponge.getCommandManager().register(this, CommandSpec.builder()
-                .description(Text.of("Enable or disable nightvision."))
+                .description(Text.of("Change the color of the sky."))
+                .extendedDescription(MessageManager.getInstance().getExtendedHelp())
                 .arguments(GenericArguments.optionalWeak(GenericArguments.remainingJoinedStrings(Text.of("args"))))
                 .executor(new MainExecutor(this))
                 .build(), Arrays.asList("skychanger"));

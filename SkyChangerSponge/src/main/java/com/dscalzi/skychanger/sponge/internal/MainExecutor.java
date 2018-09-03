@@ -30,7 +30,8 @@ public class MainExecutor implements CommandExecutor {
     
     @Override
     public CommandResult execute(CommandSource src, CommandContext cc) throws CommandException {
-        final String[] args = ((String)cc.getOne(Text.of("args")).get()).split(" ");
+        final String argStr = ((String)cc.getOne(Text.of("args")).orElse(null));
+        final String[] args = argStr != null ? argStr.split(" ") : new String[0];
         this.mm = MessageManager.getInstance();
         
         if (args.length > 0) {

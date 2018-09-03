@@ -20,7 +20,7 @@ public class SkyChanger {
      * return null.
      * <p>
      * If you are depending on SkyChanger in your plugin, you should place
-     * <code>dependencies = {@Dependency(id = "skychanger")}</code> in
+     * <code>dependencies = {&#064;Dependency(id = "skychanger")}</code> in
      * your plugin metadata so that this won't return null for you.
      * https://docs.spongepowered.org/stable/en/plugin/plugin-meta.html#plugin-annotation
      *

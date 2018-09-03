@@ -8,14 +8,8 @@ package com.dscalzi.skychanger.sponge.managers;
 import java.io.File;
 import java.io.IOException;
 import org.spongepowered.api.asset.Asset;
-import org.spongepowered.api.config.ConfigDir;
-import org.spongepowered.api.config.DefaultConfig;
-
 import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
-import com.google.inject.Inject;
-
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
 
 public class ConfigManager {
 
@@ -25,13 +19,6 @@ public class ConfigManager {
     // TODO Will be implemented in a later version
     private final double configVersion = 1.0;
     private SkyChangerPlugin plugin;
-    
-    @Inject
-    @DefaultConfig(sharedRoot = false)
-    private ConfigurationLoader<CommentedConfigurationNode> configManager;
-    @Inject
-    @ConfigDir(sharedRoot = false)
-    private File configDir;
     private CommentedConfigurationNode config;
 
 
@@ -44,7 +31,7 @@ public class ConfigManager {
         boolean res = verifyFile();
         if(res) {
             try {
-                this.config = this.configManager.load();
+                this.config = this.plugin.getConfigLoader().load();
             } catch (IOException e) {
                 plugin.getLogger().error("Failed to load config.");
                 e.printStackTrace();
@@ -56,7 +43,7 @@ public class ConfigManager {
 
     public boolean verifyFile() {
         Asset asset = plugin.getPlugin().getAsset("skychanger.conf").orElse(null);
-        File file = new File(configDir, "skychanger.conf");
+        File file = new File(plugin.getConfigDir(), "skychanger.conf");
 
         if (!file.exists()) {
             if(asset != null) {

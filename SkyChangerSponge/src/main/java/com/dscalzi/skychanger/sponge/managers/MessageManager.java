@@ -51,7 +51,7 @@ public class MessageManager {
         this.cMessage = TextColors.YELLOW;
         this.cSuccess = TextColors.GREEN;
         this.cError = TextColors.RED;
-        this.prefix = Text.of(cPrimary, "| ", cTrim, TextStyles.BOLD, "S", cTrim, "ky", TextStyles.BOLD, "C", cTrim
+        this.prefix = Text.of(cPrimary, "| ", cTrim, TextStyles.BOLD, "S", TextStyles.RESET, cTrim, "ky", TextStyles.BOLD, "C", TextStyles.RESET, cTrim
                 , "hanger", cPrimary, " |", TextStyles.RESET);
 
         this.loadLanguage();
@@ -108,7 +108,7 @@ public class MessageManager {
     }
     
     public void sendMessage(CommandSource sender, Text message) {
-        sender.sendMessage(Text.of(prefix, cMessage, " " + message));
+        sender.sendMessage(Text.of(prefix, cMessage, " ", message));
     }
 
     public void sendSuccess(CommandSource sender, String message) {
@@ -151,30 +151,41 @@ public class MessageManager {
     }
 
     /* Messages */
-
+    
+    public Text getExtendedHelp() {
+        final Text listPrefix = Text.of(cMessage, " " + b + " ");
+        return Text.of(prefix, cMessage, " " + getString("message.commandList") + "\n",
+                listPrefix, cMessage, "/SkyChanger help ", TextColors.NONE, "- " + getString("message.descHelp") + "\n",
+                listPrefix, cMessage, this.generateChangeSkyUsage(null), TextColors.NONE, " - " + getString("message.descChangeSky") + "\n",
+                listPrefix, cMessage, this.generateFreezeUsage(null, false), TextColors.NONE, " - " + getString("message.descFreeze") + "\n",
+                listPrefix, cMessage, this.generateFreezeUsage(null, true), TextColors.NONE, " - " + getString("message.descUnfreeze") + "\n",
+                listPrefix, cMessage, "/SkyChanger reload ", TextColors.NONE, "- " + getString("message.descReload") + "\n",
+                listPrefix, cMessage, "/SkyChanger version ", TextColors.NONE, "- " + getString("message.descVersion"));
+    }
+    
     public void helpMessage(CommandSource sender) {
         final Text listPrefix = Text.of(cMessage, " " + b + " ");
 
         Text header = Text.of(prefix, cMessage, " " + getString("message.commandList"));
         List<Text> cmds = new ArrayList<Text>();
 
-        cmds.add(Text.of(listPrefix, "/SkyChanger help ", TextStyles.RESET, "- " + getString("message.descHelp")));
+        cmds.add(Text.of(listPrefix, cMessage, "/SkyChanger help ", TextColors.NONE, "- " + getString("message.descHelp")));
         if (sender.hasPermission("skychanger.changesky.self") || sender.hasPermission("skychanger.changesky.others")
                 || sender.hasPermission("skychanger.changesky.all")
                 || WorldPermissionUtil.hasGeneralChangeskyPerm(sender)) {
-            cmds.add(Text.of(listPrefix, this.generateChangeSkyUsage(sender), TextStyles.RESET, " - "
+            cmds.add(Text.of(listPrefix, cMessage, this.generateChangeSkyUsage(sender), TextColors.NONE, " - "
                     + getString("message.descChangeSky")));
         }
         if (sender.hasPermission("skychanger.freeze.self") || sender.hasPermission("skychanger.freeze.others")
                 || sender.hasPermission("skychanger.freeze.all") || WorldPermissionUtil.hasGeneralFreezePerm(sender)) {
-            cmds.add(Text.of(listPrefix, this.generateFreezeUsage(sender, false), TextStyles.RESET, " - "
+            cmds.add(Text.of(listPrefix, cMessage, this.generateFreezeUsage(sender, false), TextColors.NONE, " - "
                     + getString("message.descFreeze")));
-            cmds.add(Text.of(listPrefix, this.generateFreezeUsage(sender, true), TextStyles.RESET, " - "
+            cmds.add(Text.of(listPrefix, cMessage, this.generateFreezeUsage(sender, true), TextColors.NONE, " - "
                     + getString("message.descUnfreeze")));
         }
         if (sender.hasPermission("skychanger.reload"))
-            cmds.add(Text.of(listPrefix, "/SkyChanger reload ", TextStyles.RESET, "- " + getString("message.descReload")));
-        cmds.add(Text.of(listPrefix, "/SkyChanger version ", TextStyles.RESET, "- " + getString("message.descVersion")));
+            cmds.add(Text.of(listPrefix, cMessage, "/SkyChanger reload ", TextColors.NONE, "- " + getString("message.descReload")));
+        cmds.add(Text.of(listPrefix, cMessage, "/SkyChanger version ", TextColors.NONE, "- " + getString("message.descVersion")));
 
         sender.sendMessage(header);
         for (Text t : cmds)
@@ -191,17 +202,17 @@ public class MessageManager {
 
     private String generateChangeSkyUsage(CommandSource sender) {
         String u = "/SkyChanger <#>";
-        boolean o = sender.hasPermission("skychanger.changesky.others"),
-                a = sender.hasPermission("skychanger.changesky.all");
-        boolean w = WorldPermissionUtil.hasGeneralChangeskyPerm(sender);
+        boolean o = sender == null ? true : sender.hasPermission("skychanger.changesky.others"),
+                a = sender == null ? true : sender.hasPermission("skychanger.changesky.all");
+        boolean w = sender == null ? true : WorldPermissionUtil.hasGeneralChangeskyPerm(sender);
 
         return u + genOpti(sender, o, a, w);
     }
 
     private String generateFreezeUsage(CommandSource sender, boolean unfreeze) {
         String u = "/SkyChanger " + (unfreeze ? "unfreeze" : "freeze");
-        boolean o = sender.hasPermission("skychanger.freeze.others"), a = sender.hasPermission("skychanger.freeze.all");
-        boolean w = WorldPermissionUtil.hasGeneralFreezePerm(sender);
+        boolean o = sender == null ? true : sender.hasPermission("skychanger.freeze.others"), a = sender == null ? true : sender.hasPermission("skychanger.freeze.all");
+        boolean w = sender == null ? true : WorldPermissionUtil.hasGeneralFreezePerm(sender);
 
         return u + genOpti(sender, o, a, w);
     }
