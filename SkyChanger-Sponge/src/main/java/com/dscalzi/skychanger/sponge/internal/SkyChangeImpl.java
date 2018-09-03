@@ -31,6 +31,8 @@ import com.dscalzi.skychanger.sponge.api.SkyAPI;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.SPacketChangeGameState;
 import net.minecraft.network.play.server.SPacketRespawn;
+import net.minecraft.network.play.server.SPacketSetSlot;
+import net.minecraft.network.play.server.SPacketWindowItems;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 
@@ -58,7 +60,10 @@ public class SkyChangeImpl implements SkyAPI {
 
     protected boolean sendFreezePacket(Player player) {
         World w = (World)player.getLocation().getExtent();
-        ((EntityPlayerMP)player).connection.sendPacket(new SPacketRespawn(w.provider.getDimensionType().getId(), w.getDifficulty(), WorldType.DEFAULT, ((EntityPlayerMP)player).interactionManager.getGameType()));
+        EntityPlayerMP xP = ((EntityPlayerMP)player);
+        xP.connection.sendPacket(new SPacketRespawn(w.provider.getDimensionType().getId(), w.getDifficulty(), WorldType.DEFAULT, ((EntityPlayerMP)player).interactionManager.getGameType()));
+        xP.connection.sendPacket(new SPacketWindowItems(xP.inventoryContainer.windowId, xP.inventoryContainer.getInventory()));
+        xP.connection.sendPacket(new SPacketSetSlot(-1, -1, xP.inventory.getCurrentItem()));
         return true;
     }
 

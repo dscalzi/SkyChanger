@@ -71,12 +71,12 @@ public class MainExecutor implements CommandCallable {
             }
 
             if (args[0].equalsIgnoreCase("freeze")) {
-                this.cmdFreeze((Player) src, false, args);
+                this.cmdFreeze(src, false, args);
                 return CommandResult.success();
             }
 
             if (args[0].equalsIgnoreCase("unfreeze")) {
-                this.cmdFreeze((Player) src, true, args);
+                this.cmdFreeze(src, true, args);
                 return CommandResult.success();
             }
 
@@ -420,12 +420,12 @@ public class MainExecutor implements CommandCallable {
 
     @Override
     public Optional<Text> getHelp(CommandSource source) {
-        return Optional.empty();
+        return Optional.of(mm.getExtendedHelp());
     }
 
     @Override
     public Text getUsage(CommandSource source) {
-        return mm.getExtendedHelp();
+        return Text.of("/SkyChanger <args>");
     }
 
 }

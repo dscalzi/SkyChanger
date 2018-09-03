@@ -71,12 +71,12 @@ public class MainExecutor implements CommandExecutor, TabCompleter {
             }
 
             if (args[0].equalsIgnoreCase("freeze")) {
-                this.cmdFreeze((Player) sender, false, args);
+                this.cmdFreeze(sender, false, args);
                 return true;
             }
 
             if (args[0].equalsIgnoreCase("unfreeze")) {
-                this.cmdFreeze((Player) sender, true, args);
+                this.cmdFreeze(sender, true, args);
                 return true;
             }
 
