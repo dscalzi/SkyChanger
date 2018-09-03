@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.internal;
+package com.dscalzi.bukkit.skychanger.internal;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -32,8 +32,8 @@ import java.lang.reflect.Method;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.dscalzi.skychanger.api.SkyAPI;
-import com.dscalzi.skychanger.managers.MessageManager;
+import com.dscalzi.bukkit.skychanger.api.SkyAPI;
+import com.dscalzi.bukkit.skychanger.managers.MessageManager;
 
 public class SkyChangeImpl implements SkyAPI {
 

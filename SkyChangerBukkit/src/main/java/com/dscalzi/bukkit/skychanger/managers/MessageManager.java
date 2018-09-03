@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.managers;
+package com.dscalzi.bukkit.skychanger.managers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,8 +39,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.dscalzi.skychanger.SkyChangerPlugin;
-import com.dscalzi.skychanger.internal.WorldPermissionUtil;
+import com.dscalzi.bukkit.skychanger.SkyChangerPlugin;
+import com.dscalzi.bukkit.skychanger.internal.WorldPermissionUtil;
 
 public class MessageManager {
 

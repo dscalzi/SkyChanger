@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.api;
+package com.dscalzi.bukkit.skychanger.api;
 
 import org.bukkit.entity.Player;
 

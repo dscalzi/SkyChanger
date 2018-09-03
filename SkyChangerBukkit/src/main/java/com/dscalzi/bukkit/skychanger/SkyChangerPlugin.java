@@ -22,39 +22,42 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.api;
+package com.dscalzi.bukkit.skychanger;
 
-import com.dscalzi.skychanger.SkyChangerPlugin;
-import com.dscalzi.skychanger.internal.SkyChangeImpl;
+import org.bstats.bukkit.Metrics;
+import org.bukkit.plugin.java.JavaPlugin;
 
-/**
- * Utility class to obtain references to components of SkyChanger.
- */
-public class SkyChanger {
+import com.dscalzi.bukkit.skychanger.internal.MainExecutor;
+import com.dscalzi.bukkit.skychanger.managers.ConfigManager;
+import com.dscalzi.bukkit.skychanger.managers.MessageManager;
 
-    private static final SkyAPI api = new SkyChangeImpl();
+public class SkyChangerPlugin extends JavaPlugin {
 
-    /**
-     * Get the SkyChanger plugin. If SkyChanger is not loaded yet, then this will
-     * return null.
-     * <p>
-     * If you are depending on SkyChanger in your plugin, you should place
-     * <code>softdepend: [SkyChanger]</code> or <code>depend: [SkyChanger]</code> in
-     * your plugin.yml so that this won't return null for you.
-     *
-     * @return the SkyChanger plugin if it is loaded, otherwise null.
-     */
-    public static final SkyChangerPlugin getPlugin() {
-        return SkyChangerPlugin.inst();
+    private static SkyChangerPlugin inst;
+
+    private Metrics metrics;
+
+    public SkyChangerPlugin() {
+        inst = this;
+    }
+
+    @Override
+    public void onEnable() {
+        ConfigManager.initialize(this);
+        MessageManager.initialize(this);
+        this.getCommand("skychanger").setExecutor(new MainExecutor(this));
+        metrics = new Metrics(this);
+        metrics.addCustomChart(new Metrics.SimplePie("used_language",
+                () -> MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable()));
     }
 
     /**
-     * Get an instance of the SkyChanger API.
+     * Get the current instance of SkyChanger.
      * 
-     * @return An instance of the SkyChanger API.
+     * @return SkyChangerPlugin instance.
      */
-    public static final SkyAPI getAPI() {
-        return api;
+    public static SkyChangerPlugin inst() {
+        return inst;
     }
 
 }

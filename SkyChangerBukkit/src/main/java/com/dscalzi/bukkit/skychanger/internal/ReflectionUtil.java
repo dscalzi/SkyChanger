@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.internal;
+package com.dscalzi.bukkit.skychanger.internal;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
