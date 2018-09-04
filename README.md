@@ -40,7 +40,9 @@ $ gradlew build
 
 If you want to hook SkyChanger into your own plugin or simply want to extend functionality, you may use the provided API. If you feel the API is missing anything, or should be changed, please [let us know](https://github.com/dscalzi/SkyChanger/issues).
 
-**Download Latest**: [![bintray](https://api.bintray.com/packages/dscalzi/maven/SkyChanger/images/download.svg)](https://bintray.com/dscalzi/maven/SkyChanger/_latestVersion)
+**Download Latest**:
+
+Bukkit: [![bintray](https://api.bintray.com/packages/dscalzi/maven/SkyChanger-Bukkit/images/download.svg)](https://bintray.com/dscalzi/maven/SkyChanger-Bukkit/_latestVersion) Sponge: [![bintray](https://api.bintray.com/packages/dscalzi/maven/SkyChanger-Sponge/images/download.svg)](https://bintray.com/dscalzi/maven/SkyChanger-Sponge/_latestVersion)
 
 *Javadocs are not hosted, however they are provided on the maven repository.*
 
@@ -128,4 +130,5 @@ public void skychangerTests(Player player) {
 
 * [Spigot Resource Page](https://www.spigotmc.org/resources/skychanger.37524/)
 * [Dev Bukkit Page](https://dev.bukkit.org/projects/skychanger)
+* [Sponge Ore Page](https://ore.spongepowered.org/TheKraken7/SkyChanger)
 * [Suggest Features or Report Bugs](https://github.com/dscalzi/SkyChanger/issues)
