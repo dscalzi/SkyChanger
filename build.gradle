@@ -99,9 +99,9 @@ subprojects {
             vcsUrl = 'https://github.com/dscalzi/SkyChanger.git'
             publish = true
             version {
-                name = version
+                name = project.version
                 released = new Date()
-                vcsTag = 'v' + version
+                vcsTag = 'v' + project.version
             }
         }
     }
