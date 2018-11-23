@@ -32,12 +32,12 @@ sponge {
 }
 
 repositories {
-    maven { url "http://repo.bstats.org/content/repositories/releases/" }
+    maven { url 'https://repo.codemc.org/repository/maven-public' }
 }
 
 dependencies {
-    compile 'org.bstats:bstats-sponge:1.2'
-    compileOnly 'org.spongepowered:spongeapi:7.0.0'
+    compile 'org.bstats:bstats-sponge:1.4'
+    compileOnly 'org.spongepowered:spongeapi:7.1.0'
 }
 
 shadowJar {
@@ -45,8 +45,6 @@ shadowJar {
     dependsOn reobfJar
 
     classifier 'dist'
-
-    relocate 'org.bstats', 'com.dscalzi.skychanger.sponge.lib.org.bstats'
 
     exclude 'dummyThing'
 	afterEvaluate {

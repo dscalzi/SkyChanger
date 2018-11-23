@@ -28,7 +28,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
 
-import org.bstats.sponge.Metrics;
+import org.bstats.sponge.Metrics2;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
@@ -61,7 +61,7 @@ public class SkyChangerPlugin {
     @Inject private PluginContainer plugin;
     @Inject private Logger logger;
     @Inject private Game game;
-    @Inject private Metrics metrics;
+    @Inject private Metrics2 metrics;
     
     @Inject
     @DefaultConfig(sharedRoot = false)
@@ -123,7 +123,7 @@ public class SkyChangerPlugin {
     
     @Listener
     public void onServerStart(GameStartedServerEvent event) {
-        metrics.addCustomChart(new Metrics.SimplePie("used_language",
+        metrics.addCustomChart(new Metrics2.SimplePie("used_language",
                 () -> MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable()));
     }
 
