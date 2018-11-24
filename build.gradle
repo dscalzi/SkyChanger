@@ -1,6 +1,6 @@
 plugins {
     id 'net.minecrell.licenser' version '0.4.1'
-    id 'com.github.johnrengelman.shadow' version '2.0.4'
+    id 'com.github.johnrengelman.shadow' version '4.0.3'
     id 'com.jfrog.bintray' version '1.8.4'
 }
 
@@ -41,6 +41,7 @@ subprojects {
 
     license {
         sourceSets = [project.sourceSets.main]
+        exclude '**/config.yml'
         header = rootProject.file('HEADER.txt')
         ext {
             name = 'Daniel D. Scalzi'
