@@ -176,17 +176,6 @@ public class MessageManager {
 
     /* Messages */
     
-    public Text getExtendedHelp() {
-        final Text listPrefix = Text.of(cMessage, " " + b + " ");
-        return Text.of(prefix, cMessage, " " + getString("message.commandList") + "\n",
-                listPrefix, cMessage, "/SkyChanger help ", TextColors.NONE, "- " + getString("message.descHelp") + "\n",
-                listPrefix, cMessage, this.generateChangeSkyUsage(null), TextColors.NONE, " - " + getString("message.descChangeSky") + "\n",
-                listPrefix, cMessage, this.generateFreezeUsage(null, false), TextColors.NONE, " - " + getString("message.descFreeze") + "\n",
-                listPrefix, cMessage, this.generateFreezeUsage(null, true), TextColors.NONE, " - " + getString("message.descUnfreeze") + "\n",
-                listPrefix, cMessage, "/SkyChanger reload ", TextColors.NONE, "- " + getString("message.descReload") + "\n",
-                listPrefix, cMessage, "/SkyChanger version ", TextColors.NONE, "- " + getString("message.descVersion"));
-    }
-    
     public void helpMessage(CommandSource sender) {
         final Text listPrefix = Text.of(cMessage, " " + b + " ");
 

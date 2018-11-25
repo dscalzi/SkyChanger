@@ -420,7 +420,7 @@ public class MainExecutor implements CommandCallable {
 
     @Override
     public Optional<Text> getHelp(CommandSource source) {
-        return Optional.of(mm.getExtendedHelp());
+        return Optional.of(Text.of("Run /SkyChanger to view usage."));
     }
 
     @Override
