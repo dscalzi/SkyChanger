@@ -39,6 +39,10 @@ subprojects {
         testImplementation.extendsFrom compileOnly
     }
 
+    processResources {
+        from "../LICENSE.txt"
+    }
+
     license {
         sourceSets = [project.sourceSets.main]
         exclude '**/config.yml'
