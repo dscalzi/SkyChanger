@@ -5,10 +5,15 @@ plugins {
 }
 
 allprojects {
+    description = 'Change the color of your personal sky.'
     group = 'com.dscalzi'
-}
 
-description = """Change the color of your personal sky."""
+    ext {
+        name = 'SkyChanger'
+        author = 'Daniel Scalzi (TheKraken7)'
+        url = 'https://github.com/dscalzi/skychanger'
+    }
+}
 
 apply plugin: 'eclipse'
 

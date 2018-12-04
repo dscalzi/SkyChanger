@@ -22,11 +22,11 @@ sponge {
     plugin {
         meta {
             id = 'skychanger'
-            name = 'SkyChanger'
+            name = project.ext.name
             version = version
-            description = 'Change the color of your personal sky.'
-            url = 'https://github.com/dscalzi/skychanger'
-            authors = ['Daniel Scalzi (TheKraken7)']
+            description = description
+            url = project.ext.url
+            authors = [project.ext.author]
         }
     }
 }

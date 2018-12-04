@@ -1,3 +1,7 @@
+plugins {
+	id 'net.minecrell.plugin-yml.bukkit' version '0.3.0'
+}
+
 repositories {
     mavenCentral()
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
@@ -8,6 +12,95 @@ repositories {
 dependencies {
     compile 'org.bstats:bstats-bukkit:1.4'
     compileOnly 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
+}
+
+bukkit {
+
+    name = ext.name
+    version = version
+    description = description
+    website = ext.url
+    author = ext.author
+    
+    main = 'com.dscalzi.skychanger.bukkit.SkyChangerPlugin'
+    
+    apiVersion = '1.13'
+    
+    commands {
+        skychanger {
+            description = 'Main plugin command'
+        }
+    }
+    
+    permissions {
+        'skychanger.*' {
+            description = 'Access to all SkyChanger commands.'
+            children = [
+                'skychanger.changesky.*',
+                'skychanger.freeze.*',
+                'skychanger.bypasslimit',
+                'skychanger.reload'
+            ]
+        }
+        'skychanger.changesky.*' {
+            description = 'Access to every part of the main SkyChanger command.'
+            children = [
+                'skychanger.changesky.self',
+                'skychanger.changesky.others',
+                'skychanger.changesky.world.*',
+                'skychanger.changesky.all'
+            ]
+        }
+        'skychanger.changesky.self' {
+            description = 'Access to change your personal sky color.'
+            setDefault('OP')
+        }
+        'skychanger.changesky.others' {
+            description = 'Access to change the sky color for a specific player.'
+            setDefault('OP')
+        }
+        'skychanger.changesky.world.*' {
+            description = 'Access to change the sky color of a specific world.'
+            setDefault('OP')
+        }
+        'skychanger.changesky.all' {
+            description = 'Access to change the sky color of all online players.'
+            setDefault('OP')
+        }
+        'skychanger.freeze.*' {
+            description = 'Access to every part of the SkyChanger freeze and unfreeze commands.'
+            children = [
+                'skychanger.freeze.self',
+                'skychanger.freeze.others',
+                'skychanger.freeze.world.*',
+                'skychanger.freeze.all'
+            ]
+        }
+        'skychanger.freeze.self' {
+            description = 'Access to freeze/unfreeze yourself.'
+            setDefault('OP')
+        }
+        'skychanger.freeze.others' {
+            description = 'Access to freeze/unfreeze a specific person.'
+            setDefault('OP')
+        }
+        'skychanger.freeze.world.*' {
+            description = 'Access to freeze/unfreeze a specific world.'
+            setDefault('OP')
+        }
+        'skychanger.freeze.all' {
+            description = 'Access to freeze/unfreeze all online players.'
+            setDefault('OP')
+        }
+        'skychanger.bypasslimit' {
+            description = 'Bypass the packet range limits set in the config.yml.'
+            setDefault('OP')
+        }
+        'skychanger.reload' {
+            description = 'Access to reload the configuration.'
+            setDefault('OP')
+        }
+    }
 }
 
 shadowJar {
