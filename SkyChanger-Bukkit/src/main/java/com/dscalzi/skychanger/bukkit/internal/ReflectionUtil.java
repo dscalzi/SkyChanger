@@ -34,6 +34,8 @@ public final class ReflectionUtil {
 
     // Caches
     private static String version;
+    private static int major;
+    private static int minor;
 
     private final static Map<String, Class<?>> nmsClasses;
     private final static Map<String, Class<?>> ocbClasses;
@@ -50,8 +52,25 @@ public final class ReflectionUtil {
         if (version == null) {
             String declaration = Bukkit.getServer().getClass().getPackage().getName();
             version = declaration.substring(declaration.lastIndexOf('.') + 1) + ".";
+            String[] pts = version.substring(1).split("_");
+            major = Integer.parseInt(pts[0]);
+            minor = Integer.parseInt(pts[1]);
         }
         return version;
+    }
+    
+    public static int getMajor() {
+        if(version == null) {
+            getVersion();
+        }
+        return major;
+    }
+    
+    public static int getMinor() {
+        if(version == null) {
+            getVersion();
+        }
+        return minor;
     }
 
     public static Class<?> getNMSClass(String localPackage) {

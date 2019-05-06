@@ -32,7 +32,7 @@ subprojects {
     def major = '2'
     def minor = '0'
     def spongeRevision = '2'
-    def bukkitRevision = '1'
+    def bukkitRevision = '2'
 
     version = "${major}.${minor}.${project.name.endsWith('Sponge') ? spongeRevision : bukkitRevision}"
     

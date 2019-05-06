@@ -80,46 +80,158 @@ public class SkyChangeImpl implements SkyAPI {
 
     @SuppressWarnings("deprecation")
     protected boolean sendFreezePacket(Player player) {
-        try {
-            World w = player.getWorld();
+        
+        int major = ReflectionUtil.getMajor(), minor = ReflectionUtil.getMinor();
+        
+        // 1.14+ Method
+        if(major == 1 && minor >= 14) {
+            
             Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
-            Class<?> diffClass = ReflectionUtil.getNMSClass("EnumDifficulty");
-            Class<?> wtClass = ReflectionUtil.getNMSClass("WorldType");
+            Class<?> dimManClass = ReflectionUtil.getNMSClass("DimensionManager");
+            Class<?> worldTypeClass = ReflectionUtil.getNMSClass("WorldType");
             Class<?> gameModeClass = ReflectionUtil.getNMSClass("EnumGamemode");
-            Method diffGetById = ReflectionUtil.getMethod(diffClass, "getById", int.class);
             Method gmGetById = ReflectionUtil.getMethod(gameModeClass, "getById", int.class);
-            Constructor<?> packetConstructor = null;
-            Object packet = null;
+            
+            Class<?> worldServerClass = ReflectionUtil.getNMSClass("WorldServer");
+            Method getWorldData = ReflectionUtil.getMethod(worldServerClass, "getWorldData");
+            Class<?> worldDataClass = ReflectionUtil.getNMSClass("WorldData");
+            Method getType = ReflectionUtil.getMethod(worldDataClass, "getType");
+            
+            
+            Class<?> craftWorldClass = ReflectionUtil.getOCBClass("CraftWorld");
+            Method getHandle = ReflectionUtil.getMethod(craftWorldClass, "getHandle");
+            
+            
+            
             try {
-                packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, gameModeClass);
-                packet = packetConstructor.newInstance(w.getEnvironment().getId(),
-                        diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null),
-                        gmGetById.invoke(null, player.getGameMode().getValue()));
-            } catch (NoSuchMethodException e) {
-                // Try 1.9 method.
-                Class<?> worldSettings = ReflectionUtil.getNMSClass("WorldSettings");
-                Class<?>[] innerClasses = worldSettings.getDeclaredClasses();
-                Class<?> wsGameMode = null;
-                for (Class<?> cl : innerClasses)
-                    if (cl.getSimpleName().equals("EnumGamemode"))
-                        wsGameMode = cl;
-                Method a = ReflectionUtil.getMethod(worldSettings, "a", int.class);
-                packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, wsGameMode);
-                packet = packetConstructor.newInstance(w.getEnvironment().getId(),
-                        diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null),
-                        a.invoke(null, player.getGameMode().getValue()));
+                // World is CraftWorld
+                Object worldServer = getHandle.invoke(player.getWorld());
+                Object worldData = getWorldData.invoke(worldServer);
+                
+                Class<?> worldProviderClass = ReflectionUtil.getNMSClass("WorldProvider");
+                Class<?> worldClass = ReflectionUtil.getNMSClass("World");
+                Field worldProviderField = worldClass.getDeclaredField("worldProvider");
+                Object worldProvider = worldProviderField.get(worldServer);
+                
+                Method getDimensionManager = ReflectionUtil.getMethod(worldProviderClass, "getDimensionManager");
+                
+                Object dimensionManager = getDimensionManager.invoke(worldProvider);
+                Object worldType = getType.invoke(worldData);
+                
+                Constructor<?> packetConstructor = packetClass.getConstructor(dimManClass, worldTypeClass, gameModeClass);
+                
+                Object packet = packetConstructor.newInstance(dimensionManager, worldType, gmGetById.invoke(null, player.getGameMode().getValue()));
+                
+                Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
+                        ReflectionUtil.getNMSClass("Packet"));
+                sendPacket.invoke(this.getConnection(player), packet);
+                
+                return true;
+                
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException |
+                    InvocationTargetException | NoSuchFieldException | InstantiationException e) {
+                e.printStackTrace();
+                return false;
             }
-            Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
-                    ReflectionUtil.getNMSClass("Packet"));
-            sendPacket.invoke(this.getConnection(player), packet);
-            player.updateInventory();
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                | NoSuchFieldException | SecurityException | NoSuchMethodException e) {
-            MessageManager.getInstance().logPacketError();
-            e.printStackTrace();
-            return false;
+            
+        } else if(major == 1 && minor == 13) {
+            
+            // Does not produce desired effect on 1.13
+            
+            Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
+            Class<?> dimManClass = ReflectionUtil.getNMSClass("DimensionManager");
+            Class<?> worldTypeClass = ReflectionUtil.getNMSClass("WorldType");
+            Class<?> gameModeClass = ReflectionUtil.getNMSClass("EnumGamemode");
+            Method gmGetById = ReflectionUtil.getMethod(gameModeClass, "getById", int.class);
+            Class<?> diffClass = ReflectionUtil.getNMSClass("EnumDifficulty");
+            Method diffGetById = ReflectionUtil.getMethod(diffClass, "getById", int.class);
+            
+            Class<?> worldServerClass = ReflectionUtil.getNMSClass("WorldServer");
+            Method getWorldData = ReflectionUtil.getMethod(worldServerClass, "getWorldData");
+            Class<?> worldDataClass = ReflectionUtil.getNMSClass("WorldData");
+            Method getType = ReflectionUtil.getMethod(worldDataClass, "getType");
+            
+            
+            Class<?> craftWorldClass = ReflectionUtil.getOCBClass("CraftWorld");
+            Method getHandle = ReflectionUtil.getMethod(craftWorldClass, "getHandle");
+            
+            
+            
+            try {
+                // World is CraftWorld
+                Object worldServer = getHandle.invoke(player.getWorld());
+                Object worldData = getWorldData.invoke(worldServer);
+                
+                Class<?> worldProviderClass = ReflectionUtil.getNMSClass("WorldProvider");
+                Class<?> worldClass = ReflectionUtil.getNMSClass("World");
+                Field worldProviderField = worldClass.getDeclaredField("worldProvider");
+                Object worldProvider = worldProviderField.get(worldServer);
+                
+                Method getDimensionManager = ReflectionUtil.getMethod(worldProviderClass, "getDimensionManager");
+                
+                Object dimensionManager = getDimensionManager.invoke(worldProvider);
+                Object worldType = getType.invoke(worldData);
+                
+                Constructor<?> packetConstructor = packetClass.getConstructor(dimManClass, diffClass, worldTypeClass, gameModeClass);
+                
+                Object packet = packetConstructor.newInstance(dimensionManager, diffGetById.invoke(null, player.getWorld().getDifficulty().getValue()), worldType, gmGetById.invoke(null, player.getGameMode().getValue()));
+                
+                Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
+                        ReflectionUtil.getNMSClass("Packet"));
+                sendPacket.invoke(this.getConnection(player), packet);
+                
+                return true;
+                
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException |
+                    InvocationTargetException | NoSuchFieldException | InstantiationException e) {
+                e.printStackTrace();
+                return false;
+            }
+            
+        } else {
+            
+            // 1.12 and Below
+            try {
+                World w = player.getWorld();
+                Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
+                Class<?> diffClass = ReflectionUtil.getNMSClass("EnumDifficulty");
+                Class<?> wtClass = ReflectionUtil.getNMSClass("WorldType");
+                Class<?> gameModeClass = ReflectionUtil.getNMSClass("EnumGamemode");
+                Method diffGetById = ReflectionUtil.getMethod(diffClass, "getById", int.class);
+                Method gmGetById = ReflectionUtil.getMethod(gameModeClass, "getById", int.class);
+                Constructor<?> packetConstructor = null;
+                Object packet = null;
+                try {
+                    packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, gameModeClass);
+                    packet = packetConstructor.newInstance(w.getEnvironment().getId(),
+                            diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null),
+                            gmGetById.invoke(null, player.getGameMode().getValue()));
+                } catch (NoSuchMethodException e) {
+                    // Try 1.9 method.
+                    Class<?> worldSettings = ReflectionUtil.getNMSClass("WorldSettings");
+                    Class<?>[] innerClasses = worldSettings.getDeclaredClasses();
+                    Class<?> wsGameMode = null;
+                    for (Class<?> cl : innerClasses)
+                        if (cl.getSimpleName().equals("EnumGamemode"))
+                            wsGameMode = cl;
+                    Method a = ReflectionUtil.getMethod(worldSettings, "a", int.class);
+                    packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, wsGameMode);
+                    packet = packetConstructor.newInstance(w.getEnvironment().getId(),
+                            diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null),
+                            a.invoke(null, player.getGameMode().getValue()));
+                }
+                Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
+                        ReflectionUtil.getNMSClass("Packet"));
+                sendPacket.invoke(this.getConnection(player), packet);
+                player.updateInventory();
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                    | NoSuchFieldException | SecurityException | NoSuchMethodException e) {
+                MessageManager.getInstance().logPacketError();
+                e.printStackTrace();
+                return false;
+            }
+            return true;
         }
-        return true;
     }
 
 }
