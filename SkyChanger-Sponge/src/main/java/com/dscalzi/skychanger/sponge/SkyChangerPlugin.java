@@ -138,11 +138,13 @@ public class SkyChangerPlugin {
                 opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to every part of the main SkyChanger command.")).id(plugin.getId() + ".changesky").register();
                 opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to change your personal sky color.")).id(plugin.getId() + ".changesky.self").register();
                 opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to changing a specific person's sky color.")).id(plugin.getId() + ".changesky.others").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to change the sky color for players within a radius.")).id(plugin.getId() + ".changesky.radius").register();
                 opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to changing a specific world's sky color.")).id(plugin.getId() + ".changesky.world").register();
                 opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to changing the sky color of all online players.")).id(plugin.getId() + ".changesky.all").register();
                 opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to every part of the SkyChanger freeze and unfreeze commands.")).id(plugin.getId() + ".freeze").register();
                 opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to freeze/unfreeze yourself.")).id(plugin.getId() + ".freeze.self").register();
                 opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to freeze/unfreeze a specific person.")).id(plugin.getId() + ".freeze.others").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to freeze/unfreeze a players within a radius.")).id(plugin.getId() + ".freeze.radius").register();
                 opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to freeze/unfreeze a specific world.")).id(plugin.getId() + ".freeze.world").register();
                 opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to freeze/unfreeze all online players.")).id(plugin.getId() + ".freeze.all").register();
                 opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Bypass the packet range limits set in the config.yml.")).id(plugin.getId() + ".bypasslimit").register();

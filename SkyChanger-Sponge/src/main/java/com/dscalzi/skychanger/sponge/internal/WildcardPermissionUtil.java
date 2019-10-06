@@ -25,22 +25,34 @@
 package com.dscalzi.skychanger.sponge.internal;
 
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.world.World;
 
-public class WorldPermissionUtil {
+public class WildcardPermissionUtil {
 
     private static final String CWORLDPERM = "skychanger.changesky.world";
     private static final String FWORLDPERM = "skychanger.freeze.world";
+    
+    private static final String CRADIUSPERM = "skychanger.changesky.radius";
+    private static final String FRADIUSPERM = "skychanger.freeze.radius";
 
-    public static boolean hasGeneralChangeskyPerm(Subject p) {
+    public static boolean hasGeneralChangeskyWorldPerm(Subject p) {
         return hasGeneralPerm(p, CWORLDPERM);
     }
 
-    public static boolean hasGeneralFreezePerm(Subject p) {
+    public static boolean hasGeneralFreezeWorldPerm(Subject p) {
         return hasGeneralPerm(p, FWORLDPERM);
+    }
+    
+    public static boolean hasGeneralChangeskyRadiusPerm(Subject p) {
+        return hasGeneralPerm(p, CRADIUSPERM);
+    }
+    
+    public static boolean hasGeneralFreezeRadiusPerm(Subject p) {
+        return hasGeneralPerm(p, FRADIUSPERM);
     }
 
     private static boolean hasGeneralPerm(Subject p, String perm) {
@@ -56,18 +68,44 @@ public class WorldPermissionUtil {
                 }
             }
         }
-        return false;
+        return p.hasPermission(perm);
     }
 
-    public static boolean hasChangeskyPerm(Subject p, World w) {
+    public static boolean hasChangeskyWorldPerm(Subject p, World w) {
         return hasWorldPerm(p, w, CWORLDPERM);
     }
 
-    public static boolean hasFreezePerm(Subject p, World w) {
+    public static boolean hasFreezeWorldPerm(Subject p, World w) {
         return hasWorldPerm(p, w, FWORLDPERM);
     }
-
+    
     private static boolean hasWorldPerm(Subject p, World w, String perm) {
+        
+        return hasPerm(p, (s) ->  s.getKey().substring(perm.length() + 1).equals(w.getName()), perm)
+                || p.hasPermission(perm);
+    }
+    
+    public static boolean hasChangeskyRadiusPerm(Subject p, double radius) {
+        return hasRadiusPerm(p, radius, CRADIUSPERM);
+    }
+    
+    public static boolean hasFreezeRadiusPerm(Subject p, double radius) {
+        return hasRadiusPerm(p, radius, FRADIUSPERM);
+    }
+
+    public static boolean hasRadiusPerm(Subject p, double radius, String perm) {
+        return hasPerm(p, (s) -> {
+            try {
+                double radiusLimit = Double.parseDouble(s.getKey().substring(perm.length() + 1));
+                return radius <= radiusLimit;
+            } catch (NumberFormatException e) {
+                // Malformed permission.
+                return false;
+            }
+        }, perm) || p.hasPermission(perm);
+    }
+
+    private static boolean hasPerm(Subject p, Predicate<Map.Entry<String, Boolean>> hasSpecificPermissionTest, String perm) {
         if(p instanceof ConsoleSource) {
             return true;
         }
@@ -77,7 +115,7 @@ public class WorldPermissionUtil {
                 final String effective = s.getKey().toLowerCase();
                 if (effective.equals(perm)) {
                     canByRight = s.getValue();
-                } else if (effective.indexOf(perm) > -1 && s.getKey().substring(perm.length() + 1).equals(w.getName())) {
+                } else if (effective.indexOf(perm) > -1 && hasSpecificPermissionTest.test(s)) {
                     return s.getValue();
                 }
             }

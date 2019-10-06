@@ -33,6 +33,8 @@ import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.source.CommandBlockSource;
+import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
@@ -100,8 +102,9 @@ public class MainExecutor implements CommandCallable {
         boolean s = sender.hasPermission(basePerm + ".self");
         boolean o = sender.hasPermission(basePerm + ".others");
         boolean a = sender.hasPermission(basePerm + ".all");
-        boolean w = WorldPermissionUtil.hasGeneralChangeskyPerm(sender);
-        if (!s && !o && !a && !w) {
+        boolean w = WildcardPermissionUtil.hasGeneralChangeskyWorldPerm(sender);
+        boolean r = WildcardPermissionUtil.hasGeneralChangeskyRadiusPerm(sender);
+        if (!s && !o && !a && !w && !r) {
             mm.noPermission(sender);
             return;
         }
@@ -155,7 +158,7 @@ public class MainExecutor implements CommandCallable {
                     }
                     t = ((Player) sender).getWorld();
                 }
-                if (!WorldPermissionUtil.hasChangeskyPerm(sender, t)) {
+                if (!WildcardPermissionUtil.hasChangeskyWorldPerm(sender, t)) {
                     mm.noPermission(sender);
                     return;
                 }
@@ -164,6 +167,49 @@ public class MainExecutor implements CommandCallable {
                 }
                 mm.packetSent(sender, mm.getString("message.allPlayersIn") + " " + t.getName());
                 return;
+            }
+            // Check if requested for radius
+            if (args[1].equalsIgnoreCase("-r")) {
+                if (sender instanceof ConsoleSource) {
+                    MessageManager.getInstance().denyNonPlayer(sender);
+                    return;
+                }
+                if(args.length > 2) {
+                    double radius;
+                    double radiusSq;
+                    try {
+                        radius = Double.parseDouble(args[2]);
+                        
+                        if (!WildcardPermissionUtil.hasChangeskyRadiusPerm(sender, radius)) {
+                            mm.noPermission(sender);
+                            return;
+                        }
+                        
+                        radiusSq = Math.pow(radius, 2);
+                    } catch (NumberFormatException e) {
+                        MessageManager.getInstance().radiusFormatError(sender);
+                        return;
+                    }
+                    Location<World> origin;
+                    if (sender instanceof Player) {
+                        origin = ((Player)sender).getLocation();
+                    } else if (sender instanceof CommandBlockSource) {
+                        origin = ((CommandBlockSource)sender).getLocation();
+                    } else {
+                        MessageManager.getInstance().denyNonPlayer(sender);
+                        return;
+                    }
+                    for(Player p : origin.getExtent().getPlayers()) {
+                        if(Math.abs(origin.getPosition().distanceSquared(p.getPosition())) <= radiusSq) {
+                            api.changeSky(p, pN);
+                        }
+                    }
+                    mm.packetSent(sender, mm.getString("message.allPlayersInRadius") + " " + args[2]);
+                    return;
+                } else {
+                    mm.mustSpecifyRadius(sender);
+                    return;
+                }
             }
             // Check if param is a player
             if (!o) {
@@ -209,8 +255,9 @@ public class MainExecutor implements CommandCallable {
         boolean s = sender.hasPermission(basePerm + ".self");
         boolean o = sender.hasPermission(basePerm + ".others");
         boolean a = sender.hasPermission(basePerm + ".all");
-        boolean w = WorldPermissionUtil.hasGeneralFreezePerm(sender);
-        if (!s && !o && !a && !w) {
+        boolean w = WildcardPermissionUtil.hasGeneralFreezeWorldPerm(sender);
+        boolean r = WildcardPermissionUtil.hasGeneralFreezeRadiusPerm(sender);
+        if (!s && !o && !a && !w && !r) {
             mm.noPermission(sender);
             return;
         }
@@ -251,7 +298,7 @@ public class MainExecutor implements CommandCallable {
                     }
                     t = ((Player) sender).getWorld();
                 }
-                if (!WorldPermissionUtil.hasFreezePerm(sender, t)) {
+                if (!WildcardPermissionUtil.hasFreezeWorldPerm(sender, t)) {
                     mm.noPermission(sender);
                     return;
                 }
@@ -266,6 +313,55 @@ public class MainExecutor implements CommandCallable {
                 else
                     mm.packetSent(sender, mm.getString("message.allPlayersIn") + " " + t.getName());
                 return;
+            }
+            // Check if requested for radius
+            if (args[1].equalsIgnoreCase("-r")) {
+                if (sender instanceof ConsoleSource) {
+                    MessageManager.getInstance().denyNonPlayer(sender);
+                    return;
+                }
+                if(args.length > 2) {
+                    double radius;
+                    double radiusSq;
+                    try {
+                        radius = Double.parseDouble(args[2]);
+                        
+                        if (!WildcardPermissionUtil.hasFreezeRadiusPerm(sender, radius)) {
+                            mm.noPermission(sender);
+                            return;
+                        }
+                        
+                        radiusSq = Math.pow(radius, 2);
+                    } catch (NumberFormatException e) {
+                        MessageManager.getInstance().radiusFormatError(sender);
+                        return;
+                    }
+                    Location<World> origin;
+                    if (sender instanceof Player) {
+                        origin = ((Player)sender).getLocation();
+                    } else if (sender instanceof CommandBlockSource) {
+                        origin = ((CommandBlockSource)sender).getLocation();
+                    } else {
+                        MessageManager.getInstance().denyNonPlayer(sender);
+                        return;
+                    }
+                    for(Player p : origin.getExtent().getPlayers()) {
+                        if(Math.abs(origin.getPosition().distanceSquared(p.getPosition())) <= radiusSq) {
+                            if (unfreeze)
+                                api.unfreeze(p);
+                            else
+                                api.freeze(p);
+                        }
+                    }
+                    if (unfreeze)
+                        mm.packetUnfreeze(sender, mm.getString("message.allPlayersInRadius") + " " + args[2]);
+                    else
+                        mm.packetSent(sender, mm.getString("message.allPlayersInRadius") + " " + args[2]);
+                    return;
+                } else {
+                    mm.mustSpecifyRadius(sender);
+                    return;
+                }
             }
             // Check if param is a player
             if (!o) {
@@ -343,7 +439,8 @@ public class MainExecutor implements CommandCallable {
         List<String> ret = new ArrayList<String>();
 
         boolean b = source.hasPermission("skychanger.freeze.self") || source.hasPermission("skychanger.freeze.others")
-                || source.hasPermission("skychanger.freeze.all") || WorldPermissionUtil.hasGeneralFreezePerm(source);
+                || source.hasPermission("skychanger.freeze.all") || WildcardPermissionUtil.hasGeneralFreezeWorldPerm(source)
+                || WildcardPermissionUtil.hasGeneralFreezeRadiusPerm(source);
 
         if (args.length == 1) {
             if ("help".startsWith(args[0].toLowerCase()))
@@ -374,12 +471,22 @@ public class MainExecutor implements CommandCallable {
             }
             // World flag
             if (args[0].equalsIgnoreCase("freeze") || args[0].equalsIgnoreCase("unfreeze")) {
-                if ("-w".startsWith(args[1].toLowerCase()) && WorldPermissionUtil.hasGeneralFreezePerm(source)) {
+                if ("-w".startsWith(args[1].toLowerCase()) && WildcardPermissionUtil.hasGeneralFreezeWorldPerm(source)) {
                     ret.add("-w");
                 }
             } else {
-                if ("-w".startsWith(args[1].toLowerCase()) && WorldPermissionUtil.hasGeneralChangeskyPerm(source)) {
+                if ("-w".startsWith(args[1].toLowerCase()) && WildcardPermissionUtil.hasGeneralChangeskyWorldPerm(source)) {
                     ret.add("-w");
+                }
+            }
+            // Radius flag
+            if (args[0].equalsIgnoreCase("freeze") || args[0].equalsIgnoreCase("unfreeze")) {
+                if ("-r".startsWith(args[1].toLowerCase()) && WildcardPermissionUtil.hasGeneralFreezeRadiusPerm(source)) {
+                    ret.add("-r");
+                }
+            } else {
+                if ("-r".startsWith(args[1].toLowerCase()) && WildcardPermissionUtil.hasGeneralChangeskyRadiusPerm(source)) {
+                    ret.add("-r");
                 }
             }
         }
@@ -390,14 +497,14 @@ public class MainExecutor implements CommandCallable {
                 if (packetNum.matcher(args[0]).matches()) {
                     for (World w : plugin.getGame().getServer().getWorlds()) {
                         if (w.getName().toLowerCase().startsWith(args[2].toLowerCase())
-                                && WorldPermissionUtil.hasChangeskyPerm(source, w)) {
+                                && WildcardPermissionUtil.hasChangeskyWorldPerm(source, w)) {
                             ret.add(w.getName());
                         }
                     }
                 } else if (args[0].equalsIgnoreCase("freeze") || args[0].equalsIgnoreCase("unfreeze")) {
                     for (World w : plugin.getGame().getServer().getWorlds()) {
                         if (w.getName().toLowerCase().startsWith(args[2].toLowerCase())
-                                && WorldPermissionUtil.hasFreezePerm(source, w)) {
+                                && WildcardPermissionUtil.hasFreezeWorldPerm(source, w)) {
                             ret.add(w.getName());
                         }
                     }

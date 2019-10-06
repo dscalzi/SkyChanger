@@ -45,7 +45,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 
 import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
-import com.dscalzi.skychanger.sponge.internal.WorldPermissionUtil;
+import com.dscalzi.skychanger.sponge.internal.WildcardPermissionUtil;
 
 public class MessageManager {
 
@@ -185,12 +185,15 @@ public class MessageManager {
         cmds.add(Text.of(listPrefix, cMessage, "/SkyChanger help ", TextColors.NONE, "- " + getString("message.descHelp")));
         if (sender.hasPermission("skychanger.changesky.self") || sender.hasPermission("skychanger.changesky.others")
                 || sender.hasPermission("skychanger.changesky.all")
-                || WorldPermissionUtil.hasGeneralChangeskyPerm(sender)) {
+                || WildcardPermissionUtil.hasGeneralChangeskyWorldPerm(sender)
+                || WildcardPermissionUtil.hasGeneralChangeskyRadiusPerm(sender)) {
             cmds.add(Text.of(listPrefix, cMessage, this.generateChangeSkyUsage(sender), TextColors.NONE, " - "
                     + getString("message.descChangeSky")));
         }
         if (sender.hasPermission("skychanger.freeze.self") || sender.hasPermission("skychanger.freeze.others")
-                || sender.hasPermission("skychanger.freeze.all") || WorldPermissionUtil.hasGeneralFreezePerm(sender)) {
+                || sender.hasPermission("skychanger.freeze.all")
+                || WildcardPermissionUtil.hasGeneralFreezeWorldPerm(sender)
+                || WildcardPermissionUtil.hasGeneralFreezeRadiusPerm(sender)) {
             cmds.add(Text.of(listPrefix, cMessage, this.generateFreezeUsage(sender, false), TextColors.NONE, " - "
                     + getString("message.descFreeze")));
             cmds.add(Text.of(listPrefix, cMessage, this.generateFreezeUsage(sender, true), TextColors.NONE, " - "
@@ -217,22 +220,24 @@ public class MessageManager {
         String u = "/SkyChanger <#>";
         boolean o = sender == null ? true : sender.hasPermission("skychanger.changesky.others"),
                 a = sender == null ? true : sender.hasPermission("skychanger.changesky.all");
-        boolean w = sender == null ? true : WorldPermissionUtil.hasGeneralChangeskyPerm(sender);
+        boolean w = sender == null ? true : WildcardPermissionUtil.hasGeneralChangeskyWorldPerm(sender);
+        boolean r = sender == null ? true : WildcardPermissionUtil.hasGeneralChangeskyRadiusPerm(sender);
 
-        return u + genOpti(sender, o, a, w);
+        return u + genOpti(sender, o, a, w, r);
     }
 
     private String generateFreezeUsage(CommandSource sender, boolean unfreeze) {
         String u = "/SkyChanger " + (unfreeze ? "unfreeze" : "freeze");
         boolean o = sender == null ? true : sender.hasPermission("skychanger.freeze.others"), a = sender == null ? true : sender.hasPermission("skychanger.freeze.all");
-        boolean w = sender == null ? true : WorldPermissionUtil.hasGeneralFreezePerm(sender);
+        boolean w = sender == null ? true : WildcardPermissionUtil.hasGeneralFreezeWorldPerm(sender);
+        boolean r = sender == null ? true : WildcardPermissionUtil.hasGeneralFreezeRadiusPerm(sender);
 
-        return u + genOpti(sender, o, a, w);
+        return u + genOpti(sender, o, a, w, r);
     }
 
-    public String genOpti(CommandSource sender, boolean o, boolean a, boolean w) {
+    public String genOpti(CommandSource sender, boolean o, boolean a, boolean w, boolean r) {
         String opti = "";
-        if (o | a | w) {
+        if (o | a | w | r) {
             boolean flowthrough = false;
             opti += " [";
             if (o) {
@@ -256,6 +261,14 @@ public class MessageManager {
                 } else {
                     opti += " [" + getString("message.world") + "]";
                 }
+                flowthrough = true;
+            }
+            if (r) {
+                if (flowthrough) {
+                    opti += " | ";
+                }
+                opti += "-r <#>";
+                flowthrough = true;
             }
             opti += "]";
         }
@@ -286,6 +299,14 @@ public class MessageManager {
         sendSuccess(sender, getString("success.packetUnfreezeSentTo", name));
     }
 
+    public void radiusFormatError(CommandSource sender) {
+        sendError(sender, getString("error.radiusFormat"));
+    }
+
+    public void mustSpecifyRadius(CommandSource sender) {
+        sendError(sender, getString("error.specifyRadius"));
+    }
+    
     public void mustSpecifyWorld(CommandSource sender) {
         sendError(sender, getString("error.specifyWorld"));
     }

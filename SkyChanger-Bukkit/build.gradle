@@ -10,8 +10,8 @@ repositories {
 }
 
 dependencies {
-    compile 'org.bstats:bstats-bukkit:1.4'
-    compileOnly 'org.spigotmc:spigot-api:1.14-R0.1-SNAPSHOT'
+    compile 'org.bstats:bstats-bukkit:1.5'
+    compileOnly 'org.spigotmc:spigot-api:1.14.4-R0.1-SNAPSHOT'
 }
 
 bukkit {
