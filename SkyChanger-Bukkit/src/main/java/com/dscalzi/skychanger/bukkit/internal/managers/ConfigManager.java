@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.managers;
+package com.dscalzi.skychanger.bukkit.internal.managers;
 
 import java.io.File;
 

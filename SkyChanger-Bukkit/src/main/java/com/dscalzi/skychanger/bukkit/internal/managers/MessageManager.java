@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.managers;
+package com.dscalzi.skychanger.bukkit.internal.managers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -367,9 +367,17 @@ public class MessageManager {
 
     public enum Languages {
 
-        en_US("English", "United States"), it_IT("Italiano", "Italia"), de_DE("Deutsche", "Deutschland"), nl_NL(
-                "Nederlands", "Nederland"), es_EC("Español", "Ecuador"), es_AR("Español", "Argentina"), no_NO("Norsk",
-                        "Norge"), iw_IL("עברית", "ישראל"), hu_HU("Magyar", "Magyarország"), zh_CN("简体中文", "中国");
+        en_US("English", "United States"),
+        it_IT("Italiano", "Italia"),
+        de_DE("Deutsche", "Deutschland"),
+        nl_NL("Nederlands", "Nederland"),
+        es_EC("Español", "Ecuador"),
+        es_AR("Español", "Argentina"),
+        no_NO("Norsk", "Norge"),
+        iw_IL("עברית", "ישראל"),
+        hu_HU("Magyar", "Magyarország"),
+        zh_CN("简体中文", "中国"),
+        ja_JP("日本語", "日本");
 
         private String lang;
         private String country;

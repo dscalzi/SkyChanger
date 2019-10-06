@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.sponge.managers;
+package com.dscalzi.skychanger.sponge.internal.managers;
 
 import java.io.File;
 import java.io.IOException;

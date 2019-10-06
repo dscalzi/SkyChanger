@@ -33,7 +33,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.dscalzi.skychanger.bukkit.api.SkyAPI;
-import com.dscalzi.skychanger.bukkit.managers.MessageManager;
+import com.dscalzi.skychanger.bukkit.internal.managers.MessageManager;
 
 public class SkyChangeImpl implements SkyAPI {
 

@@ -28,8 +28,8 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.dscalzi.skychanger.bukkit.internal.MainExecutor;
-import com.dscalzi.skychanger.bukkit.managers.ConfigManager;
-import com.dscalzi.skychanger.bukkit.managers.MessageManager;
+import com.dscalzi.skychanger.bukkit.internal.managers.ConfigManager;
+import com.dscalzi.skychanger.bukkit.internal.managers.MessageManager;
 
 public class SkyChangerPlugin extends JavaPlugin {
 

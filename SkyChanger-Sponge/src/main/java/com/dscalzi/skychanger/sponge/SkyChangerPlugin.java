@@ -47,9 +47,9 @@ import org.spongepowered.api.service.permission.PermissionDescription.Builder;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 
-import com.dscalzi.skychanger.sponge.managers.ConfigManager;
-import com.dscalzi.skychanger.sponge.managers.MessageManager;
 import com.dscalzi.skychanger.sponge.internal.MainExecutor;
+import com.dscalzi.skychanger.sponge.internal.managers.ConfigManager;
+import com.dscalzi.skychanger.sponge.internal.managers.MessageManager;
 import com.google.inject.Inject;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;

@@ -43,8 +43,8 @@ import org.spongepowered.api.world.World;
 import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
 import com.dscalzi.skychanger.sponge.api.SkyAPI;
 import com.dscalzi.skychanger.sponge.api.SkyChanger;
-import com.dscalzi.skychanger.sponge.managers.ConfigManager;
-import com.dscalzi.skychanger.sponge.managers.MessageManager;
+import com.dscalzi.skychanger.sponge.internal.managers.ConfigManager;
+import com.dscalzi.skychanger.sponge.internal.managers.MessageManager;
 
 public class MainExecutor implements CommandCallable {
 
