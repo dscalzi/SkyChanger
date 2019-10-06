@@ -1,6 +1,6 @@
 ![# Header](http://i.imgur.com/6TxDQ3W.png?1)
 
-[<img src="https://ci.appveyor.com/api/projects/status/3j1tc074rvi6a3mr?retina=true" height='20.74px'></img>](https://ci.appveyor.com/project/dscalzi/skychanger) [![](https://img.shields.io/github/license/dscalzi/SkyChanger.svg)](https://github.com/dscalzi/SkyChanger/blob/master/LICENSE.txt) ![](https://img.shields.io/badge/Spigot-1.8.x--1.14.x-orange.svg) ![](https://img.shields.io/badge/Java-8+-ec2025.svg) [![](https://discordapp.com/api/guilds/211524927831015424/widget.png)](https://discordapp.com/invite/Fcrh6PT)
+[<img src="https://ci.appveyor.com/api/projects/status/3j1tc074rvi6a3mr?retina=true" height='20.74px'></img>](https://ci.appveyor.com/project/dscalzi/skychanger) [![](https://pluginbadges.glitch.me/api/v1/dl/Downloads-limegreen.svg?bukkit=skychanger&spigot=skychanger.37524&ore=SkyChanger&github=dscalzi/SkyChanger&style=flat)](https://github.com/dscalzi/PluginBadges) [![](https://img.shields.io/github/license/dscalzi/SkyChanger.svg)](https://github.com/dscalzi/SkyChanger/blob/master/LICENSE.txt) ![](https://img.shields.io/badge/Spigot-1.8.x--1.14.x-orange.svg) [![](https://discordapp.com/api/guilds/211524927831015424/widget.png)](https://discordapp.com/invite/Fcrh6PT)
 
 SkyChanger is a light-weight plugin for Spigot and Sponge. The main function of this plugin is to change the color of the sky for yourself, a specific player, a specific world, or everyone. This plugin functions by sending packets with a specified value to the target player(s).
 
