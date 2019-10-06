@@ -24,21 +24,34 @@
 
 package com.dscalzi.skychanger.bukkit.internal;
 
+import java.util.function.Predicate;
+
 import org.bukkit.World;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-public class WorldPermissionUtil {
+public class WildcardPermissionUtil {
 
     private static final String CWORLDPERM = "skychanger.changesky.world";
     private static final String FWORLDPERM = "skychanger.freeze.world";
+    
+    private static final String CRADIUSPERM = "skychanger.changesky.radius";
+    private static final String FRADIUSPERM = "skychanger.freeze.radius";
 
-    public static boolean hasGeneralChangeskyPerm(Permissible p) {
+    public static boolean hasGeneralChangeskyWorldPerm(Permissible p) {
         return hasGeneralPerm(p, CWORLDPERM);
     }
 
-    public static boolean hasGeneralFreezePerm(Permissible p) {
+    public static boolean hasGeneralFreezeWorldPerm(Permissible p) {
         return hasGeneralPerm(p, FWORLDPERM);
+    }
+    
+    public static boolean hasGeneralChangeskyRadiusPerm(Permissible p) {
+        return hasGeneralPerm(p, CRADIUSPERM);
+    }
+    
+    public static boolean hasGeneralFreezeRadiusPerm(Permissible p) {
+        return hasGeneralPerm(p, FRADIUSPERM);
     }
 
     private static boolean hasGeneralPerm(Permissible p, String perm) {
@@ -49,36 +62,69 @@ public class WorldPermissionUtil {
                 }
             }
         }
-        return false;
+        return p.hasPermission(perm + ".*");
     }
 
-    public static boolean hasChangeskyPerm(Permissible p, World w) {
+    public static boolean hasChangeskyWorldPerm(Permissible p, World w) {
         return hasWorldPerm(p, w, CWORLDPERM);
     }
 
-    public static boolean hasFreezePerm(Permissible p, World w) {
+    public static boolean hasFreezeWorldPerm(Permissible p, World w) {
         return hasWorldPerm(p, w, FWORLDPERM);
     }
 
     private static boolean hasWorldPerm(Permissible p, World w, String perm) {
+        return hasPerm(p, (i) ->  i.getPermission().substring(perm.length() + 1).equals(w.getName()), perm)
+                || p.hasPermission(perm + ".*");
+    }
+    
+    public static boolean hasChangeskyRadiusPerm(Permissible p, double radius) {
+        return hasRadiusPerm(p, radius, CRADIUSPERM);
+    }
+    
+    public static boolean hasFreezeRadiusPerm(Permissible p, double radius) {
+        return hasRadiusPerm(p, radius, FRADIUSPERM);
+    }
+
+    public static boolean hasRadiusPerm(Permissible p, double radius, String perm) {
+        return hasPerm(p, (i) -> {
+            try {
+                double radiusLimit = Double.parseDouble(i.getPermission().substring(perm.length() + 1));
+                return radius <= radiusLimit;
+            } catch (NumberFormatException e) {
+                // Malformed permission.
+                return false;
+            }
+        }, perm) || p.hasPermission(perm + ".*");
+    }
+    
+    public static boolean hasPerm(Permissible p, Predicate<PermissionAttachmentInfo> hasSpecificPermissionTest, String perm) {
         boolean canByRight = false;
         for (PermissionAttachmentInfo i : p.getEffectivePermissions()) {
             final String effective = i.getPermission().toLowerCase();
             if (effective.equals(perm + ".*")) {
                 canByRight = i.getValue();
-            } else if (effective.indexOf(perm) > -1 && i.getPermission().substring(perm.length() + 1).equals(w.getName())) {
+            } else if (effective.indexOf(perm + '.') > -1 && hasSpecificPermissionTest.test(i)) {
                 return i.getValue();
             }
         }
         return canByRight;
     }
-
-    public static String changeskyBasePerm() {
+    
+    public static String changeskyWorldBasePerm() {
         return CWORLDPERM;
     }
 
-    public static String freezeBasePerm() {
+    public static String freezeWorldBasePerm() {
         return FWORLDPERM;
+    }
+    
+    public static String changeskyRadiusBasePerm() {
+        return CRADIUSPERM;
+    }
+    
+    public static String freezeRadiusBasePerm() {
+        return FRADIUSPERM;
     }
 
 }

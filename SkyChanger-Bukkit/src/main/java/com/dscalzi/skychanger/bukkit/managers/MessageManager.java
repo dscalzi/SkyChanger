@@ -40,7 +40,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
-import com.dscalzi.skychanger.bukkit.internal.WorldPermissionUtil;
+import com.dscalzi.skychanger.bukkit.internal.WildcardPermissionUtil;
 
 public class MessageManager {
 
@@ -174,12 +174,15 @@ public class MessageManager {
         cmds.add(listPrefix + "/SkyChanger help " + ChatColor.RESET + "- " + getString("message.descHelp"));
         if (sender.hasPermission("skychanger.changesky.self") || sender.hasPermission("skychanger.changesky.others")
                 || sender.hasPermission("skychanger.changesky.all")
-                || WorldPermissionUtil.hasGeneralChangeskyPerm(sender)) {
+                || WildcardPermissionUtil.hasGeneralChangeskyWorldPerm(sender)
+                || WildcardPermissionUtil.hasGeneralChangeskyRadiusPerm(sender)) {
             cmds.add(listPrefix + this.generateChangeSkyUsage(sender) + ChatColor.RESET + " - "
                     + getString("message.descChangeSky"));
         }
         if (sender.hasPermission("skychanger.freeze.self") || sender.hasPermission("skychanger.freeze.others")
-                || sender.hasPermission("skychanger.freeze.all") || WorldPermissionUtil.hasGeneralFreezePerm(sender)) {
+                || sender.hasPermission("skychanger.freeze.all")
+                || WildcardPermissionUtil.hasGeneralFreezeWorldPerm(sender)
+                || WildcardPermissionUtil.hasGeneralFreezeRadiusPerm(sender)) {
             cmds.add(listPrefix + this.generateFreezeUsage(sender, false) + ChatColor.RESET + " - "
                     + getString("message.descFreeze"));
             cmds.add(listPrefix + this.generateFreezeUsage(sender, true) + ChatColor.RESET + " - "
@@ -206,22 +209,24 @@ public class MessageManager {
         String u = "/SkyChanger <#>";
         boolean o = sender.hasPermission("skychanger.changesky.others"),
                 a = sender.hasPermission("skychanger.changesky.all");
-        boolean w = WorldPermissionUtil.hasGeneralChangeskyPerm(sender);
+        boolean w = WildcardPermissionUtil.hasGeneralChangeskyWorldPerm(sender);
+        boolean r = WildcardPermissionUtil.hasGeneralChangeskyRadiusPerm(sender);
 
-        return u + genOpti(sender, o, a, w);
+        return u + genOpti(sender, o, a, w, r);
     }
 
     private String generateFreezeUsage(CommandSender sender, boolean unfreeze) {
         String u = "/SkyChanger " + (unfreeze ? "unfreeze" : "freeze");
         boolean o = sender.hasPermission("skychanger.freeze.others"), a = sender.hasPermission("skychanger.freeze.all");
-        boolean w = WorldPermissionUtil.hasGeneralFreezePerm(sender);
+        boolean w = WildcardPermissionUtil.hasGeneralFreezeWorldPerm(sender);
+        boolean r = WildcardPermissionUtil.hasGeneralFreezeRadiusPerm(sender);
 
-        return u + genOpti(sender, o, a, w);
+        return u + genOpti(sender, o, a, w, r);
     }
 
-    public String genOpti(CommandSender sender, boolean o, boolean a, boolean w) {
+    public String genOpti(CommandSender sender, boolean o, boolean a, boolean w, boolean r) {
         String opti = "";
-        if (o | a | w) {
+        if (o | a | w | r) {
             boolean flowthrough = false;
             opti += " [";
             if (o) {
@@ -245,6 +250,14 @@ public class MessageManager {
                 } else {
                     opti += " [" + getString("message.world") + "]";
                 }
+                flowthrough = true;
+            }
+            if (r) {
+                if (flowthrough) {
+                    opti += " | ";
+                }
+                opti += "-r <#>";
+                flowthrough = true;
             }
             opti += "]";
         }
@@ -274,7 +287,15 @@ public class MessageManager {
     public void packetUnfreeze(CommandSender sender, String name) {
         sendSuccess(sender, getString("success.packetUnfreezeSentTo", name));
     }
+    
+    public void radiusFormatError(CommandSender sender) {
+        sendError(sender, getString("error.radiusFormat"));
+    }
 
+    public void mustSpecifyRadius(CommandSender sender) {
+        sendError(sender, getString("error.specifyRadius"));
+    }
+    
     public void mustSpecifyWorld(CommandSender sender) {
         sendError(sender, getString("error.specifyWorld"));
     }
