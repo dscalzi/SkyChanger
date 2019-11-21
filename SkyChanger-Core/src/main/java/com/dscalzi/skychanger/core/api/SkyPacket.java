@@ -24,16 +24,21 @@
 
 package com.dscalzi.skychanger.core.api;
 
+/**
+ * Represents a Change Game State packet value.
+ * @since 3.0.0
+ */
 public enum SkyPacket {
 
     /**
      * Change Game State packet value representing fade value.
-     * @since 2.2.0
+     * @since 3.0.0
      */
     FADE_VALUE(7),
 
     /**
      * Change Game State packet value representing fade time.
+     * @since 3.0.0
      */
     FADE_TIME(8);
 

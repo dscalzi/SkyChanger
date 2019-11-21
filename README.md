@@ -97,29 +97,38 @@ dependencies {
 * @param player The player to experiment on.
 */
 public void skychangerTests(Player player) {
-	// Get a reference to the API.
-	final SkyAPI api = SkyChanger.getAPI();
-	
-	// Change the sky and save the result.
-	boolean result = api.changeSky(player, 3F);
-	
-	if(result) {
-		player.sendMessage("Why did the sky turn red?");
-	}
-	
-	// Freeze the player.
-	result = api.freeze(player);
-	
-	if(result) {
-		player.sendMessage("Where did the land go?");
-		
-		// Unfreeze the player.
-		result = api.unfreeze(player);
-		
-		if(result) {
-			player.sendMessage("You've been unfrozen! Press (F3 + A) to reload chunks.");
-		}
-	}
+    // Get a reference to the API.
+    final SkyAPI api = SkyChanger.getAPI();
+
+    // Change the sky and save the result.
+    // Equivalent to /SkyChanger 3
+    boolean result1 = api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.FADE_VALUE, 3F);
+
+    if(result1) {
+        player.sendMessage("Why did the sky turn red?");
+    }
+
+    // Equivalent to /SkyChanger 4 8
+    boolean result2 = api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.FADE_VALUE, 4F);
+    result2 = result2 && api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.FADE_TIME, 8F);
+
+    if(result2) {
+        player.sendMessage("Why did the sky turn light blue?");
+    }
+
+    // Freeze the player.
+    boolean result3 = api.freeze(SkyChanger.wrapPlayer(player));
+
+    if(result3) {
+        player.sendMessage("Where did the land go?");
+
+        // Unfreeze the player.
+        result3 = api.unfreeze(SkyChanger.wrapPlayer(player));
+
+        if(result3) {
+            player.sendMessage("You've been unfrozen! Press (F3 + A) to reload chunks.");
+        }
+    }
 }
 ```
 

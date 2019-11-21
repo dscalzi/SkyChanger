@@ -24,8 +24,7 @@
 
 package com.dscalzi.skychanger.bukkit.internal;
 
-import java.util.List;
-
+import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
 import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
 import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
 import org.bukkit.command.Command;
@@ -33,7 +32,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+import java.util.List;
 
 public class MainExecutor implements CommandExecutor, TabCompleter {
 
