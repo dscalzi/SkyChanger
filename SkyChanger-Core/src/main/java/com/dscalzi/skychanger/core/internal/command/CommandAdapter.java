@@ -474,7 +474,7 @@ public class CommandAdapter {
         // isTweak = command is /skychanger # #
         // args are shifted right.
         final boolean isTweak = args.length >= 3 && packetNum.matcher(args[1]).matches();
-        final boolean isChangeSkyOrFreeze = args.length >= 2 && (packetNum.matcher(args[0]).matches() || args[0].equalsIgnoreCase("freeze")
+        final boolean isChangeSkyOrFreeze = !isTweak && args.length >= 2 && (packetNum.matcher(args[0]).matches() || args[0].equalsIgnoreCase("freeze")
                 || args[0].equalsIgnoreCase("unfreeze"));
         final int flagPos = isTweak ? 2 : 1;
 

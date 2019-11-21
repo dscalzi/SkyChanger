@@ -109,8 +109,8 @@ public void skychangerTests(Player player) {
     }
 
     // Equivalent to /SkyChanger 4 8
-    boolean result2 = api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.FADE_VALUE, 4F);
-    result2 = result2 && api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.FADE_TIME, 8F);
+    boolean result2 = api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.FADE_VALUE, 4F)
+                 && api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.FADE_TIME, 8F);
 
     if(result2) {
         player.sendMessage("Why did the sky turn light blue?");
