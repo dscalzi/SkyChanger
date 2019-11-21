@@ -57,12 +57,7 @@ public class CommandAdapter {
 
         if (args.length > 0) {
             if (packetNum.matcher(args[0]).matches()) {
-                this.cmdChangeSky(sender, SkyPacket.FADE_VALUE, args);
-                return true;
-            }
-
-            if (args[0].equalsIgnoreCase("tweak")) {
-                this.cmdChangeSky(sender, SkyPacket.FADE_TIME, args);
+                this.cmdChangeSky(sender, args);
                 return true;
             }
 
@@ -96,8 +91,7 @@ public class CommandAdapter {
         return false;
     }
 
-    @SuppressWarnings("deprecation")
-    private void cmdChangeSky(ICommandSender sender, SkyPacket packet, String[] args) {
+    private void cmdChangeSky(ICommandSender sender, String[] args) {
         final IWildcardPermissionUtil wpu = plugin.getWildcardPermissionUtil();
         final String basePerm = "skychanger.changesky";
         boolean s = sender.hasPermission(basePerm + ".self");
@@ -109,46 +103,64 @@ public class CommandAdapter {
             mm.noPermission(sender);
             return;
         }
-        float pN;
+
+        float fadeValue;
+        Float fadeTime = null;
         try {
-            pN = Float.parseFloat(args[0]);
+            fadeValue = Float.parseFloat(args[0]);
         } catch (NumberFormatException e) {
             mm.floatingPointOverflow(sender, args[0]);
             return;
         }
+
+        if(args.length > 1) {
+            try {
+                fadeTime = Float.valueOf(args[1]);
+            } catch (NumberFormatException ignored) {
+                // Not specified
+            }
+        }
+
+        // shifted right when fadeTime is present
+        int flagPos = fadeTime == null ? 1 : 2;
+        int valPos = flagPos+1;
+
         if (!sender.hasPermission("skychanger.bypasslimit")) {
             float upper = plugin.getConfigManager().getUpperLimit();
             float lower = plugin.getConfigManager().getLowerLimit();
-            if (pN > upper) {
+            if (fadeValue > upper || (fadeTime != null && fadeTime > upper)) {
                 mm.outOfBoundsUpper(sender, upper);
                 return;
             }
-            if (lower > pN) {
+            if (lower > fadeValue || (fadeTime != null && lower > fadeTime)) {
                 mm.outOfBoundsLower(sender, lower);
                 return;
             }
         }
         final SkyAPI api = plugin.getAPI();
-        if (args.length > 1) {
+        if (args.length > flagPos) {
             // Check if requested for all
-            if (args[1].equalsIgnoreCase("-a")) {
+            if (args[flagPos].equalsIgnoreCase("-a")) {
                 if (!a) {
                     mm.noPermission(sender);
                     return;
                 }
                 for (IPlayer p : plugin.getOnlinePlayers()) {
-                    api.changeSky(p, packet, pN);
+                    api.changeSky(p, SkyPacket.FADE_VALUE, fadeValue);
+                    if(fadeTime != null) {
+                        api.changeSky(p, SkyPacket.FADE_TIME, fadeTime);
+                    }
                 }
                 mm.packetSent(sender, "-a (" + mm.getString("message.everyone") + ")");
                 return;
             }
             // Check if requested for world
-            if (args[1].equalsIgnoreCase("-w")) {
-                IWorld t = null;
-                if (args.length > 2) {
-                    t = plugin.getWorld(args[2]);
+            if (args[flagPos].equalsIgnoreCase("-w")) {
+                IWorld t;
+                if (args.length > valPos) {
+                    t = plugin.getWorld(args[valPos]);
                     if (t == null) {
-                        mm.worldDoesntExist(sender, args[2]);
+                        mm.worldDoesntExist(sender, args[valPos]);
                         return;
                     }
                 } else {
@@ -163,29 +175,32 @@ public class CommandAdapter {
                     return;
                 }
                 for (IPlayer p : t.getPlayers()) {
-                    api.changeSky(p, packet, pN);
+                    api.changeSky(p, SkyPacket.FADE_VALUE, fadeValue);
+                    if(fadeTime != null) {
+                        api.changeSky(p, SkyPacket.FADE_TIME, fadeTime);
+                    }
                 }
                 mm.packetSent(sender, mm.getString("message.allPlayersIn") + " " + t.getName());
                 return;
             }
             // Check if requested for radius
-            if (args[1].equalsIgnoreCase("-r")) {
+            if (args[flagPos].equalsIgnoreCase("-r")) {
                 if (sender.isConsole()) {
                     MessageManager.getInstance().denyNonPlayer(sender);
                     return;
                 }
-                if(args.length > 2) {
+                if(args.length > valPos) {
                     double radius;
                     double radiusSq;
                     try {
-                        radius = Double.parseDouble(args[2]);
+                        radius = Double.parseDouble(args[valPos]);
 
                         if (!wpu.hasChangeskyRadiusPerm(sender, radius)) {
                             mm.noPermission(sender);
                             return;
                         }
 
-                        radiusSq = Math.pow(radius, 2);
+                        radiusSq = Math.pow(radius, valPos);
                     } catch (NumberFormatException e) {
                         MessageManager.getInstance().radiusFormatError(sender);
                         return;
@@ -201,7 +216,10 @@ public class CommandAdapter {
                     }
                     for(IPlayer p : origin.getWorld().getPlayers()) {
                         if(Math.abs(origin.distanceSquared(p.getLocation())) <= radiusSq) {
-                            api.changeSky(p, packet, pN);
+                            api.changeSky(p, SkyPacket.FADE_VALUE, fadeValue);
+                            if(fadeTime != null) {
+                                api.changeSky(p, SkyPacket.FADE_TIME, fadeTime);
+                            }
                         }
                     }
                     mm.packetSent(sender, mm.getString("message.allPlayersInRadius") + " " + args[2]);
@@ -218,19 +236,23 @@ public class CommandAdapter {
             }
             IOfflinePlayer target;
             try {
-                target = plugin.getOfflinePlayer(MessageManager.formatFromInput(args[1]));
+                target = plugin.getOfflinePlayer(MessageManager.formatFromInput(args[flagPos]));
             } catch (IllegalArgumentException e) {
-                target = plugin.getOfflinePlayer(args[1]);
+                target = plugin.getOfflinePlayer(args[flagPos]);
             }
             if (target == null || !target.isOnline()) {
-                mm.playerNotFound(sender, target == null || target.getName() == null ? args[1] : target.getName());
+                mm.playerNotFound(sender, target == null || target.getName() == null ? args[flagPos] : target.getName());
                 return;
             }
             // If a player specified their own name, we run the command as if the player
             // param was not
             // given. The others permission therefore includes the self.
             if (!(sender.isPlayer()) || !target.getUniqueId().equals(((IPlayer) sender).getUniqueId())) {
-                if (api.changeSky(target.getPlayer(), packet, pN))
+                boolean res = api.changeSky(target.getPlayer(), SkyPacket.FADE_VALUE, fadeValue);
+                if(fadeTime != null) {
+                    res = res && api.changeSky(target.getPlayer(), SkyPacket.FADE_TIME, fadeTime);
+                }
+                if (res)
                     mm.packetSent(sender, target.getName());
                 else
                     mm.packetError(sender, target.getName());
@@ -243,13 +265,16 @@ public class CommandAdapter {
             return;
         }
 
-        if (api.changeSky((IPlayer) sender, packet, pN))
+        boolean res = api.changeSky((IPlayer) sender, SkyPacket.FADE_VALUE, fadeValue);
+        if(fadeTime != null) {
+            res = res && api.changeSky((IPlayer) sender, SkyPacket.FADE_TIME, fadeTime);
+        }
+        if (res)
             mm.packetSent(sender);
         else
             mm.packetError(sender);
     }
 
-    @SuppressWarnings("deprecation")
     private void cmdFreeze(ICommandSender sender, boolean unfreeze, String[] args) {
         final IWildcardPermissionUtil wpu = plugin.getWildcardPermissionUtil();
         final String basePerm = "skychanger.freeze";
@@ -429,10 +454,6 @@ public class CommandAdapter {
         final IWildcardPermissionUtil wpu = plugin.getWildcardPermissionUtil();
         List<String> ret = new ArrayList<>();
 
-        boolean a = sender.hasPermission("skychanger.changesky.self") || sender.hasPermission("skychanger.changesky.others")
-                || sender.hasPermission("skychanger.changesky.all") || wpu.hasGeneralChangeskyWorldPerm(sender)
-                || wpu.hasGeneralChangeskyRadiusPerm(sender);
-
         boolean b = sender.hasPermission("skychanger.freeze.self") || sender.hasPermission("skychanger.freeze.others")
                 || sender.hasPermission("skychanger.freeze.all") || wpu.hasGeneralFreezeWorldPerm(sender)
                 || wpu.hasGeneralFreezeRadiusPerm(sender);
@@ -440,8 +461,6 @@ public class CommandAdapter {
         if (args.length == 1) {
             if ("help".startsWith(args[0].toLowerCase()))
                 ret.add("help");
-            if (a && "tweak".startsWith(args[0].toLowerCase()))
-                ret.add("tweak");
             if (b && "freeze".startsWith(args[0].toLowerCase()))
                 ret.add("freeze");
             if (b && "unfreeze".startsWith(args[0].toLowerCase()))
@@ -452,6 +471,8 @@ public class CommandAdapter {
                 ret.add("reload");
         }
 
+        // isTweak = command is /skychanger # #
+        // args are shifted right.
         final boolean isTweak = args.length >= 3 && packetNum.matcher(args[1]).matches();
         final boolean isChangeSkyOrFreeze = args.length >= 2 && (packetNum.matcher(args[0]).matches() || args[0].equalsIgnoreCase("freeze")
                 || args[0].equalsIgnoreCase("unfreeze"));

@@ -77,7 +77,7 @@ public class MessageManager {
     private void loadLanguage() {
         String l = plugin.getConfigManager().getLanguage();
         try (InputStream utf8in = plugin.getClass().getResourceAsStream("/lang/Messages_" + l + ".properties");
-             Reader reader = new InputStreamReader(utf8in, StandardCharsets.UTF_8);) {
+             Reader reader = new InputStreamReader(utf8in, StandardCharsets.UTF_8)) {
             props = new Properties();
             props.load(reader);
             lang = l;
@@ -168,7 +168,7 @@ public class MessageManager {
         final String listPrefix = cMessage + " " + b + " ";
 
         String header = prefix + cMessage + " " + getString("message.commandList");
-        List<String> cmds = new ArrayList<String>();
+        List<String> cmds = new ArrayList<>();
 
         cmds.add(listPrefix + "/SkyChanger help " + RESET + "- " + getString("message.descHelp"));
         if (sender.hasPermission("skychanger.changesky.self") || sender.hasPermission("skychanger.changesky.others")
@@ -206,7 +206,7 @@ public class MessageManager {
 
     private String generateChangeSkyUsage(ICommandSender sender) {
         final IWildcardPermissionUtil wpu = plugin.getWildcardPermissionUtil();
-        String u = "/SkyChanger <#>";
+        String u = "/SkyChanger <#> [#]";
         boolean o = sender.hasPermission("skychanger.changesky.others"),
                 a = sender.hasPermission("skychanger.changesky.all");
         boolean w = wpu.hasGeneralChangeskyWorldPerm(sender);
