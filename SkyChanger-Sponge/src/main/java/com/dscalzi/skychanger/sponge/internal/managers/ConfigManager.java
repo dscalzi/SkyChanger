@@ -26,11 +26,13 @@ package com.dscalzi.skychanger.sponge.internal.managers;
 
 import java.io.File;
 import java.io.IOException;
+
+import com.dscalzi.skychanger.core.internal.manager.IConfigManager;
 import org.spongepowered.api.asset.Asset;
 import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
-public class ConfigManager {
+public class ConfigManager implements IConfigManager {
 
     private static boolean initialized;
     private static ConfigManager instance;
@@ -52,7 +54,7 @@ public class ConfigManager {
             try {
                 this.config = this.plugin.getConfigLoader().load();
             } catch (IOException e) {
-                plugin.getLogger().error("Failed to load config.");
+                plugin.severe("Failed to load config.");
                 e.printStackTrace();
             }
         } else {
@@ -70,12 +72,12 @@ public class ConfigManager {
                     asset.copyToFile(file.toPath());
                     return true;
                 } catch (IOException e) {
-                    plugin.getLogger().error("Failed to save default config.");
+                    plugin.severe("Failed to save default config.");
                     e.printStackTrace();
                     return false;
                 }
             } else {
-                plugin.getLogger().error("Failed to locate default config.");
+                plugin.severe("Failed to locate default config.");
                 return false;
             }
         }
@@ -89,11 +91,16 @@ public class ConfigManager {
         }
     }
 
-    public static boolean reload() {
+    public static boolean reloadStatic() {
         if (!initialized)
             return false;
+        return getInstance().reload();
+    }
+
+    @Override
+    public boolean reload() {
         try {
-            getInstance().loadConfig();
+            loadConfig();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,37 +114,39 @@ public class ConfigManager {
 
     /* Configuration Accessors */
 
+    @Override
     public float getUpperLimit() {
         if(config == null) {
             return 50.0F;
         } else {
-            
+            return Float.parseFloat(config.getNode("general_settings", "upper_limit").getString("50.0"));
         }
-        return Float.parseFloat(config.getNode("general_settings", "upper_limit").getString("50.0"));
     }
 
+    @Override
     public float getLowerLimit() {
         if(config == null) {
             return -50.0F;
         } else {
-            
+            return Float.parseFloat(config.getNode("general_settings", "lower_limit").getString("-50.0"));
         }
-        return Float.parseFloat(config.getNode("general_settings", "lower_limit").getString("-50.0"));
     }
 
+    @Override
     public String getLanguage() {
         if(config == null) {
             return "en_US";
         } else {
-            
+            return config.getNode("general_settings", "language").getString("en_US");
         }
-        return config.getNode("general_settings", "language").getString("en_US");
     }
 
+    @Override
     public double getSystemConfigVersion() {
         return this.configVersion;
     }
 
+    @Override
     public double getConfigVersion() {
         if(config == null) {
             return getSystemConfigVersion();

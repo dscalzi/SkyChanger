@@ -1,2 +1,4 @@
 rootProject.name = 'SkyChanger'
 include 'SkyChanger-Bukkit', 'SkyChanger-Sponge'
+include 'SkyChanger-Core'
+

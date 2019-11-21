@@ -22,35 +22,53 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.bukkit.internal.wrap;
 
-import java.util.List;
-
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
+import com.dscalzi.skychanger.core.internal.wrap.ICommandSender;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+public class BukkitCommandSender extends BukkitPermissible implements ICommandSender {
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    private CommandSender sender;
 
-    private CommandAdapter adapter;
+    protected BukkitCommandSender(CommandSender sender) {
+        super(sender);
+        this.sender = sender;
+    }
 
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
+    public static ICommandSender of(CommandSender sender) {
+        if(sender == null) {
+            return null;
+        }
+        if(sender instanceof Player) {
+            return BukkitPlayer.of((Player)sender);
+        } else if(sender instanceof BlockCommandSender) {
+            return BukkitCommandBlock.of((BlockCommandSender)sender);
+        } else {
+            return new BukkitCommandSender(sender);
+        }
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
+    public boolean isConsole() {
+        return sender instanceof ConsoleCommandSender;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
+    public boolean isCommandBlock() {
+        return sender instanceof BlockCommandSender;
     }
 
+    @Override
+    public boolean isPlayer() {
+        return sender instanceof Player;
+    }
+
+    @Override
+    public void sendMessage(String msg) {
+        sender.sendMessage(msg);
+    }
 }

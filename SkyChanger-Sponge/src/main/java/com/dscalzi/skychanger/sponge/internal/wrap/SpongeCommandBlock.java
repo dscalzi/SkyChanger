@@ -22,35 +22,27 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.sponge.internal.wrap;
 
-import java.util.List;
+import com.dscalzi.skychanger.core.internal.wrap.ICommandBlock;
+import com.dscalzi.skychanger.core.internal.wrap.ILocation;
+import org.spongepowered.api.command.source.CommandBlockSource;
 
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+public class SpongeCommandBlock extends SpongeCommandSender implements ICommandBlock {
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+    private CommandBlockSource cbs;
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    private SpongeCommandBlock(CommandBlockSource commandBlockSource) {
+        super(commandBlockSource);
+        this.cbs = commandBlockSource;
+    }
 
-    private CommandAdapter adapter;
-
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
+    public static SpongeCommandBlock of(CommandBlockSource commandBlockSource) {
+        return commandBlockSource == null ? null : new SpongeCommandBlock(commandBlockSource);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
+    public ILocation getLocation() {
+        return SpongeLocation.of(cbs.getLocation());
     }
-
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
-    }
-
 }

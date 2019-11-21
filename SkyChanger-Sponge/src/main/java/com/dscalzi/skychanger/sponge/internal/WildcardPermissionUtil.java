@@ -27,35 +27,36 @@ package com.dscalzi.skychanger.sponge.internal;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import com.dscalzi.skychanger.core.internal.util.IWildcardPermissionUtil;
+import com.dscalzi.skychanger.core.internal.wrap.IPermissible;
+import com.dscalzi.skychanger.core.internal.wrap.IWorld;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.service.permission.Subject;
-import org.spongepowered.api.world.World;
 
-public class WildcardPermissionUtil {
+public class WildcardPermissionUtil extends IWildcardPermissionUtil {
 
-    private static final String CWORLDPERM = "skychanger.changesky.world";
-    private static final String FWORLDPERM = "skychanger.freeze.world";
-    
-    private static final String CRADIUSPERM = "skychanger.changesky.radius";
-    private static final String FRADIUSPERM = "skychanger.freeze.radius";
-
-    public static boolean hasGeneralChangeskyWorldPerm(Subject p) {
+    @Override
+    public boolean hasGeneralChangeskyWorldPerm(IPermissible p) {
         return hasGeneralPerm(p, CWORLDPERM);
     }
-
-    public static boolean hasGeneralFreezeWorldPerm(Subject p) {
+    @Override
+    public boolean hasGeneralFreezeWorldPerm(IPermissible p) {
         return hasGeneralPerm(p, FWORLDPERM);
     }
-    
-    public static boolean hasGeneralChangeskyRadiusPerm(Subject p) {
+
+    @Override
+    public boolean hasGeneralChangeskyRadiusPerm(IPermissible p) {
         return hasGeneralPerm(p, CRADIUSPERM);
     }
-    
-    public static boolean hasGeneralFreezeRadiusPerm(Subject p) {
+    @Override
+    public boolean hasGeneralFreezeRadiusPerm(IPermissible p) {
         return hasGeneralPerm(p, FRADIUSPERM);
     }
 
-    private static boolean hasGeneralPerm(Subject p, String perm) {
+    private static boolean hasGeneralPerm(IPermissible ip, String perm) {
+
+        Subject p = (Subject)ip.getOriginal();
+
         if(p instanceof ConsoleSource) {
             return true;
         }
@@ -71,29 +72,31 @@ public class WildcardPermissionUtil {
         return p.hasPermission(perm);
     }
 
-    public static boolean hasChangeskyWorldPerm(Subject p, World w) {
+    @Override
+    public boolean hasChangeskyWorldPerm(IPermissible p, IWorld w) {
         return hasWorldPerm(p, w, CWORLDPERM);
     }
-
-    public static boolean hasFreezeWorldPerm(Subject p, World w) {
+    @Override
+    public boolean hasFreezeWorldPerm(IPermissible p, IWorld w) {
         return hasWorldPerm(p, w, FWORLDPERM);
     }
     
-    private static boolean hasWorldPerm(Subject p, World w, String perm) {
+    private static boolean hasWorldPerm(IPermissible p, IWorld w, String perm) {
         
         return hasPerm(p, (s) ->  s.getKey().substring(perm.length() + 1).equals(w.getName()), perm)
                 || p.hasPermission(perm);
     }
-    
-    public static boolean hasChangeskyRadiusPerm(Subject p, double radius) {
+
+    @Override
+    public boolean hasChangeskyRadiusPerm(IPermissible p, double radius) {
         return hasRadiusPerm(p, radius, CRADIUSPERM);
     }
-    
-    public static boolean hasFreezeRadiusPerm(Subject p, double radius) {
+    @Override
+    public boolean hasFreezeRadiusPerm(IPermissible p, double radius) {
         return hasRadiusPerm(p, radius, FRADIUSPERM);
     }
 
-    public static boolean hasRadiusPerm(Subject p, double radius, String perm) {
+    public static boolean hasRadiusPerm(IPermissible p, double radius, String perm) {
         return hasPerm(p, (s) -> {
             try {
                 double radiusLimit = Double.parseDouble(s.getKey().substring(perm.length() + 1));
@@ -105,7 +108,8 @@ public class WildcardPermissionUtil {
         }, perm) || p.hasPermission(perm);
     }
 
-    private static boolean hasPerm(Subject p, Predicate<Map.Entry<String, Boolean>> hasSpecificPermissionTest, String perm) {
+    private static boolean hasPerm(IPermissible ip, Predicate<Map.Entry<String, Boolean>> hasSpecificPermissionTest, String perm) {
+        Subject p = (Subject)ip.getOriginal();
         if(p instanceof ConsoleSource) {
             return true;
         }

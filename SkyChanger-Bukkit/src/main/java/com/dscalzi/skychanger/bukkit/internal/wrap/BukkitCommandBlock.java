@@ -22,35 +22,27 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.bukkit.internal.wrap;
 
-import java.util.List;
+import com.dscalzi.skychanger.core.internal.wrap.ILocation;
+import com.dscalzi.skychanger.core.internal.wrap.ICommandBlock;
+import org.bukkit.command.BlockCommandSender;
 
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+public class BukkitCommandBlock extends BukkitCommandSender implements ICommandBlock {
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+    private BlockCommandSender bcs;
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    private BukkitCommandBlock(BlockCommandSender blockCommandSender) {
+        super(blockCommandSender);
+        this.bcs = blockCommandSender;
+    }
 
-    private CommandAdapter adapter;
-
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
+    public static BukkitCommandBlock of(BlockCommandSender blockCommandSender) {
+        return blockCommandSender == null ? null : new BukkitCommandBlock(blockCommandSender);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
+    public ILocation getLocation() {
+        return BukkitLocation.of(bcs.getBlock().getLocation());
     }
-
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
-    }
-
 }

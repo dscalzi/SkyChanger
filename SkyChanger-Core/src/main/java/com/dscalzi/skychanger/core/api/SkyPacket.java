@@ -22,35 +22,29 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.core.api;
 
-import java.util.List;
+public enum SkyPacket {
 
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+    /**
+     * Change Game State packet value representing fade value.
+     * @since 2.2.0
+     */
+    FADE_VALUE(7),
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+    /**
+     * Change Game State packet value representing fade time.
+     */
+    FADE_TIME(8);
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    private int value;
 
-    private CommandAdapter adapter;
-
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
+    SkyPacket(int value) {
+        this.value = value;
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
-    }
-
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
+    public int getValue() {
+        return this.value;
     }
 
 }

@@ -26,11 +26,12 @@ package com.dscalzi.skychanger.bukkit.internal.managers;
 
 import java.io.File;
 
+import com.dscalzi.skychanger.core.internal.manager.IConfigManager;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
 
-public class ConfigManager {
+public class ConfigManager implements IConfigManager {
 
     private static boolean initialized;
     private static ConfigManager instance;
@@ -65,11 +66,16 @@ public class ConfigManager {
         }
     }
 
-    public static boolean reload() {
+    public static boolean reloadStatic() {
         if (!initialized)
             return false;
+        return getInstance().reload();
+    }
+
+    @Override
+    public boolean reload() {
         try {
-            getInstance().loadConfig();
+            loadConfig();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -83,22 +89,27 @@ public class ConfigManager {
 
     /* Configuration Accessors */
 
+    @Override
     public float getUpperLimit() {
         return Float.parseFloat(config.getString("general_settings.upper_limit", "50.0"));
     }
 
+    @Override
     public float getLowerLimit() {
         return Float.parseFloat(config.getString("general_settings.lower_limit", "-50.0"));
     }
 
+    @Override
     public String getLanguage() {
         return config.getString("general_settings.language", "en_US");
     }
 
+    @Override
     public double getSystemConfigVersion() {
         return this.configVersion;
     }
 
+    @Override
     public double getConfigVersion() {
         return config.getDouble("ConfigVersion", getSystemConfigVersion());
     }

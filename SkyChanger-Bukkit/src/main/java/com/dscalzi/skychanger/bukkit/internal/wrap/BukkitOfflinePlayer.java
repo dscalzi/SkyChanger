@@ -22,35 +22,43 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.bukkit.internal.wrap;
 
-import java.util.List;
+import com.dscalzi.skychanger.core.internal.wrap.IOfflinePlayer;
+import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
+import org.bukkit.OfflinePlayer;
 
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import java.util.UUID;
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+public class BukkitOfflinePlayer implements IOfflinePlayer {
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    private OfflinePlayer op;
 
-    private CommandAdapter adapter;
+    private BukkitOfflinePlayer(OfflinePlayer offlinePlayer) {
+        this.op = offlinePlayer;
+    }
 
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
+    public static BukkitOfflinePlayer of(OfflinePlayer offlinePlayer) {
+        return offlinePlayer == null ? null : new BukkitOfflinePlayer(offlinePlayer);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
+    public UUID getUniqueId() {
+        return op.getUniqueId();
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
+    public boolean isOnline() {
+        return op.isOnline();
     }
 
+    @Override
+    public IPlayer getPlayer() {
+        return BukkitPlayer.of(op.getPlayer());
+    }
+
+    @Override
+    public String getName() {
+        return op.getName();
+    }
 }

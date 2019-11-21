@@ -24,9 +24,10 @@
 
 package com.dscalzi.skychanger.sponge.internal;
 
+import com.dscalzi.skychanger.core.api.SkyAPI;
+import com.dscalzi.skychanger.core.api.SkyPacket;
+import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
 import org.spongepowered.api.entity.living.player.Player;
-
-import com.dscalzi.skychanger.sponge.api.SkyAPI;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.SPacketChangeGameState;
@@ -39,26 +40,31 @@ import net.minecraft.world.WorldType;
 public class SkyChangeImpl implements SkyAPI {
 
     @Override
-    public boolean changeSky(Player p, float number) {
-        return sendPacket(p, number);
+    public boolean changeSky(IPlayer p, float number) {
+        return changeSky(p, SkyPacket.FADE_VALUE, number);
     }
 
     @Override
-    public boolean freeze(Player p) {
-        return sendFreezePacket(p);
+    public boolean changeSky(IPlayer p, SkyPacket packet, float number) {
+        return sendPacket((Player)p.getOriginal(), packet.getValue(), number);
     }
 
     @Override
-    public boolean unfreeze(Player p) {
-        return p.setLocation(p.getLocation());
+    public boolean freeze(IPlayer p) {
+        return sendFreezePacket((Player)p.getOriginal());
     }
 
-    protected boolean sendPacket(Player player, float number) {
-        ((EntityPlayerMP)player).connection.sendPacket(new SPacketChangeGameState(7, number));
+    @Override
+    public boolean unfreeze(IPlayer p) {
+        return p.teleport(p.getLocation());
+    }
+
+    private boolean sendPacket(Player player, int stateIn, float number) {
+        ((EntityPlayerMP)player).connection.sendPacket(new SPacketChangeGameState(stateIn, number));
         return true;
     }
 
-    protected boolean sendFreezePacket(Player player) {
+    private boolean sendFreezePacket(Player player) {
         World w = (World)player.getLocation().getExtent();
         EntityPlayerMP xP = ((EntityPlayerMP)player);
         xP.connection.sendPacket(new SPacketRespawn(w.provider.getDimensionType().getId(), w.getDifficulty(), WorldType.DEFAULT, ((EntityPlayerMP)player).interactionManager.getGameType()));

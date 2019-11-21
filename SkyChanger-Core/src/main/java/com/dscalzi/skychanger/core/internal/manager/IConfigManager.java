@@ -22,35 +22,20 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.core.internal.manager;
 
-import java.util.List;
+public interface IConfigManager {
 
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+    float getUpperLimit();
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+    float getLowerLimit();
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    String getLanguage();
 
-    private CommandAdapter adapter;
+    double getSystemConfigVersion();
 
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
-    }
+    double getConfigVersion();
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
-    }
-
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
-    }
+    boolean reload();
 
 }

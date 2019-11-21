@@ -22,35 +22,44 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.sponge.internal.wrap;
 
-import java.util.List;
+import com.dscalzi.skychanger.core.internal.wrap.IOfflinePlayer;
+import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
+import org.spongepowered.api.entity.living.player.Player;
 
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import java.util.UUID;
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+public class SpongeOfflinePlayer implements IOfflinePlayer {
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    private Player p;
 
-    private CommandAdapter adapter;
+    private SpongeOfflinePlayer(Player p) {
+        this.p = p;
+    }
 
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
+    public static SpongeOfflinePlayer of(Player p) {
+        return p == null ? null : new SpongeOfflinePlayer(p);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
+    public UUID getUniqueId() {
+        return p.getUniqueId();
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
+    public boolean isOnline() {
+        return p.isOnline();
+    }
+
+    @Override
+    public IPlayer getPlayer() {
+        return SpongePlayer.of(p);
+    }
+
+    @Override
+    public String getName() {
+        return p.getName();
     }
 
 }

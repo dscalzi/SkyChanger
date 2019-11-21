@@ -22,35 +22,40 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.core.internal.wrap;
+
+import com.dscalzi.skychanger.core.api.SkyAPI;
+import com.dscalzi.skychanger.core.internal.manager.IConfigManager;
+import com.dscalzi.skychanger.core.internal.util.IWildcardPermissionUtil;
 
 import java.util.List;
+import java.util.UUID;
 
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+public interface IPlugin {
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+    void disableSelf();
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    String getName();
+    String getVersion();
+    String getMetricsURL();
+    String getSourceURL();
 
-    private CommandAdapter adapter;
+    void info(String s);
+    void warning(String s);
+    void severe(String s);
 
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
-    }
+    IWorld getWorld(String name);
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
-    }
+    IConfigManager getConfigManager();
+    IWildcardPermissionUtil getWildcardPermissionUtil();
 
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
-    }
+    IOfflinePlayer getOfflinePlayer(UUID uuid);
+    IOfflinePlayer getOfflinePlayer(String name);
+
+    List<IPlayer> getOnlinePlayers();
+
+    List<IWorld> getWorlds();
+
+    SkyAPI getAPI();
 
 }

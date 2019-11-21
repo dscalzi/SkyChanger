@@ -22,35 +22,30 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.sponge.internal.wrap;
 
-import java.util.List;
+import com.dscalzi.skychanger.core.internal.wrap.IPermissible;
+import org.spongepowered.api.service.permission.Subject;
 
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+public class SpongePermissible implements IPermissible {
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+    private Subject s;
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    protected SpongePermissible(Subject subject) {
+        this.s = subject;
+    }
 
-    private CommandAdapter adapter;
-
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
+    public static SpongePermissible of(Subject subject) {
+        return subject == null ? null : new SpongePermissible(subject);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
+    public Object getOriginal() {
+        return s;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
+    public boolean hasPermission(String perm) {
+        return s.hasPermission(perm);
     }
-
 }

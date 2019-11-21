@@ -22,35 +22,35 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.sponge.internal.wrap;
+
+import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
+import com.dscalzi.skychanger.core.internal.wrap.IWorld;
+import org.spongepowered.api.world.World;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+public class SpongeWorld implements IWorld {
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+    private World world;
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    private SpongeWorld(World world) {
+        this.world = world;
+    }
 
-    private CommandAdapter adapter;
-
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
+    public static SpongeWorld of(World w) {
+        return w == null ? null : new SpongeWorld(w);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
+    public String getName() {
+        return world.getName();
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
+    public List<IPlayer> getPlayers() {
+        return world.getPlayers().stream().map(SpongePlayer::of).collect(Collectors.toList());
     }
 
 }

@@ -29,30 +29,36 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.dscalzi.skychanger.core.api.SkyAPI;
+import com.dscalzi.skychanger.core.api.SkyPacket;
+import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
+import com.dscalzi.skychanger.core.internal.manager.MessageManager;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
-import com.dscalzi.skychanger.bukkit.api.SkyAPI;
-import com.dscalzi.skychanger.bukkit.internal.managers.MessageManager;
 
 public class SkyChangeImpl implements SkyAPI {
 
     @Override
-    public boolean changeSky(Player p, float number) {
-        return sendPacket(p, number);
+    public boolean changeSky(IPlayer p, float number) {
+        return changeSky(p, SkyPacket.FADE_VALUE, number);
     }
 
     @Override
-    public boolean freeze(Player p) {
-        return sendFreezePacket(p);
+    public boolean changeSky(IPlayer p, SkyPacket packet, float number) {
+        return sendPacket((Player)p.getOriginal(), packet.getValue(), number);
     }
 
     @Override
-    public boolean unfreeze(Player p) {
+    public boolean freeze(IPlayer p) {
+        return sendFreezePacket((Player)p.getOriginal());
+    }
+
+    @Override
+    public boolean unfreeze(IPlayer p) {
         return p.teleport(p.getLocation());
     }
 
-    protected Object getConnection(Player player) throws NoSuchMethodException, SecurityException,
+    protected Object getConnection(Player player) throws SecurityException,
             IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
         Class<?> ocbPlayer = ReflectionUtil.getOCBClass("entity.CraftPlayer");
         Method getHandle = ReflectionUtil.getMethod(ocbPlayer, "getHandle");
@@ -62,11 +68,11 @@ public class SkyChangeImpl implements SkyAPI {
         return con;
     }
 
-    protected boolean sendPacket(Player player, float number) {
+    protected boolean sendPacket(Player player, int packetNum, float number) {
         try {
             Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutGameStateChange");
             Constructor<?> packetConstructor = packetClass.getConstructor(int.class, float.class);
-            Object packet = packetConstructor.newInstance(7, number);
+            Object packet = packetConstructor.newInstance(packetNum, number);
             Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
                     ReflectionUtil.getNMSClass("Packet"));
             sendPacket.invoke(this.getConnection(player), packet);

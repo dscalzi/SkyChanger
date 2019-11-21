@@ -24,8 +24,12 @@
 
 package com.dscalzi.skychanger.sponge.api;
 
+import com.dscalzi.skychanger.core.api.SkyAPI;
+import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
 import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
 import com.dscalzi.skychanger.sponge.internal.SkyChangeImpl;
+import com.dscalzi.skychanger.sponge.internal.wrap.SpongePlayer;
+import org.spongepowered.api.entity.living.player.Player;
 
 /**
  * Utility class to obtain references to components of SkyChanger.
@@ -45,7 +49,8 @@ public class SkyChanger {
      *
      * @return the SkyChanger plugin if it is loaded, otherwise null.
      */
-    public static final SkyChangerPlugin getPlugin() {
+    @SuppressWarnings("unused")
+    public static SkyChangerPlugin getPlugin() {
         return SkyChangerPlugin.inst();
     }
 
@@ -54,8 +59,20 @@ public class SkyChanger {
      * 
      * @return An instance of the SkyChanger API.
      */
-    public static final SkyAPI getAPI() {
+    public static SkyAPI getAPI() {
         return api;
+    }
+
+    /**
+     * Wrap a player instance to be sent to the API.
+     *
+     * @param p The player to be wrapped.
+     *
+     * @return A wrapped IPlayer instance of the provided player.
+     */
+    @SuppressWarnings("unused")
+    public static IPlayer wrapPlayer(Player p) {
+        return SpongePlayer.of(p);
     }
 
 }

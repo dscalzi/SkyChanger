@@ -25,9 +25,22 @@
 package com.dscalzi.skychanger.sponge;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.dscalzi.skychanger.core.api.SkyAPI;
+import com.dscalzi.skychanger.core.internal.manager.IConfigManager;
+import com.dscalzi.skychanger.core.internal.manager.MessageManager;
+import com.dscalzi.skychanger.core.internal.util.IWildcardPermissionUtil;
+import com.dscalzi.skychanger.core.internal.wrap.IOfflinePlayer;
+import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
+import com.dscalzi.skychanger.core.internal.wrap.IPlugin;
+import com.dscalzi.skychanger.core.internal.wrap.IWorld;
+import com.dscalzi.skychanger.sponge.api.SkyChanger;
+import com.dscalzi.skychanger.sponge.internal.WildcardPermissionUtil;
+import com.dscalzi.skychanger.sponge.internal.wrap.SpongeOfflinePlayer;
+import com.dscalzi.skychanger.sponge.internal.wrap.SpongePlayer;
+import com.dscalzi.skychanger.sponge.internal.wrap.SpongeWorld;
 import org.bstats.sponge.Metrics2;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
@@ -49,14 +62,13 @@ import org.spongepowered.api.text.Text;
 
 import com.dscalzi.skychanger.sponge.internal.MainExecutor;
 import com.dscalzi.skychanger.sponge.internal.managers.ConfigManager;
-import com.dscalzi.skychanger.sponge.internal.managers.MessageManager;
 import com.google.inject.Inject;
 
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 
 @Plugin(id = "skychanger")
-public class SkyChangerPlugin {
+public class SkyChangerPlugin implements IPlugin {
 
     @Inject private PluginContainer plugin;
     @Inject private Logger logger;
@@ -72,6 +84,8 @@ public class SkyChangerPlugin {
     
     private static SkyChangerPlugin inst;
 
+    private WildcardPermissionUtil wildcardPermissionUtil;
+
     public SkyChangerPlugin() {
         inst = this;
     }
@@ -84,17 +98,89 @@ public class SkyChangerPlugin {
     public static SkyChangerPlugin inst() {
         return inst;
     }
-    
-    public Logger getLogger(){
-        return logger;
+
+    @Override
+    public void disableSelf() {
+        this.disable();
     }
-    
+
+    @Override
+    public String getName() {
+        return plugin.getName();
+    }
+
+    @Override
+    public String getVersion() {
+        return plugin.getVersion().orElse("dev");
+    }
+
+    @Override
+    public String getMetricsURL() {
+        return "https://bstats.org/plugin/sponge/SkyChanger";
+    }
+
+    @Override
+    public String getSourceURL() {
+        return "https://github.com/dscalzi/SkyChanger";
+    }
+
+    @Override
+    public void info(String s) {
+        logger.info(s);
+    }
+
+    @Override
+    public void warning(String s) {
+        logger.warn(s);
+    }
+
+    @Override
+    public void severe(String s) {
+        logger.error(s);
+    }
+
+    @Override
+    public IWorld getWorld(String name) {
+        return this.game.getServer().getWorld(name).map(SpongeWorld::of).orElse(null);
+    }
+
+    @Override
+    public IConfigManager getConfigManager() {
+        return ConfigManager.getInstance();
+    }
+
+    @Override
+    public IWildcardPermissionUtil getWildcardPermissionUtil() {
+        return this.wildcardPermissionUtil;
+    }
+
+    @Override
+    public IOfflinePlayer getOfflinePlayer(UUID uuid) {
+        return this.game.getServer().getPlayer(uuid).map(SpongeOfflinePlayer::of).orElse(null);
+    }
+
+    @Override
+    public IOfflinePlayer getOfflinePlayer(String name) {
+        return this.game.getServer().getPlayer(name).map(SpongeOfflinePlayer::of).orElse(null);
+    }
+
+    @Override
+    public List<IPlayer> getOnlinePlayers() {
+        return this.game.getServer().getOnlinePlayers().stream().map(SpongePlayer::of).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<IWorld> getWorlds() {
+        return this.game.getServer().getWorlds().stream().map(SpongeWorld::of).collect(Collectors.toList());
+    }
+
+    @Override
+    public SkyAPI getAPI() {
+        return SkyChanger.getAPI();
+    }
+
     public PluginContainer getPlugin() {
         return plugin;
-    }
-    
-    public Game getGame() {
-        return game;
     }
     
     public ConfigurationLoader<CommentedConfigurationNode> getConfigLoader(){
@@ -105,23 +191,27 @@ public class SkyChangerPlugin {
         return configDir;
     }
     
-    public void disable() {
+    private void disable() {
         game.getEventManager().unregisterPluginListeners(this);
         game.getCommandManager().getOwnedBy(this).forEach(game.getCommandManager()::removeMapping);
         game.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
     }
     
     @Listener
+    @SuppressWarnings("unused")
     public void onGamePreInitialization(GamePreInitializationEvent e){
         logger.info("Enabling " + plugin.getName() + " version " + plugin.getVersion().orElse("dev") + ".");
+
+        this.wildcardPermissionUtil = new WildcardPermissionUtil();
 
         ConfigManager.initialize(this);
         MessageManager.initialize(this);
         
-        Sponge.getCommandManager().register(this, new MainExecutor(this), Arrays.asList("skychanger"));
+        Sponge.getCommandManager().register(this, new MainExecutor(this), Collections.singletonList("skychanger"));
     }
     
     @Listener
+    @SuppressWarnings("unused")
     public void onServerStart(GameStartedServerEvent event) {
         metrics.addCustomChart(new Metrics2.SimplePie("used_language",
                 () -> MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable()));
@@ -129,6 +219,7 @@ public class SkyChangerPlugin {
 
     
     @Listener
+    @SuppressWarnings("unused")
     public void onPostInit(GamePostInitializationEvent event) {
         Optional<PermissionService> ops = Sponge.getServiceManager().provide(PermissionService.class);
         if (ops.isPresent()) {
@@ -155,8 +246,9 @@ public class SkyChangerPlugin {
 
     
     @Listener
+    @SuppressWarnings("unused")
     public void onReload(GameReloadEvent e){
-        ConfigManager.reload();
+        ConfigManager.reloadStatic();
         MessageManager.reload();
     }
 

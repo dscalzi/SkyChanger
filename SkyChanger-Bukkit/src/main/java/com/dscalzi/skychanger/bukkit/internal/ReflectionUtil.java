@@ -43,9 +43,9 @@ public final class ReflectionUtil {
     private final static Map<Class<?>, Map<String, Method>> cachedMethods;
 
     static {
-        nmsClasses = new HashMap<String, Class<?>>();
-        ocbClasses = new HashMap<String, Class<?>>();
-        cachedMethods = new HashMap<Class<?>, Map<String, Method>>();
+        nmsClasses = new HashMap<>();
+        ocbClasses = new HashMap<>();
+        cachedMethods = new HashMap<>();
     }
 
     public static String getVersion() {

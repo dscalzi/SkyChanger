@@ -22,35 +22,36 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.bukkit.internal.wrap;
 
-import java.util.List;
+import com.dscalzi.skychanger.core.internal.wrap.ILocation;
+import com.dscalzi.skychanger.core.internal.wrap.IWorld;
+import org.bukkit.Location;
 
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+public class BukkitLocation implements ILocation<Location> {
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+    private Location l;
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    private BukkitLocation(Location location) {
+        this.l = location;
+    }
 
-    private CommandAdapter adapter;
-
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
+    public static BukkitLocation of(Location location) {
+        return location == null ? null : new BukkitLocation(location);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
+    public Location getOriginal() {
+        return l;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
+    public IWorld getWorld() {
+        return BukkitWorld.of(l.getWorld());
     }
 
+    @Override
+    public double distanceSquared(ILocation o) {
+        return l.distanceSquared((Location) o.getOriginal());
+    }
 }

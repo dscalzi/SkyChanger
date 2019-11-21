@@ -22,35 +22,38 @@
  * THE SOFTWARE.
  */
 
-package com.dscalzi.skychanger.bukkit.internal;
+package com.dscalzi.skychanger.sponge.internal.wrap;
 
-import java.util.List;
+import com.dscalzi.skychanger.core.internal.wrap.ILocation;
+import com.dscalzi.skychanger.core.internal.wrap.IWorld;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
-import com.dscalzi.skychanger.bukkit.internal.wrap.BukkitCommandSender;
-import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+public class SpongeLocation implements ILocation {
 
-import com.dscalzi.skychanger.bukkit.SkyChangerPlugin;
+    private Location<World> location;
 
-public class MainExecutor implements CommandExecutor, TabCompleter {
+    private SpongeLocation(Location<World> location) {
+        this.location = location;
+    }
 
-    private CommandAdapter adapter;
-
-    public MainExecutor(SkyChangerPlugin plugin) {
-        this.adapter = new CommandAdapter(plugin);
+    public static SpongeLocation of(Location<World> location) {
+        return location == null ? null : new SpongeLocation(location);
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        return this.adapter.resolve(BukkitCommandSender.of(sender), args);
+    public Object getOriginal() {
+        return location;
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
-        return adapter.tabComplete(BukkitCommandSender.of(sender), args);
+    public IWorld getWorld() {
+        return SpongeWorld.of(location.getExtent());
+    }
+
+    @Override
+    public double distanceSquared(ILocation o) {
+        return location.getPosition().distanceSquared(((Location)o.getOriginal()).getPosition());
     }
 
 }

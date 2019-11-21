@@ -26,35 +26,34 @@ package com.dscalzi.skychanger.bukkit.internal;
 
 import java.util.function.Predicate;
 
-import org.bukkit.World;
+import com.dscalzi.skychanger.core.internal.wrap.IPermissible;
+import com.dscalzi.skychanger.core.internal.wrap.IWorld;
+import com.dscalzi.skychanger.core.internal.util.IWildcardPermissionUtil;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-public class WildcardPermissionUtil {
+public class WildcardPermissionUtil extends IWildcardPermissionUtil {
 
-    private static final String CWORLDPERM = "skychanger.changesky.world";
-    private static final String FWORLDPERM = "skychanger.freeze.world";
-    
-    private static final String CRADIUSPERM = "skychanger.changesky.radius";
-    private static final String FRADIUSPERM = "skychanger.freeze.radius";
-
-    public static boolean hasGeneralChangeskyWorldPerm(Permissible p) {
+    @Override
+    public boolean hasGeneralChangeskyWorldPerm(IPermissible p) {
         return hasGeneralPerm(p, CWORLDPERM);
     }
-
-    public static boolean hasGeneralFreezeWorldPerm(Permissible p) {
+    @Override
+    public boolean hasGeneralFreezeWorldPerm(IPermissible p) {
         return hasGeneralPerm(p, FWORLDPERM);
     }
-    
-    public static boolean hasGeneralChangeskyRadiusPerm(Permissible p) {
+
+    @Override
+    public boolean hasGeneralChangeskyRadiusPerm(IPermissible p) {
         return hasGeneralPerm(p, CRADIUSPERM);
     }
-    
-    public static boolean hasGeneralFreezeRadiusPerm(Permissible p) {
+    @Override
+    public boolean hasGeneralFreezeRadiusPerm(IPermissible p) {
         return hasGeneralPerm(p, FRADIUSPERM);
     }
 
-    private static boolean hasGeneralPerm(Permissible p, String perm) {
+    private static boolean hasGeneralPerm(IPermissible ip, String perm) {
+        Permissible p = (Permissible)ip.getOriginal();
         for (PermissionAttachmentInfo i : p.getEffectivePermissions()) {
             if (i.getPermission().toLowerCase().startsWith(perm)) {
                 if (i.getValue()) {
@@ -65,28 +64,30 @@ public class WildcardPermissionUtil {
         return p.hasPermission(perm + ".*");
     }
 
-    public static boolean hasChangeskyWorldPerm(Permissible p, World w) {
+    @Override
+    public boolean hasChangeskyWorldPerm(IPermissible p, IWorld w) {
         return hasWorldPerm(p, w, CWORLDPERM);
     }
-
-    public static boolean hasFreezeWorldPerm(Permissible p, World w) {
+    @Override
+    public boolean hasFreezeWorldPerm(IPermissible p, IWorld w) {
         return hasWorldPerm(p, w, FWORLDPERM);
     }
 
-    private static boolean hasWorldPerm(Permissible p, World w, String perm) {
+    private boolean hasWorldPerm(IPermissible p, IWorld w, String perm) {
         return hasPerm(p, (i) ->  i.getPermission().substring(perm.length() + 1).equals(w.getName()), perm)
                 || p.hasPermission(perm + ".*");
     }
-    
-    public static boolean hasChangeskyRadiusPerm(Permissible p, double radius) {
+
+    @Override
+    public boolean hasChangeskyRadiusPerm(IPermissible p, double radius) {
         return hasRadiusPerm(p, radius, CRADIUSPERM);
     }
-    
-    public static boolean hasFreezeRadiusPerm(Permissible p, double radius) {
+    @Override
+    public boolean hasFreezeRadiusPerm(IPermissible p, double radius) {
         return hasRadiusPerm(p, radius, FRADIUSPERM);
     }
 
-    public static boolean hasRadiusPerm(Permissible p, double radius, String perm) {
+    public static boolean hasRadiusPerm(IPermissible p, double radius, String perm) {
         return hasPerm(p, (i) -> {
             try {
                 double radiusLimit = Double.parseDouble(i.getPermission().substring(perm.length() + 1));
@@ -97,8 +98,9 @@ public class WildcardPermissionUtil {
             }
         }, perm) || p.hasPermission(perm + ".*");
     }
-    
-    public static boolean hasPerm(Permissible p, Predicate<PermissionAttachmentInfo> hasSpecificPermissionTest, String perm) {
+
+    public static boolean hasPerm(IPermissible ip, Predicate<PermissionAttachmentInfo> hasSpecificPermissionTest, String perm) {
+        Permissible p = (Permissible) ip.getOriginal();
         boolean canByRight = false;
         for (PermissionAttachmentInfo i : p.getEffectivePermissions()) {
             final String effective = i.getPermission().toLowerCase();
@@ -109,22 +111,6 @@ public class WildcardPermissionUtil {
             }
         }
         return canByRight;
-    }
-    
-    public static String changeskyWorldBasePerm() {
-        return CWORLDPERM;
-    }
-
-    public static String freezeWorldBasePerm() {
-        return FWORLDPERM;
-    }
-    
-    public static String changeskyRadiusBasePerm() {
-        return CRADIUSPERM;
-    }
-    
-    public static String freezeRadiusBasePerm() {
-        return FRADIUSPERM;
     }
 
 }
