@@ -24,9 +24,9 @@
 
 package com.dscalzi.skychanger.core.internal.wrap;
 
-public interface ILocation<T> {
+public interface ILocation {
 
-    T getOriginal();
+    Object getOriginal();
 
     IWorld getWorld();
 

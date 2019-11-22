@@ -28,7 +28,7 @@ import com.dscalzi.skychanger.core.internal.wrap.ILocation;
 import com.dscalzi.skychanger.core.internal.wrap.IWorld;
 import org.bukkit.Location;
 
-public class BukkitLocation implements ILocation<Location> {
+public class BukkitLocation implements ILocation {
 
     private Location l;
 
@@ -41,7 +41,7 @@ public class BukkitLocation implements ILocation<Location> {
     }
 
     @Override
-    public Location getOriginal() {
+    public Object getOriginal() {
         return l;
     }
 
