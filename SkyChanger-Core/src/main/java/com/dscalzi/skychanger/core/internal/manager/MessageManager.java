@@ -289,6 +289,10 @@ public class MessageManager {
         sendSuccess(sender, getString("success.packetUnfreezeSentTo", name));
     }
 
+    public void featureUnsupported(ICommandSender sender, String versions) {
+        sendError(sender, getString("error.featureUnsupported", versions));
+    }
+
     public void radiusFormatError(ICommandSender sender) {
         sendError(sender, getString("error.radiusFormat"));
     }

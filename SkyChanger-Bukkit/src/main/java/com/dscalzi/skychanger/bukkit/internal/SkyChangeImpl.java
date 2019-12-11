@@ -28,7 +28,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.dscalzi.skychanger.bukkit.api.SkyChanger;
 import com.dscalzi.skychanger.core.api.SkyAPI;
 import com.dscalzi.skychanger.core.api.SkyPacket;
 import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
@@ -37,6 +41,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class SkyChangeImpl implements SkyAPI {
+
+    public static final List<String> FREEZE_UNSUPPORTED = Stream.of("1.13", "1.15").collect(Collectors.toList());
 
     @Override
     public boolean changeSky(IPlayer p, float number) {
@@ -88,9 +94,65 @@ public class SkyChangeImpl implements SkyAPI {
     protected boolean sendFreezePacket(Player player) {
         
         int major = ReflectionUtil.getMajor(), minor = ReflectionUtil.getMinor();
+
+        if(FREEZE_UNSUPPORTED.contains(major + "." + minor)) {
+            MessageManager.getInstance().featureUnsupported(SkyChanger.wrapPlayer(player), FREEZE_UNSUPPORTED.toString());
+        }
         
-        // 1.14+ Method
-        if(major == 1 && minor >= 14) {
+        if (major == 1 && minor >=15) {
+            // 1.15+
+
+            Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
+            Class<?> dimManClass = ReflectionUtil.getNMSClass("DimensionManager");
+            Class<?> worldTypeClass = ReflectionUtil.getNMSClass("WorldType");
+            Class<?> gameModeClass = ReflectionUtil.getNMSClass("EnumGamemode");
+            Method gmGetById = ReflectionUtil.getMethod(gameModeClass, "getById", int.class);
+
+            Class<?> worldServerClass = ReflectionUtil.getNMSClass("WorldServer");
+            Method getWorldData = ReflectionUtil.getMethod(worldServerClass, "getWorldData");
+
+            Class<?> worldDataClass = ReflectionUtil.getNMSClass("WorldData");
+            Method getSeed = ReflectionUtil.getMethod(worldDataClass, "getSeed");
+            Method c = ReflectionUtil.getMethod(worldDataClass, "c", long.class);
+            Method getType = ReflectionUtil.getMethod(worldDataClass, "getType");
+
+            Class<?> craftWorldClass = ReflectionUtil.getOCBClass("CraftWorld");
+            Method getHandle = ReflectionUtil.getMethod(craftWorldClass, "getHandle");
+
+
+            try {
+
+                Object worldServer = getHandle.invoke(player.getWorld());
+                Object worldData = getWorldData.invoke(worldServer);
+
+                Class<?> worldProviderClass = ReflectionUtil.getNMSClass("WorldProvider");
+                Class<?> worldClass = ReflectionUtil.getNMSClass("World");
+                Field worldProviderField = worldClass.getDeclaredField("worldProvider");
+                Object worldProvider = worldProviderField.get(worldServer);
+
+                Method getDimensionManager = ReflectionUtil.getMethod(worldProviderClass, "getDimensionManager");
+
+                Object dimensionManager = getDimensionManager.invoke(worldProvider);
+                Object worldType = getType.invoke(worldData);
+
+                Constructor<?> packetConstructor = packetClass.getConstructor(dimManClass, long.class, worldTypeClass, gameModeClass);
+
+                Object packet = packetConstructor.newInstance(dimensionManager, (long) c.invoke(null, getSeed.invoke(worldData)), worldType, gmGetById.invoke(null, player.getGameMode().getValue()));
+
+                Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
+                        ReflectionUtil.getNMSClass("Packet"));
+                sendPacket.invoke(this.getConnection(player), packet);
+                player.updateInventory();
+
+                return true;
+
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | NoSuchFieldException | NullPointerException | InstantiationException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+        } else if(major == 1 && minor == 14) {
+            // 1.14
             
             Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
             Class<?> dimManClass = ReflectionUtil.getNMSClass("DimensionManager");
@@ -106,8 +168,6 @@ public class SkyChangeImpl implements SkyAPI {
             
             Class<?> craftWorldClass = ReflectionUtil.getOCBClass("CraftWorld");
             Method getHandle = ReflectionUtil.getMethod(craftWorldClass, "getHandle");
-            
-            
             
             try {
                 // World is CraftWorld
@@ -131,6 +191,7 @@ public class SkyChangeImpl implements SkyAPI {
                 Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
                         ReflectionUtil.getNMSClass("Packet"));
                 sendPacket.invoke(this.getConnection(player), packet);
+                player.updateInventory();
                 
                 return true;
                 
@@ -185,6 +246,7 @@ public class SkyChangeImpl implements SkyAPI {
                 Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
                         ReflectionUtil.getNMSClass("Packet"));
                 sendPacket.invoke(this.getConnection(player), packet);
+                player.updateInventory();
                 
                 return true;
                 
