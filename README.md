@@ -16,7 +16,7 @@ SkyChanger is a light-weight plugin for Spigot and Sponge. The main function of 
 * Configurable limits to the range of packets that can be sent.
 * Usage messages tailored to specific users based on permission level.
 * Multilanguage support.
-* Metrics tracking by [bStats](https://bstats.org/plugin/bukkit/SkyChanger).
+* Metrics tracking by [bStats](https://bstats.org/plugin/bukkit/SkyChanger/350).
 
 **If you would like to contribute your language or correct an incorrect translation, [follow this quick guide](https://github.com/dscalzi/SkyChanger/wiki/Translation-Guide).**
 

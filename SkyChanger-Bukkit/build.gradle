@@ -10,10 +10,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.15-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT'
 
     implementation project(':SkyChanger-Core')
-    implementation 'org.bstats:bstats-bukkit:1.5'
+    implementation 'org.bstats:bstats-bukkit:1.7'
 }
 
 bukkit {

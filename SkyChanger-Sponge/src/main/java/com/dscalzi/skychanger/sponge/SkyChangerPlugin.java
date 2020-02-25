@@ -73,7 +73,6 @@ public class SkyChangerPlugin implements IPlugin {
     @Inject private PluginContainer plugin;
     @Inject private Logger logger;
     @Inject private Game game;
-    @Inject private Metrics2 metrics;
     
     @Inject
     @DefaultConfig(sharedRoot = false)
@@ -86,8 +85,12 @@ public class SkyChangerPlugin implements IPlugin {
 
     private WildcardPermissionUtil wildcardPermissionUtil;
 
-    public SkyChangerPlugin() {
+    private Metrics2 metrics;
+
+    @Inject
+    public SkyChangerPlugin(Metrics2.Factory metricsFactory) {
         inst = this;
+        metrics = metricsFactory.make(3228);
     }
     
     /**
@@ -116,7 +119,7 @@ public class SkyChangerPlugin implements IPlugin {
 
     @Override
     public String getMetricsURL() {
-        return "https://bstats.org/plugin/sponge/SkyChanger";
+        return "https://bstats.org/plugin/sponge/SkyChanger/3228";
     }
 
     @Override

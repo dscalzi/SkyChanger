@@ -65,7 +65,7 @@ public class SkyChangerPlugin extends JavaPlugin implements IPlugin {
         ConfigManager.initialize(this);
         MessageManager.initialize(this);
         this.getCommand("skychanger").setExecutor(new MainExecutor(this));
-        metrics = new Metrics(this);
+        metrics = new Metrics(this, 350);
         metrics.addCustomChart(new Metrics.SimplePie("used_language",
                 () -> MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable()));
     }
@@ -101,7 +101,7 @@ public class SkyChangerPlugin extends JavaPlugin implements IPlugin {
 
     @Override
     public String getMetricsURL() {
-        return "https://bstats.org/plugin/bukkit/SkyChanger";
+        return "https://bstats.org/plugin/bukkit/SkyChanger/350";
     }
 
     @Override

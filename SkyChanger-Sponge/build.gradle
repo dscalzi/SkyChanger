@@ -39,7 +39,7 @@ dependencies {
     compileOnly 'org.spongepowered:spongeapi:7.1.0'
 
     implementation project(':SkyChanger-Core')
-    implementation 'org.bstats:bstats-sponge:1.5'
+    implementation 'org.bstats:bstats-sponge:1.7'
 }
 
 shadowJar {
