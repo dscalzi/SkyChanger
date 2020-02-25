@@ -30,9 +30,9 @@ subprojects {
     targetCompatibility = 1.8
 
     def major = '3'
-    def minor = '0'
+    def minor = '1'
     def spongeRevision = '0'
-    def bukkitRevision = '1'
+    def bukkitRevision = '0'
 
     version = "${major}.${minor}.${project.name.endsWith('Sponge') ? spongeRevision : bukkitRevision}"
     
