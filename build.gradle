@@ -54,7 +54,7 @@ subprojects {
         header = rootProject.file('HEADER.txt')
         ext {
             name = 'Daniel D. Scalzi'
-            year = '2017-2019'
+            year = '2017-2020'
             url = 'https://github.com/dscalzi/SkyChanger'
         }
     }
