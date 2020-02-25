@@ -1,7 +1,7 @@
 plugins {
     id 'net.minecrell.licenser' version '0.4.1'
-    id 'com.github.johnrengelman.shadow' version '4.0.3'
-    id 'com.jfrog.bintray' version '1.8.4'
+    id 'com.github.johnrengelman.shadow' version '4.0.1'
+    id 'com.jfrog.bintray' version '1.8.3'
 }
 
 allprojects {
@@ -31,10 +31,20 @@ subprojects {
 
     def major = '3'
     def minor = '1'
-    def spongeRevision = '0'
-    def bukkitRevision = '0'
+    def spongeRevision = '1'
+    def bukkitRevision = '1'
 
-    version = "${major}.${minor}.${project.name.endsWith('Sponge') ? spongeRevision : bukkitRevision}"
+    def rev
+
+    if (project.name.endsWith('Sponge')) {
+        rev = spongeRevision
+    } else if (project.name.endsWith('Bukkit')) {
+        rev = bukkitRevision
+    } else {
+        rev = spongeRevision.toInteger() > bukkitRevision.toInteger() ? spongeRevision : bukkitRevision
+    }
+
+    version = "${major}.${minor}.${rev}"
     
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
