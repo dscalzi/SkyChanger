@@ -52,7 +52,7 @@ Bukkit: [![bintray](https://api.bintray.com/packages/dscalzi/maven/SkyChanger-Bu
 <repository>
     <id>jcenter</id>
     <name>jcenter-bintray</name>
-    <url>http://jcenter.bintray.com</url>
+    <url>https://jcenter.bintray.com</url>
 </repository>
 
 <!-- For Bukkit -->
