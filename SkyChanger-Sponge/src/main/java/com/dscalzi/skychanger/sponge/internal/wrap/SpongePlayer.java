@@ -35,7 +35,7 @@ import java.util.UUID;
 
 public class SpongePlayer extends SpongeCommandSender implements IPlayer {
 
-    private Player player;
+    private final Player player;
 
     private SpongePlayer(Player player) {
         super(player);

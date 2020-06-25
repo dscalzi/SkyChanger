@@ -30,7 +30,7 @@ import org.bukkit.command.BlockCommandSender;
 
 public class BukkitCommandBlock extends BukkitCommandSender implements ICommandBlock {
 
-    private BlockCommandSender bcs;
+    private final BlockCommandSender bcs;
 
     private BukkitCommandBlock(BlockCommandSender blockCommandSender) {
         super(blockCommandSender);

@@ -34,7 +34,7 @@ import java.util.UUID;
 
 public class BukkitPlayer extends BukkitCommandSender implements IPlayer {
 
-    private Player p;
+    private final Player p;
 
     private BukkitPlayer(Player player) {
         super(player);

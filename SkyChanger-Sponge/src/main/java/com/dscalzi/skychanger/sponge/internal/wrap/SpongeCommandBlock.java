@@ -30,7 +30,7 @@ import org.spongepowered.api.command.source.CommandBlockSource;
 
 public class SpongeCommandBlock extends SpongeCommandSender implements ICommandBlock {
 
-    private CommandBlockSource cbs;
+    private final CommandBlockSource cbs;
 
     private SpongeCommandBlock(CommandBlockSource commandBlockSource) {
         super(commandBlockSource);

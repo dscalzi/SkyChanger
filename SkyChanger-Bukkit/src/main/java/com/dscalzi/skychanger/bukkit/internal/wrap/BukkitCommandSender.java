@@ -32,7 +32,7 @@ import org.bukkit.entity.Player;
 
 public class BukkitCommandSender extends BukkitPermissible implements ICommandSender {
 
-    private CommandSender sender;
+    private final CommandSender sender;
 
     protected BukkitCommandSender(CommandSender sender) {
         super(sender);

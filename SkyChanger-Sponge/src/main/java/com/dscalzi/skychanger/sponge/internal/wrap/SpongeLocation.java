@@ -31,7 +31,7 @@ import org.spongepowered.api.world.World;
 
 public class SpongeLocation implements ILocation {
 
-    private Location<World> location;
+    private final Location<World> location;
 
     private SpongeLocation(Location<World> location) {
         this.location = location;
@@ -51,6 +51,7 @@ public class SpongeLocation implements ILocation {
         return SpongeWorld.of(location.getExtent());
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public double distanceSquared(ILocation o) {
         return location.getPosition().distanceSquared(((Location)o.getOriginal()).getPosition());

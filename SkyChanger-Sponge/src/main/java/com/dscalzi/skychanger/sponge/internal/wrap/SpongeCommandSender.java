@@ -33,7 +33,7 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 
 public class SpongeCommandSender extends SpongePermissible implements ICommandSender {
 
-    private CommandSource cs;
+    private final CommandSource cs;
 
     protected SpongeCommandSender(CommandSource commandSource) {
         super(commandSource);

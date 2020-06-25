@@ -29,6 +29,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,21 +38,50 @@ import com.dscalzi.skychanger.core.api.SkyAPI;
 import com.dscalzi.skychanger.core.api.SkyPacket;
 import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
 import com.dscalzi.skychanger.core.internal.manager.MessageManager;
+import org.bukkit.Difficulty;
+import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class SkyChangeImpl implements SkyAPI {
 
-    public static final List<String> FREEZE_UNSUPPORTED = Stream.of("1.13", "1.15").collect(Collectors.toList());
+    public static final List<String> FREEZE_UNSUPPORTED = Stream.of("1.8", "1.13").collect(Collectors.toList());
+
+    /* API Methods */
 
     @Override
     public boolean changeSky(IPlayer p, float number) {
-        return changeSky(p, SkyPacket.FADE_VALUE, number);
+        return changeSky(p, SkyPacket.RAIN_LEVEL_CHANGE, number);
     }
 
     @Override
     public boolean changeSky(IPlayer p, SkyPacket packet, float number) {
-        return sendPacket((Player)p.getOriginal(), packet.getValue(), number);
+        try {
+            int major = ReflectionUtil.getMajor(), minor = ReflectionUtil.getMinor();
+
+            Object payload = null;
+
+            if(major == 1) {
+                if(minor < 16) {
+                    payload = createPacket_18_to_115(packet.getValue(), number);
+                } else {
+                    payload = createPacket_116_plus(packet.getValue(), number);
+                }
+            }
+
+            if(payload != null) {
+                deliverPacket(payload, (Player)p.getOriginal());
+                return true;
+            } else {
+                MessageManager.getInstance().logPacketError();
+                return false;
+            }
+
+        } catch(Throwable t) {
+            MessageManager.getInstance().logPacketError();
+            t.printStackTrace();
+            return false;
+        }
     }
 
     @Override
@@ -64,33 +94,105 @@ public class SkyChangeImpl implements SkyAPI {
         return p.teleport(p.getLocation());
     }
 
-    protected Object getConnection(Player player) throws SecurityException,
-            IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
+    /* NMS Utility */
+
+    protected Object getConnection(Player player) throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
         Class<?> ocbPlayer = ReflectionUtil.getOCBClass("entity.CraftPlayer");
         Method getHandle = ReflectionUtil.getMethod(ocbPlayer, "getHandle");
-        Object nmsPlayer = getHandle.invoke(player);
+        Object nmsPlayer = Objects.requireNonNull(getHandle).invoke(player);
         Field conField = nmsPlayer.getClass().getField("playerConnection");
-        Object con = conField.get(nmsPlayer);
-        return con;
+        return conField.get(nmsPlayer);
     }
 
-    protected boolean sendPacket(Player player, int packetNum, float number) {
-        try {
-            Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutGameStateChange");
-            Constructor<?> packetConstructor = packetClass.getConstructor(int.class, float.class);
-            Object packet = packetConstructor.newInstance(packetNum, number);
-            Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
-                    ReflectionUtil.getNMSClass("Packet"));
-            sendPacket.invoke(this.getConnection(player), packet);
-        } catch (Exception e) {
-            MessageManager.getInstance().logPacketError();
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    protected void deliverPacket(Object packet, Player player) throws NoSuchMethodException,
+            IllegalAccessException, NoSuchFieldException, InvocationTargetException {
+        Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection")
+                .getMethod( "sendPacket", ReflectionUtil.getNMSClass("Packet"));
+        sendPacket.invoke(this.getConnection(player), packet);
     }
 
-    @SuppressWarnings("deprecation")
+    /* Sky Change Packet Creation */
+
+    protected Object createPacket_18_to_115(int packetNum, float number) throws NoSuchMethodException,
+            IllegalAccessException, InvocationTargetException, InstantiationException {
+        Class<?> ClientboundGameEventPacket = ReflectionUtil.getNMSClass("PacketPlayOutGameStateChange");
+        Constructor<?> packetConstructor = ClientboundGameEventPacket.getConstructor(int.class, float.class);
+        return packetConstructor.newInstance(packetNum, number);
+    }
+
+    public Object createPacket_116_plus(int packetNum, float number) throws NoSuchMethodException,
+            IllegalAccessException, InvocationTargetException, InstantiationException {
+        Class<?> ClientboundGameEventPacket = ReflectionUtil.getNMSClass("PacketPlayOutGameStateChange");
+        Class<?> packetTypeClass = ReflectionUtil.getDeclaredClass(ClientboundGameEventPacket, "a");
+        Constructor<?> packetConstructor = ClientboundGameEventPacket.getConstructor(packetTypeClass, float.class);
+        Constructor<?> packetTypeConstructor = Objects.requireNonNull(packetTypeClass).getConstructor(int.class);
+
+        Object packetType = packetTypeConstructor.newInstance(packetNum);
+        return packetConstructor.newInstance(packetType, number);
+    }
+
+    /* Freeze NMS Utility */
+
+    // 1.16+
+    private Object getTypeKey(Class<?> WorldClass, Object world) throws InvocationTargetException, IllegalAccessException {
+        Method getTypeKey = Objects.requireNonNull(ReflectionUtil.getMethod(WorldClass, "getTypeKey"));
+        return getTypeKey.invoke(world);
+    }
+
+    // 1.16+
+    private Object getDimensionKey(Class<?> WorldClass, Object world) throws InvocationTargetException, IllegalAccessException {
+        Method getDimensionKey = Objects.requireNonNull(ReflectionUtil.getMethod(WorldClass, "getDimensionKey"));
+        return getDimensionKey.invoke(world);
+    }
+
+    private Object getWorldServer(Player player) throws InvocationTargetException, IllegalAccessException {
+        Class<?> craftWorldClass = ReflectionUtil.getOCBClass("CraftWorld");
+        Method getHandle = Objects.requireNonNull(ReflectionUtil.getMethod(craftWorldClass, "getHandle"));
+        return getHandle.invoke(player.getWorld());
+    }
+
+    private Object getDimensionManager(Object worldServer) throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+        Class<?> worldProviderClass = ReflectionUtil.getNMSClass("WorldProvider");
+        Class<?> worldClass = ReflectionUtil.getNMSClass("World");
+        Field worldProviderField = worldClass.getDeclaredField("worldProvider");
+        Object worldProvider = worldProviderField.get(worldServer);
+        Method getDimensionManager = Objects.requireNonNull(ReflectionUtil.getMethod(worldProviderClass, "getDimensionManager"));
+        return getDimensionManager.invoke(worldProvider);
+    }
+
+    // 1.13, 1.14, 1.15
+    private Object getWorldType(Object worldServer) throws InvocationTargetException, IllegalAccessException {
+        Class<?> WorldServerClass = ReflectionUtil.getNMSClass("WorldServer");
+        Method getWorldData = Objects.requireNonNull(ReflectionUtil.getMethod(WorldServerClass, "getWorldData"));
+        Object worldData = getWorldData.invoke(worldServer);
+        Class<?> worldDataClass = ReflectionUtil.getNMSClass("WorldData");
+        Method getType = Objects.requireNonNull(ReflectionUtil.getMethod(worldDataClass, "getType"));
+        return getType.invoke(worldData);
+    }
+
+    private int getWorldEnvironmentId(Player player) throws InvocationTargetException, IllegalAccessException {
+        Method getId = Objects.requireNonNull(ReflectionUtil.getMethod(World.Environment.class, "getId"));
+        return (int) getId.invoke(player.getWorld().getEnvironment());
+    }
+
+    private int getGameModeValue(Player player) throws InvocationTargetException, IllegalAccessException {
+        Method deprecatedGetValue = Objects.requireNonNull(ReflectionUtil.getMethod(GameMode.class, "getValue"));
+        return (int) deprecatedGetValue.invoke(player.getGameMode());
+    }
+
+    private Object getEnumGamemode(Class<?> EnumGamemodeClass, Player player) throws InvocationTargetException, IllegalAccessException {
+        Method gmGetById = Objects.requireNonNull(ReflectionUtil.getMethod(EnumGamemodeClass, "getById", int.class));
+        return gmGetById.invoke(null, getGameModeValue(player));
+    }
+
+    private Object getEnumDifficulty(Class<?> EnumDifficultyClass, Player player) throws InvocationTargetException, IllegalAccessException {
+        Method diffGetById = Objects.requireNonNull(ReflectionUtil.getMethod(EnumDifficultyClass, "getById", int.class));
+        Method deprecatedGetValue = Objects.requireNonNull(ReflectionUtil.getMethod(Difficulty.class, "getValue"));
+        return diffGetById.invoke(null, deprecatedGetValue.invoke(player.getWorld().getDifficulty()));
+    }
+
+    /* Freeze Packet Creation and Dispatch */
+
     protected boolean sendFreezePacket(Player player) {
         
         int major = ReflectionUtil.getMajor(), minor = ReflectionUtil.getMinor();
@@ -98,208 +200,159 @@ public class SkyChangeImpl implements SkyAPI {
         if(FREEZE_UNSUPPORTED.contains(major + "." + minor)) {
             MessageManager.getInstance().featureUnsupported(SkyChanger.wrapPlayer(player), FREEZE_UNSUPPORTED.toString());
         }
-        
-        if (major == 1 && minor >=15) {
-            // 1.15+
 
-            Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
-            Class<?> dimManClass = ReflectionUtil.getNMSClass("DimensionManager");
-            Class<?> worldTypeClass = ReflectionUtil.getNMSClass("WorldType");
-            Class<?> gameModeClass = ReflectionUtil.getNMSClass("EnumGamemode");
-            Method gmGetById = ReflectionUtil.getMethod(gameModeClass, "getById", int.class);
+        Class<?> ClientboundRespawnPacket = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
 
-            Class<?> worldServerClass = ReflectionUtil.getNMSClass("WorldServer");
-            Method getWorldData = ReflectionUtil.getMethod(worldServerClass, "getWorldData");
+        try {
 
-            Class<?> worldDataClass = ReflectionUtil.getNMSClass("WorldData");
-            Method getSeed = ReflectionUtil.getMethod(worldDataClass, "getSeed");
-            Method c = ReflectionUtil.getMethod(worldDataClass, "c", long.class);
-            Method getType = ReflectionUtil.getMethod(worldDataClass, "getType");
-
-            Class<?> craftWorldClass = ReflectionUtil.getOCBClass("CraftWorld");
-            Method getHandle = ReflectionUtil.getMethod(craftWorldClass, "getHandle");
+            Object packet;
 
 
-            try {
+            if (major == 1) {
 
-                Object worldServer = getHandle.invoke(player.getWorld());
-                Object worldData = getWorldData.invoke(worldServer);
+                if (minor >= 16) {
 
-                Class<?> worldProviderClass = ReflectionUtil.getNMSClass("WorldProvider");
-                Class<?> worldClass = ReflectionUtil.getNMSClass("World");
-                Field worldProviderField = worldClass.getDeclaredField("worldProvider");
-                Object worldProvider = worldProviderField.get(worldServer);
+                    // 1.16+
+                    // Works sometimes so let's just say it works.
 
-                Method getDimensionManager = ReflectionUtil.getMethod(worldProviderClass, "getDimensionManager");
+                    Class<?> EnumGamemodeClass = ReflectionUtil.getNMSClass("EnumGamemode");
 
-                Object dimensionManager = getDimensionManager.invoke(worldProvider);
-                Object worldType = getType.invoke(worldData);
+                    Object worldServer = getWorldServer(player);
+                    Object gameMode = getEnumGamemode(EnumGamemodeClass, player);
 
-                Constructor<?> packetConstructor = packetClass.getConstructor(dimManClass, long.class, worldTypeClass, gameModeClass);
+                    Class<?> WorldClass = ReflectionUtil.getNMSClass("World");
+                    Class<?> ResourceKeyClass = ReflectionUtil.getNMSClass("ResourceKey");
 
-                Object packet = packetConstructor.newInstance(dimensionManager, (long) c.invoke(null, getSeed.invoke(worldData)), worldType, gmGetById.invoke(null, player.getGameMode().getValue()));
+                    Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(
+                            ResourceKeyClass,                 // DimensionType
+                            ResourceKeyClass,                 // DimensionKey
+                            long.class,                       // Seed
+                            EnumGamemodeClass,                // gameType
+                            EnumGamemodeClass,                // previousGameType
+                            boolean.class,                    // isDebug
+                            boolean.class,                    // isFlat
+                            boolean.class);                   // keepAllPlayerData
+                    packet = packetConstructor.newInstance(
+                            getTypeKey(WorldClass, worldServer),
+                            getDimensionKey(WorldClass, worldServer),
+                            player.getWorld().getSeed(),
+                            gameMode,
+                            gameMode,
+                            false,
+                            false,
+                            true);
 
-                Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
-                        ReflectionUtil.getNMSClass("Packet"));
-                sendPacket.invoke(this.getConnection(player), packet);
-                player.updateInventory();
 
-                return true;
+                } else if (minor >= 13) {
 
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | NoSuchFieldException | NullPointerException | InstantiationException e) {
-                e.printStackTrace();
-                return false;
-            }
+                    // 1.13, 1.14, 1.15
 
-        } else if(major == 1 && minor == 14) {
-            // 1.14
-            
-            Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
-            Class<?> dimManClass = ReflectionUtil.getNMSClass("DimensionManager");
-            Class<?> worldTypeClass = ReflectionUtil.getNMSClass("WorldType");
-            Class<?> gameModeClass = ReflectionUtil.getNMSClass("EnumGamemode");
-            Method gmGetById = ReflectionUtil.getMethod(gameModeClass, "getById", int.class);
-            
-            Class<?> worldServerClass = ReflectionUtil.getNMSClass("WorldServer");
-            Method getWorldData = ReflectionUtil.getMethod(worldServerClass, "getWorldData");
-            Class<?> worldDataClass = ReflectionUtil.getNMSClass("WorldData");
-            Method getType = ReflectionUtil.getMethod(worldDataClass, "getType");
-            
-            
-            Class<?> craftWorldClass = ReflectionUtil.getOCBClass("CraftWorld");
-            Method getHandle = ReflectionUtil.getMethod(craftWorldClass, "getHandle");
-            
-            try {
-                // World is CraftWorld
-                Object worldServer = getHandle.invoke(player.getWorld());
-                Object worldData = getWorldData.invoke(worldServer);
-                
-                Class<?> worldProviderClass = ReflectionUtil.getNMSClass("WorldProvider");
-                Class<?> worldClass = ReflectionUtil.getNMSClass("World");
-                Field worldProviderField = worldClass.getDeclaredField("worldProvider");
-                Object worldProvider = worldProviderField.get(worldServer);
-                
-                Method getDimensionManager = ReflectionUtil.getMethod(worldProviderClass, "getDimensionManager");
-                
-                Object dimensionManager = getDimensionManager.invoke(worldProvider);
-                Object worldType = getType.invoke(worldData);
-                
-                Constructor<?> packetConstructor = packetClass.getConstructor(dimManClass, worldTypeClass, gameModeClass);
-                
-                Object packet = packetConstructor.newInstance(dimensionManager, worldType, gmGetById.invoke(null, player.getGameMode().getValue()));
-                
-                Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
-                        ReflectionUtil.getNMSClass("Packet"));
-                sendPacket.invoke(this.getConnection(player), packet);
-                player.updateInventory();
-                
-                return true;
-                
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException |
-                    InvocationTargetException | NoSuchFieldException | InstantiationException e) {
-                e.printStackTrace();
-                return false;
-            }
-            
-        } else if(major == 1 && minor == 13) {
-            
-            // Does not produce desired effect on 1.13
-            
-            Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
-            Class<?> dimManClass = ReflectionUtil.getNMSClass("DimensionManager");
-            Class<?> worldTypeClass = ReflectionUtil.getNMSClass("WorldType");
-            Class<?> gameModeClass = ReflectionUtil.getNMSClass("EnumGamemode");
-            Method gmGetById = ReflectionUtil.getMethod(gameModeClass, "getById", int.class);
-            Class<?> diffClass = ReflectionUtil.getNMSClass("EnumDifficulty");
-            Method diffGetById = ReflectionUtil.getMethod(diffClass, "getById", int.class);
-            
-            Class<?> worldServerClass = ReflectionUtil.getNMSClass("WorldServer");
-            Method getWorldData = ReflectionUtil.getMethod(worldServerClass, "getWorldData");
-            Class<?> worldDataClass = ReflectionUtil.getNMSClass("WorldData");
-            Method getType = ReflectionUtil.getMethod(worldDataClass, "getType");
-            
-            
-            Class<?> craftWorldClass = ReflectionUtil.getOCBClass("CraftWorld");
-            Method getHandle = ReflectionUtil.getMethod(craftWorldClass, "getHandle");
-            
-            
-            
-            try {
-                // World is CraftWorld
-                Object worldServer = getHandle.invoke(player.getWorld());
-                Object worldData = getWorldData.invoke(worldServer);
-                
-                Class<?> worldProviderClass = ReflectionUtil.getNMSClass("WorldProvider");
-                Class<?> worldClass = ReflectionUtil.getNMSClass("World");
-                Field worldProviderField = worldClass.getDeclaredField("worldProvider");
-                Object worldProvider = worldProviderField.get(worldServer);
-                
-                Method getDimensionManager = ReflectionUtil.getMethod(worldProviderClass, "getDimensionManager");
-                
-                Object dimensionManager = getDimensionManager.invoke(worldProvider);
-                Object worldType = getType.invoke(worldData);
-                
-                Constructor<?> packetConstructor = packetClass.getConstructor(dimManClass, diffClass, worldTypeClass, gameModeClass);
-                
-                Object packet = packetConstructor.newInstance(dimensionManager, diffGetById.invoke(null, player.getWorld().getDifficulty().getValue()), worldType, gmGetById.invoke(null, player.getGameMode().getValue()));
-                
-                Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
-                        ReflectionUtil.getNMSClass("Packet"));
-                sendPacket.invoke(this.getConnection(player), packet);
-                player.updateInventory();
-                
-                return true;
-                
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException |
-                    InvocationTargetException | NoSuchFieldException | InstantiationException e) {
-                e.printStackTrace();
-                return false;
-            }
-            
-        } else {
-            
-            // 1.12 and Below
-            try {
-                World w = player.getWorld();
-                Class<?> packetClass = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
-                Class<?> diffClass = ReflectionUtil.getNMSClass("EnumDifficulty");
-                Class<?> wtClass = ReflectionUtil.getNMSClass("WorldType");
-                Class<?> gameModeClass = ReflectionUtil.getNMSClass("EnumGamemode");
-                Method diffGetById = ReflectionUtil.getMethod(diffClass, "getById", int.class);
-                Method gmGetById = ReflectionUtil.getMethod(gameModeClass, "getById", int.class);
-                Constructor<?> packetConstructor = null;
-                Object packet = null;
-                try {
-                    packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, gameModeClass);
-                    packet = packetConstructor.newInstance(w.getEnvironment().getId(),
-                            diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null),
-                            gmGetById.invoke(null, player.getGameMode().getValue()));
-                } catch (NoSuchMethodException e) {
-                    // Try 1.9 method.
-                    Class<?> worldSettings = ReflectionUtil.getNMSClass("WorldSettings");
-                    Class<?>[] innerClasses = worldSettings.getDeclaredClasses();
-                    Class<?> wsGameMode = null;
-                    for (Class<?> cl : innerClasses)
-                        if (cl.getSimpleName().equals("EnumGamemode"))
-                            wsGameMode = cl;
-                    Method a = ReflectionUtil.getMethod(worldSettings, "a", int.class);
-                    packetConstructor = packetClass.getConstructor(int.class, diffClass, wtClass, wsGameMode);
-                    packet = packetConstructor.newInstance(w.getEnvironment().getId(),
-                            diffGetById.invoke(null, w.getDifficulty().getValue()), wtClass.getField("NORMAL").get(null),
-                            a.invoke(null, player.getGameMode().getValue()));
+                    Class<?> EnumGamemodeClass = ReflectionUtil.getNMSClass("EnumGamemode");
+
+                    Object worldServer = getWorldServer(player);
+
+                    Class<?> DimensionManagerClass = ReflectionUtil.getNMSClass("DimensionManager");
+                    Class<?> WorldTypeClass = ReflectionUtil.getNMSClass("WorldType");
+
+                    if (minor == 15) {
+                        // 1.15 Constructor
+
+                        Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(
+                                DimensionManagerClass,
+                                long.class,
+                                WorldTypeClass,
+                                EnumGamemodeClass);
+                        packet = packetConstructor.newInstance(
+                                getDimensionManager(worldServer),
+                                player.getWorld().getSeed(),
+                                getWorldType(worldServer),
+                                getEnumGamemode(EnumGamemodeClass, player));
+                    } else if (minor == 14) {
+                        // 1.14 Constructor
+
+                        Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(
+                                DimensionManagerClass,
+                                WorldTypeClass,
+                                EnumGamemodeClass);
+                        packet = packetConstructor.newInstance(
+                                getDimensionManager(worldServer),
+                                getWorldType(worldServer),
+                                getEnumGamemode(EnumGamemodeClass, player));
+                    } else {
+                        // 1.13 Constructor
+                        // Does not produce desired effect on 1.13
+
+                        Class<?> EnumDifficultyClass = ReflectionUtil.getNMSClass("EnumDifficulty");
+
+                        Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(
+                                DimensionManagerClass,
+                                EnumDifficultyClass,
+                                WorldTypeClass,
+                                EnumGamemodeClass);
+                        packet = packetConstructor.newInstance(
+                                getDimensionManager(worldServer),
+                                getEnumDifficulty(EnumDifficultyClass, player),
+                                getWorldType(worldServer),
+                                getEnumGamemode(EnumGamemodeClass, player));
+                    }
+
+
+                } else {
+
+                    // 1.12 and Below
+                    // 1.8, 1.9, 1.10, 1.11, 1.12
+
+                    Class<?> EnumDifficultyClass = ReflectionUtil.getNMSClass("EnumDifficulty");
+                    Class<?> WorldTypeClass = ReflectionUtil.getNMSClass("WorldType");
+                    final Object WorldType_NORMAL = WorldTypeClass.getField("NORMAL").get(null);
+
+
+                    if(minor >= 10) {
+                        // 1.10 - 1.12 Constructor
+
+                        Class<?> EnumGamemodeClass = ReflectionUtil.getNMSClass("EnumGamemode");
+
+                        Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(int.class, EnumDifficultyClass, WorldTypeClass, EnumGamemodeClass);
+                        packet = packetConstructor.newInstance(
+                                getWorldEnvironmentId(player),
+                                getEnumDifficulty(EnumDifficultyClass, player),
+                                WorldType_NORMAL,
+                                getEnumGamemode(EnumGamemodeClass, player));
+                    } else {
+                        // 1.8 - 1.9 Constructor
+
+                        Class<?> WorldSettingsClass = ReflectionUtil.getNMSClass("WorldSettings");
+                        Class<?> EnumGamemodeClass_Declared = ReflectionUtil.getDeclaredClass(WorldSettingsClass, "EnumGamemode");
+                        Method getById = Objects.requireNonNull(ReflectionUtil.getMethod(EnumGamemodeClass_Declared, "getById", int.class));
+
+                        Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(int.class, EnumDifficultyClass, WorldTypeClass, EnumGamemodeClass_Declared);
+                        packet = packetConstructor.newInstance(
+                                getWorldEnvironmentId(player),
+                                getEnumDifficulty(EnumDifficultyClass, player),
+                                WorldType_NORMAL,
+                                getById.invoke(null, getGameModeValue(player)));
+                    }
+
                 }
-                Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection").getMethod("sendPacket",
-                        ReflectionUtil.getNMSClass("Packet"));
-                sendPacket.invoke(this.getConnection(player), packet);
-                player.updateInventory();
-            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                    | NoSuchFieldException | SecurityException | NoSuchMethodException e) {
+
+
+            } else {
+                // Minecraft 2? Wow
                 MessageManager.getInstance().logPacketError();
-                e.printStackTrace();
                 return false;
             }
+
+            deliverPacket(packet, player);
+            player.updateInventory();
+
             return true;
+
+        } catch(Throwable t) {
+            MessageManager.getInstance().logPacketError();
+            t.printStackTrace();
+            return false;
         }
+
     }
 
 }

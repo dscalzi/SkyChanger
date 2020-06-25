@@ -388,7 +388,7 @@ public class MessageManager {
         private String lang;
         private String country;
 
-        private Languages(String lang, String country) {
+        Languages(String lang, String country) {
             this.lang = lang;
             this.country = country;
         }

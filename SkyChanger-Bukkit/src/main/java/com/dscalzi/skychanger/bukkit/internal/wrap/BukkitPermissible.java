@@ -29,7 +29,7 @@ import org.bukkit.permissions.Permissible;
 
 public class BukkitPermissible implements IPermissible {
 
-    private Permissible permissible;
+    private final Permissible permissible;
 
     protected BukkitPermissible(Permissible permissible) {
         this.permissible = permissible;

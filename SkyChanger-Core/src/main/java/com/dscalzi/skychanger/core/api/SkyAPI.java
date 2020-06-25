@@ -29,7 +29,7 @@ import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
 public interface SkyAPI {
 
     /**
-     * Change the sky for a player. Uses {@link SkyPacket#FADE_VALUE FADE_VALUE}
+     * Change the sky for a player. Uses {@link SkyPacket#RAIN_LEVEL_CHANGE RAIN_LEVEL_CHANGE}
      * as the packet type.
      * 
      * @param player

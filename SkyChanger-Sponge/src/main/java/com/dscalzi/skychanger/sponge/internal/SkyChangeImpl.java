@@ -41,7 +41,7 @@ public class SkyChangeImpl implements SkyAPI {
 
     @Override
     public boolean changeSky(IPlayer p, float number) {
-        return changeSky(p, SkyPacket.FADE_VALUE, number);
+        return changeSky(p, SkyPacket.RAIN_LEVEL_CHANGE, number);
     }
 
     @Override

@@ -45,7 +45,7 @@ public class CommandAdapter {
     private static final Pattern packetNum = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
     private MessageManager mm;
 
-    private IPlugin plugin;
+    private final IPlugin plugin;
 
     public CommandAdapter(IPlugin plugin) {
         this.plugin = plugin;
@@ -104,10 +104,10 @@ public class CommandAdapter {
             return;
         }
 
-        float fadeValue;
-        Float fadeTime = null;
+        float rainLevel;
+        Float thunderLevel = null;
         try {
-            fadeValue = Float.parseFloat(args[0]);
+            rainLevel = Float.parseFloat(args[0]);
         } catch (NumberFormatException e) {
             mm.floatingPointOverflow(sender, args[0]);
             return;
@@ -115,24 +115,24 @@ public class CommandAdapter {
 
         if(args.length > 1) {
             try {
-                fadeTime = Float.valueOf(args[1]);
+                thunderLevel = Float.valueOf(args[1]);
             } catch (NumberFormatException ignored) {
                 // Not specified
             }
         }
 
-        // shifted right when fadeTime is present
-        int flagPos = fadeTime == null ? 1 : 2;
+        // shifted right when thunderLevel is present
+        int flagPos = thunderLevel == null ? 1 : 2;
         int valPos = flagPos+1;
 
         if (!sender.hasPermission("skychanger.bypasslimit")) {
             float upper = plugin.getConfigManager().getUpperLimit();
             float lower = plugin.getConfigManager().getLowerLimit();
-            if (fadeValue > upper || (fadeTime != null && fadeTime > upper)) {
+            if (rainLevel > upper || (thunderLevel != null && thunderLevel > upper)) {
                 mm.outOfBoundsUpper(sender, upper);
                 return;
             }
-            if (lower > fadeValue || (fadeTime != null && lower > fadeTime)) {
+            if (lower > rainLevel || (thunderLevel != null && lower > thunderLevel)) {
                 mm.outOfBoundsLower(sender, lower);
                 return;
             }
@@ -146,9 +146,9 @@ public class CommandAdapter {
                     return;
                 }
                 for (IPlayer p : plugin.getOnlinePlayers()) {
-                    api.changeSky(p, SkyPacket.FADE_VALUE, fadeValue);
-                    if(fadeTime != null) {
-                        api.changeSky(p, SkyPacket.FADE_TIME, fadeTime);
+                    api.changeSky(p, SkyPacket.RAIN_LEVEL_CHANGE, rainLevel);
+                    if(thunderLevel != null) {
+                        api.changeSky(p, SkyPacket.THUNDER_LEVEL_CHANGE, thunderLevel);
                     }
                 }
                 mm.packetSent(sender, "-a (" + mm.getString("message.everyone") + ")");
@@ -175,9 +175,9 @@ public class CommandAdapter {
                     return;
                 }
                 for (IPlayer p : t.getPlayers()) {
-                    api.changeSky(p, SkyPacket.FADE_VALUE, fadeValue);
-                    if(fadeTime != null) {
-                        api.changeSky(p, SkyPacket.FADE_TIME, fadeTime);
+                    api.changeSky(p, SkyPacket.RAIN_LEVEL_CHANGE, rainLevel);
+                    if(thunderLevel != null) {
+                        api.changeSky(p, SkyPacket.THUNDER_LEVEL_CHANGE, thunderLevel);
                     }
                 }
                 mm.packetSent(sender, mm.getString("message.allPlayersIn") + " " + t.getName());
@@ -216,9 +216,9 @@ public class CommandAdapter {
                     }
                     for(IPlayer p : origin.getWorld().getPlayers()) {
                         if(Math.abs(origin.distanceSquared(p.getLocation())) <= radiusSq) {
-                            api.changeSky(p, SkyPacket.FADE_VALUE, fadeValue);
-                            if(fadeTime != null) {
-                                api.changeSky(p, SkyPacket.FADE_TIME, fadeTime);
+                            api.changeSky(p, SkyPacket.RAIN_LEVEL_CHANGE, rainLevel);
+                            if(thunderLevel != null) {
+                                api.changeSky(p, SkyPacket.THUNDER_LEVEL_CHANGE, thunderLevel);
                             }
                         }
                     }
@@ -248,9 +248,9 @@ public class CommandAdapter {
             // param was not
             // given. The others permission therefore includes the self.
             if (!(sender.isPlayer()) || !target.getUniqueId().equals(((IPlayer) sender).getUniqueId())) {
-                boolean res = api.changeSky(target.getPlayer(), SkyPacket.FADE_VALUE, fadeValue);
-                if(fadeTime != null) {
-                    res = res && api.changeSky(target.getPlayer(), SkyPacket.FADE_TIME, fadeTime);
+                boolean res = api.changeSky(target.getPlayer(), SkyPacket.RAIN_LEVEL_CHANGE, rainLevel);
+                if(thunderLevel != null) {
+                    res = res && api.changeSky(target.getPlayer(), SkyPacket.THUNDER_LEVEL_CHANGE, thunderLevel);
                 }
                 if (res)
                     mm.packetSent(sender, target.getName());
@@ -265,9 +265,9 @@ public class CommandAdapter {
             return;
         }
 
-        boolean res = api.changeSky((IPlayer) sender, SkyPacket.FADE_VALUE, fadeValue);
-        if(fadeTime != null) {
-            res = res && api.changeSky((IPlayer) sender, SkyPacket.FADE_TIME, fadeTime);
+        boolean res = api.changeSky((IPlayer) sender, SkyPacket.RAIN_LEVEL_CHANGE, rainLevel);
+        if(thunderLevel != null) {
+            res = res && api.changeSky((IPlayer) sender, SkyPacket.THUNDER_LEVEL_CHANGE, thunderLevel);
         }
         if (res)
             mm.packetSent(sender);

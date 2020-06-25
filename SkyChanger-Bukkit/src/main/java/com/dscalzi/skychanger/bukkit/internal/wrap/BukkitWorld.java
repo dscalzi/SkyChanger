@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 public class BukkitWorld implements IWorld {
 
-    private World w;
+    private final World w;
 
     private BukkitWorld(World world) {
         this.w = world;

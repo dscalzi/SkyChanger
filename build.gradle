@@ -29,10 +29,10 @@ subprojects {
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
-    def major = '3'
-    def minor = '1'
-    def spongeRevision = '1'
-    def bukkitRevision = '1'
+    def major = '4'
+    def minor = '0'
+    def spongeRevision = '0'
+    def bukkitRevision = '0'
 
     def rev
 

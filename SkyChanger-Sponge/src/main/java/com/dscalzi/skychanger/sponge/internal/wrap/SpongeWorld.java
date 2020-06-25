@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 
 public class SpongeWorld implements IWorld {
 
-    private World world;
+    private final World world;
 
     private SpongeWorld(World world) {
         this.world = world;

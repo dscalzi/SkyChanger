@@ -32,7 +32,7 @@ import java.util.UUID;
 
 public class SpongeOfflinePlayer implements IOfflinePlayer {
 
-    private Player p;
+    private final Player p;
 
     private SpongeOfflinePlayer(Player p) {
         this.p = p;

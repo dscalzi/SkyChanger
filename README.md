@@ -1,6 +1,6 @@
 ![# Header](http://i.imgur.com/6TxDQ3W.png?1)
 
-[<img src="https://ci.appveyor.com/api/projects/status/3j1tc074rvi6a3mr?retina=true" height='20.74px'></img>](https://ci.appveyor.com/project/dscalzi/skychanger) [![](https://pluginbadges.glitch.me/api/v1/dl/Downloads-limegreen.svg?bukkit=skychanger&spigot=skychanger.37524&ore=skychanger&github=dscalzi/SkyChanger&style=flat)](https://github.com/dscalzi/PluginBadges) [![](https://img.shields.io/github/license/dscalzi/SkyChanger.svg)](https://github.com/dscalzi/SkyChanger/blob/master/LICENSE.txt) ![](https://img.shields.io/badge/Spigot-1.8.x--1.15.x-orange.svg) [![](https://discordapp.com/api/guilds/211524927831015424/widget.png)](https://discordapp.com/invite/Fcrh6PT)
+[<img src="https://ci.appveyor.com/api/projects/status/3j1tc074rvi6a3mr?retina=true" height='20.74px'></img>](https://ci.appveyor.com/project/dscalzi/skychanger) [![](https://pluginbadges.glitch.me/api/v1/dl/Downloads-limegreen.svg?bukkit=skychanger&spigot=skychanger.37524&ore=skychanger&github=dscalzi/SkyChanger&style=flat)](https://github.com/dscalzi/PluginBadges) [![](https://img.shields.io/github/license/dscalzi/SkyChanger.svg)](https://github.com/dscalzi/SkyChanger/blob/master/LICENSE.txt) ![](https://img.shields.io/badge/Spigot-1.8.x--1.16.x-orange.svg) [![](https://discordapp.com/api/guilds/211524927831015424/widget.png)](https://discordapp.com/invite/Fcrh6PT)
 
 SkyChanger is a light-weight plugin for Spigot and Sponge. The main function of this plugin is to change the color of the sky for yourself, a specific player, a specific world, or everyone. This plugin functions by sending packets with a specified value to the target player(s).
 
@@ -102,15 +102,15 @@ public void skychangerTests(Player player) {
 
     // Change the sky and save the result.
     // Equivalent to /SkyChanger 3
-    boolean result1 = api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.FADE_VALUE, 3F);
+    boolean result1 = api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.RAIN_LEVEL_CHANGE, 3F);
 
     if(result1) {
         player.sendMessage("Why did the sky turn red?");
     }
 
     // Equivalent to /SkyChanger 4 8
-    boolean result2 = api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.FADE_VALUE, 4F)
-                 && api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.FADE_TIME, 8F);
+    boolean result2 = api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.RAIN_LEVEL_CHANGE, 4F)
+                 && api.changeSky(SkyChanger.wrapPlayer(player), SkyPacket.THUNDER_LEVEL_CHANGE, 8F);
 
     if(result2) {
         player.sendMessage("Why did the sky turn light blue?");

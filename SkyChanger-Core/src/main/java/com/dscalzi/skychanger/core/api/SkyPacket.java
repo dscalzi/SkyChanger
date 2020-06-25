@@ -31,18 +31,18 @@ package com.dscalzi.skychanger.core.api;
 public enum SkyPacket {
 
     /**
-     * Change Game State packet value representing fade value.
-     * @since 3.0.0
+     * Change Game State packet value representing rain level.
+     * @since 4.0.0
      */
-    FADE_VALUE(7),
+    RAIN_LEVEL_CHANGE(7),
 
     /**
-     * Change Game State packet value representing fade time.
-     * @since 3.0.0
+     * Change Game State packet value representing thunder level.
+     * @since 4.0.0
      */
-    FADE_TIME(8);
+    THUNDER_LEVEL_CHANGE(8);
 
-    private int value;
+    private final int value;
 
     SkyPacket(int value) {
         this.value = value;

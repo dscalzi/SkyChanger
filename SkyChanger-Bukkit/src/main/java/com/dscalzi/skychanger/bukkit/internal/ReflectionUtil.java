@@ -39,12 +39,14 @@ public final class ReflectionUtil {
 
     private final static Map<String, Class<?>> nmsClasses;
     private final static Map<String, Class<?>> ocbClasses;
+    private final static Map<Class<?>, Map<String, Class<?>>> declaredClasses;
 
     private final static Map<Class<?>, Map<String, Method>> cachedMethods;
 
     static {
         nmsClasses = new HashMap<>();
         ocbClasses = new HashMap<>();
+        declaredClasses = new HashMap<>();
         cachedMethods = new HashMap<>();
     }
 
@@ -111,9 +113,31 @@ public final class ReflectionUtil {
         return clazz;
     }
 
+    public static Class<?> getDeclaredClass(Class<?> origin, String className) {
+        if (!declaredClasses.containsKey(origin))
+            declaredClasses.put(origin, new HashMap<>());
+
+        Map<String, Class<?>> classMap = declaredClasses.get(origin);
+
+        if (classMap.containsKey(className))
+            return classMap.get(className);
+
+        for(Class<?> clazz : origin.getDeclaredClasses()) {
+            if(clazz.getSimpleName().equals(className)) {
+                classMap.put(className, clazz);
+                declaredClasses.put(origin, classMap);
+                return clazz;
+            }
+        }
+
+        classMap.put(className, null);
+        declaredClasses.put(origin, classMap);
+        return null;
+    }
+
     public static Method getMethod(Class<?> clazz, String methodName, Class<?>... params) {
         if (!cachedMethods.containsKey(clazz))
-            cachedMethods.put(clazz, new HashMap<String, Method>());
+            cachedMethods.put(clazz, new HashMap<>());
 
         Map<String, Method> methods = cachedMethods.get(clazz);
 
