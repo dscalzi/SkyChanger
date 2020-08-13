@@ -4,6 +4,8 @@
 
 SkyChanger is a light-weight plugin for Spigot and Sponge. The main function of this plugin is to change the color of the sky for yourself, a specific player, a specific world, or everyone. This plugin functions by sending packets with a specified value to the target player(s).
 
+*Like the project? Leave a ⭐ on the repository!*
+
 ***
 
 # Feature List

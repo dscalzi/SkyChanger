@@ -31,8 +31,8 @@ subprojects {
 
     def major = '4'
     def minor = '0'
-    def spongeRevision = '0'
-    def bukkitRevision = '0'
+    def spongeRevision = '1'
+    def bukkitRevision = '1'
 
     def rev
 

@@ -139,6 +139,11 @@ public class SkyChangeImpl implements SkyAPI {
         return getTypeKey.invoke(world);
     }
 
+    private Object getDimensionManager1162Plus(Class<?> WorldClass, Object world) throws InvocationTargetException, IllegalAccessException {
+        Method getDimensionManager = Objects.requireNonNull(ReflectionUtil.getMethod(WorldClass, "getDimensionManager"));
+        return getDimensionManager.invoke(world);
+    }
+
     // 1.16+
     private Object getDimensionKey(Class<?> WorldClass, Object world) throws InvocationTargetException, IllegalAccessException {
         Method getDimensionKey = Objects.requireNonNull(ReflectionUtil.getMethod(WorldClass, "getDimensionKey"));
@@ -195,7 +200,7 @@ public class SkyChangeImpl implements SkyAPI {
 
     protected boolean sendFreezePacket(Player player) {
         
-        int major = ReflectionUtil.getMajor(), minor = ReflectionUtil.getMinor();
+        int major = ReflectionUtil.getMajor(), minor = ReflectionUtil.getMinor(), r = ReflectionUtil.getR();
 
         if(FREEZE_UNSUPPORTED.contains(major + "." + minor)) {
             MessageManager.getInstance().featureUnsupported(SkyChanger.wrapPlayer(player), FREEZE_UNSUPPORTED.toString());
@@ -216,32 +221,61 @@ public class SkyChangeImpl implements SkyAPI {
                     // Works sometimes so let's just say it works.
 
                     Class<?> EnumGamemodeClass = ReflectionUtil.getNMSClass("EnumGamemode");
-
                     Object worldServer = getWorldServer(player);
                     Object gameMode = getEnumGamemode(EnumGamemodeClass, player);
 
                     Class<?> WorldClass = ReflectionUtil.getNMSClass("World");
                     Class<?> ResourceKeyClass = ReflectionUtil.getNMSClass("ResourceKey");
 
-                    Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(
-                            ResourceKeyClass,                 // DimensionType
-                            ResourceKeyClass,                 // DimensionKey
-                            long.class,                       // Seed
-                            EnumGamemodeClass,                // gameType
-                            EnumGamemodeClass,                // previousGameType
-                            boolean.class,                    // isDebug
-                            boolean.class,                    // isFlat
-                            boolean.class);                   // keepAllPlayerData
-                    packet = packetConstructor.newInstance(
-                            getTypeKey(WorldClass, worldServer),
-                            getDimensionKey(WorldClass, worldServer),
-                            player.getWorld().getSeed(),
-                            gameMode,
-                            gameMode,
-                            false,
-                            false,
-                            true);
+                    if(r >= 2) {
 
+                        // 1.16.2+
+
+                        Class<?> DimensionManagerClass = ReflectionUtil.getNMSClass("DimensionManager");
+
+                        Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(
+                                DimensionManagerClass,            // DimensionManager
+                                ResourceKeyClass,                 // DimensionKey
+                                long.class,                       // Seed
+                                EnumGamemodeClass,                // gameType
+                                EnumGamemodeClass,                // previousGameType
+                                boolean.class,                    // isDebug
+                                boolean.class,                    // isFlat
+                                boolean.class);                   // keepAllPlayerData
+                        packet = packetConstructor.newInstance(
+                                getDimensionManager1162Plus(WorldClass, worldServer),
+                                getDimensionKey(WorldClass, worldServer),
+                                player.getWorld().getSeed(),
+                                gameMode,
+                                gameMode,
+                                false,
+                                false,
+                                true);
+
+                    } else {
+
+                        // 1.16.1
+
+                        Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(
+                                ResourceKeyClass,                 // DimensionType
+                                ResourceKeyClass,                 // DimensionKey
+                                long.class,                       // Seed
+                                EnumGamemodeClass,                // gameType
+                                EnumGamemodeClass,                // previousGameType
+                                boolean.class,                    // isDebug
+                                boolean.class,                    // isFlat
+                                boolean.class);                   // keepAllPlayerData
+                        packet = packetConstructor.newInstance(
+                                getTypeKey(WorldClass, worldServer),
+                                getDimensionKey(WorldClass, worldServer),
+                                player.getWorld().getSeed(),
+                                gameMode,
+                                gameMode,
+                                false,
+                                false,
+                                true);
+
+                    }
 
                 } else if (minor >= 13) {
 
