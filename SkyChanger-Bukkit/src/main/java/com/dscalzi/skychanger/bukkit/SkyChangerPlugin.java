@@ -1,7 +1,7 @@
 /*
  * This file is part of SkyChanger, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2017-2020 Daniel D. Scalzi <https://github.com/dscalzi/SkyChanger>
+ * Copyright (c) 2017-2021 Daniel D. Scalzi <https://github.com/dscalzi/SkyChanger>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@ import com.dscalzi.skychanger.core.internal.manager.MessageManager;
 import com.dscalzi.skychanger.core.internal.util.IWildcardPermissionUtil;
 import com.dscalzi.skychanger.core.internal.wrap.IPlugin;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -66,7 +67,7 @@ public class SkyChangerPlugin extends JavaPlugin implements IPlugin {
         MessageManager.initialize(this);
         this.getCommand("skychanger").setExecutor(new MainExecutor(this));
         metrics = new Metrics(this, 350);
-        metrics.addCustomChart(new Metrics.SimplePie("used_language",
+        metrics.addCustomChart(new SimplePie("used_language",
                 () -> MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable()));
     }
 

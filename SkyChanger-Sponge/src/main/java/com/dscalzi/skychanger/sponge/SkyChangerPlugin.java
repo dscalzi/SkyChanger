@@ -1,7 +1,7 @@
 /*
  * This file is part of SkyChanger, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2017-2020 Daniel D. Scalzi <https://github.com/dscalzi/SkyChanger>
+ * Copyright (c) 2017-2021 Daniel D. Scalzi <https://github.com/dscalzi/SkyChanger>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,10 +24,6 @@
 
 package com.dscalzi.skychanger.sponge;
 
-import java.io.File;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.dscalzi.skychanger.core.api.SkyAPI;
 import com.dscalzi.skychanger.core.internal.manager.IConfigManager;
 import com.dscalzi.skychanger.core.internal.manager.MessageManager;
@@ -37,11 +33,17 @@ import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
 import com.dscalzi.skychanger.core.internal.wrap.IPlugin;
 import com.dscalzi.skychanger.core.internal.wrap.IWorld;
 import com.dscalzi.skychanger.sponge.api.SkyChanger;
+import com.dscalzi.skychanger.sponge.internal.MainExecutor;
 import com.dscalzi.skychanger.sponge.internal.WildcardPermissionUtil;
+import com.dscalzi.skychanger.sponge.internal.managers.ConfigManager;
 import com.dscalzi.skychanger.sponge.internal.wrap.SpongeOfflinePlayer;
 import com.dscalzi.skychanger.sponge.internal.wrap.SpongePlayer;
 import com.dscalzi.skychanger.sponge.internal.wrap.SpongeWorld;
-import org.bstats.sponge.Metrics2;
+import com.google.inject.Inject;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+import org.bstats.charts.SimplePie;
+import org.bstats.sponge.Metrics;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
@@ -60,12 +62,12 @@ import org.spongepowered.api.service.permission.PermissionDescription.Builder;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 
-import com.dscalzi.skychanger.sponge.internal.MainExecutor;
-import com.dscalzi.skychanger.sponge.internal.managers.ConfigManager;
-import com.google.inject.Inject;
-
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Plugin(id = "skychanger")
 public class SkyChangerPlugin implements IPlugin {
@@ -85,10 +87,10 @@ public class SkyChangerPlugin implements IPlugin {
 
     private WildcardPermissionUtil wildcardPermissionUtil;
 
-    private Metrics2 metrics;
+    private Metrics metrics;
 
     @Inject
-    public SkyChangerPlugin(Metrics2.Factory metricsFactory) {
+    public SkyChangerPlugin(Metrics.Factory metricsFactory) {
         inst = this;
         metrics = metricsFactory.make(3228);
     }
@@ -216,7 +218,7 @@ public class SkyChangerPlugin implements IPlugin {
     @Listener
     @SuppressWarnings("unused")
     public void onServerStart(GameStartedServerEvent event) {
-        metrics.addCustomChart(new Metrics2.SimplePie("used_language",
+        metrics.addCustomChart(new SimplePie("used_language",
                 () -> MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable()));
     }
 

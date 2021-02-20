@@ -1,7 +1,7 @@
 plugins {
     id 'net.minecrell.licenser' version '0.4.1'
     id 'com.github.johnrengelman.shadow' version '4.0.1'
-    id 'com.jfrog.bintray' version '1.8.3'
+    id 'com.jfrog.bintray' version '1.8.5'
 }
 
 allprojects {
@@ -14,8 +14,6 @@ allprojects {
         url = 'https://github.com/dscalzi/skychanger'
     }
 }
-
-apply plugin: 'eclipse'
 
 subprojects {
 
@@ -31,8 +29,8 @@ subprojects {
 
     def major = '4'
     def minor = '0'
-    def spongeRevision = '1'
-    def bukkitRevision = '1'
+    def spongeRevision = '2'
+    def bukkitRevision = '2'
 
     def rev
 
@@ -64,7 +62,7 @@ subprojects {
         header = rootProject.file('HEADER.txt')
         ext {
             name = 'Daniel D. Scalzi'
-            year = '2017-2020'
+            year = '2017-2021'
             url = 'https://github.com/dscalzi/SkyChanger'
         }
     }
