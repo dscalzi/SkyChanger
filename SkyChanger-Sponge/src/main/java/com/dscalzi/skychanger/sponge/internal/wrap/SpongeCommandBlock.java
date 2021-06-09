@@ -26,23 +26,32 @@ package com.dscalzi.skychanger.sponge.internal.wrap;
 
 import com.dscalzi.skychanger.core.internal.wrap.ICommandBlock;
 import com.dscalzi.skychanger.core.internal.wrap.ILocation;
-import org.spongepowered.api.command.source.CommandBlockSource;
+import net.kyori.adventure.audience.Audience;
+import org.spongepowered.api.block.entity.CommandBlock;
 
 public class SpongeCommandBlock extends SpongeCommandSender implements ICommandBlock {
 
-    private final CommandBlockSource cbs;
+    private final CommandBlock cbs;
 
-    private SpongeCommandBlock(CommandBlockSource commandBlockSource) {
-        super(commandBlockSource);
-        this.cbs = commandBlockSource;
+    private SpongeCommandBlock(CommandBlock commandBlock) {
+        this(commandBlock, null);
     }
 
-    public static SpongeCommandBlock of(CommandBlockSource commandBlockSource) {
-        return commandBlockSource == null ? null : new SpongeCommandBlock(commandBlockSource);
+    private SpongeCommandBlock(CommandBlock commandBlock, Audience audience) {
+        super(commandBlock, audience);
+        this.cbs = commandBlock;
+    }
+
+    public static SpongeCommandBlock of(CommandBlock commandBlock) {
+        return commandBlock == null ? null : new SpongeCommandBlock(commandBlock);
+    }
+
+    public static SpongeCommandBlock of(CommandBlock commandBlock, Audience audience) {
+        return commandBlock == null ? null : new SpongeCommandBlock(commandBlock, audience);
     }
 
     @Override
     public ILocation getLocation() {
-        return SpongeLocation.of(cbs.getLocation());
+        return SpongeLocation.of(cbs.location());
     }
 }

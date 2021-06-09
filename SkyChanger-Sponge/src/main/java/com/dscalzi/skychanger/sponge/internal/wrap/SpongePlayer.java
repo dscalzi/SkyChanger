@@ -27,22 +27,25 @@ package com.dscalzi.skychanger.sponge.internal.wrap;
 import com.dscalzi.skychanger.core.internal.wrap.ILocation;
 import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
 import com.dscalzi.skychanger.core.internal.wrap.IWorld;
-import org.spongepowered.api.entity.living.player.Player;
+import net.kyori.adventure.identity.Identity;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
 
 import java.util.UUID;
 
 public class SpongePlayer extends SpongeCommandSender implements IPlayer {
 
-    private final Player player;
+    private final ServerPlayer player;
 
-    private SpongePlayer(Player player) {
-        super(player);
+    private SpongePlayer(ServerPlayer player) {
+        super(player, player);
         this.player = player;
     }
 
-    public static SpongePlayer of(Player p) {
+    public static SpongePlayer of(ServerPlayer p) {
         return p == null ? null : new SpongePlayer(p);
     }
 
@@ -53,23 +56,22 @@ public class SpongePlayer extends SpongeCommandSender implements IPlayer {
 
     @Override
     public IWorld getWorld() {
-        return SpongeWorld.of(player.getWorld());
+        return SpongeWorld.of(player.world());
     }
 
     @Override
     public ILocation getLocation() {
-        return SpongeLocation.of(player.getLocation());
+        return SpongeLocation.of(player.location());
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean teleport(ILocation loc) {
-        return player.setLocation((Location<World>) loc.getOriginal());
+        return player.setLocation(ServerLocation.of((ServerWorld) loc.getWorld().getOriginal(), ((Location<?, ?>) loc.getOriginal()).blockPosition()));
     }
 
     @Override
     public UUID getUniqueId() {
-        return player.getUniqueId();
+        return player.uniqueId();
     }
 
     @Override
@@ -84,6 +86,26 @@ public class SpongePlayer extends SpongeCommandSender implements IPlayer {
 
     @Override
     public String getName() {
-        return player.getName();
+        return player.name();
+    }
+
+    @Override
+    public boolean isConsole() {
+        return false;
+    }
+
+    @Override
+    public boolean isCommandBlock() {
+        return false;
+    }
+
+    @Override
+    public boolean isPlayer() {
+        return true;
+    }
+
+    @Override
+    public void sendMessage(String msg) {
+        player.sendMessage(Identity.nil(), LegacyComponentSerializer.legacyAmpersand().deserialize(msg));
     }
 }

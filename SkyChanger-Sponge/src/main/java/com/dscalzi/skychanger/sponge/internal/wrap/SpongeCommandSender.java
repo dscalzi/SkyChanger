@@ -25,51 +25,58 @@
 package com.dscalzi.skychanger.sponge.internal.wrap;
 
 import com.dscalzi.skychanger.core.internal.wrap.ICommandSender;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.command.source.CommandBlockSource;
-import org.spongepowered.api.command.source.ConsoleSource;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.identity.Identity;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.spongepowered.api.SystemSubject;
+import org.spongepowered.api.block.entity.CommandBlock;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.service.permission.Subject;
 
 public class SpongeCommandSender extends SpongePermissible implements ICommandSender {
 
-    private final CommandSource cs;
+    private final Audience audience;
 
-    protected SpongeCommandSender(CommandSource commandSource) {
-        super(commandSource);
-        this.cs = commandSource;
+    protected SpongeCommandSender(Subject subject, Audience audience) {
+        super(subject);
+        this.audience = audience;
     }
 
-    public static SpongeCommandSender of(CommandSource commandSource) {
+    public static SpongeCommandSender of(CommandCause commandSource) {
         if(commandSource == null) {
             return null;
         }
-        if(commandSource instanceof Player) {
-            return SpongePlayer.of((Player)commandSource);
-        } else if(commandSource instanceof CommandBlockSource) {
-            return SpongeCommandBlock.of((CommandBlockSource)commandSource);
+        Subject subject = commandSource.subject();
+        if(subject instanceof Player) {
+            return SpongePlayer.of((ServerPlayer) subject);
+        } else if(subject instanceof CommandBlock) {
+            return SpongeCommandBlock.of((CommandBlock) subject, commandSource.audience());
         } else {
-            return new SpongeCommandSender(commandSource);
+            return new SpongeCommandSender(subject, commandSource.audience());
         }
     }
 
     @Override
     public boolean isConsole() {
-        return cs instanceof ConsoleSource;
+        return s instanceof SystemSubject;
     }
 
     @Override
     public boolean isCommandBlock() {
-        return cs instanceof CommandBlockSource;
+        return s instanceof CommandBlock;
     }
 
     @Override
     public boolean isPlayer() {
-        return cs instanceof Player;
+        return s instanceof Player;
     }
 
     @Override
     public void sendMessage(String msg) {
-        cs.sendMessage(TextSerializers.FORMATTING_CODE.deserialize(msg));
+        if(audience != null) {
+            audience.sendMessage(Identity.nil(), LegacyComponentSerializer.legacyAmpersand().deserialize(msg));
+        }
     }
 }

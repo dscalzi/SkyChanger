@@ -26,40 +26,40 @@ package com.dscalzi.skychanger.sponge.internal.wrap;
 
 import com.dscalzi.skychanger.core.internal.wrap.IOfflinePlayer;
 import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 
 import java.util.UUID;
 
 public class SpongeOfflinePlayer implements IOfflinePlayer {
 
-    private final Player p;
+    private final User u;
 
-    private SpongeOfflinePlayer(Player p) {
-        this.p = p;
+    private SpongeOfflinePlayer(User u) {
+        this.u = u;
     }
 
-    public static SpongeOfflinePlayer of(Player p) {
-        return p == null ? null : new SpongeOfflinePlayer(p);
+    public static SpongeOfflinePlayer of(User u) {
+        return u == null ? null : new SpongeOfflinePlayer(u);
     }
 
     @Override
     public UUID getUniqueId() {
-        return p.getUniqueId();
+        return u.uniqueId();
     }
 
     @Override
     public boolean isOnline() {
-        return p.isOnline();
+        return u.isOnline();
     }
 
     @Override
     public IPlayer getPlayer() {
-        return SpongePlayer.of(p);
+        return SpongePlayer.of(u.player().orElse(null));
     }
 
     @Override
     public String getName() {
-        return p.getName();
+        return u.name();
     }
 
 }

@@ -30,6 +30,7 @@ import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
 import com.dscalzi.skychanger.sponge.internal.SkyChangeImpl;
 import com.dscalzi.skychanger.sponge.internal.wrap.SpongePlayer;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
 /**
  * Utility class to obtain references to components of SkyChanger.
@@ -72,7 +73,7 @@ public class SkyChanger {
      */
     @SuppressWarnings("unused")
     public static IPlayer wrapPlayer(Player p) {
-        return SpongePlayer.of(p);
+        return SpongePlayer.of((ServerPlayer) p);
     }
 
 }

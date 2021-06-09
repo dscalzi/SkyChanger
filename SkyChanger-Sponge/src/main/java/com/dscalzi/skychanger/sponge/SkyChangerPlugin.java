@@ -40,59 +40,66 @@ import com.dscalzi.skychanger.sponge.internal.wrap.SpongeOfflinePlayer;
 import com.dscalzi.skychanger.sponge.internal.wrap.SpongePlayer;
 import com.dscalzi.skychanger.sponge.internal.wrap.SpongeWorld;
 import com.google.inject.Inject;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
+import net.kyori.adventure.text.Component;
+import org.apache.logging.log4j.Logger;
 import org.bstats.charts.SimplePie;
 import org.bstats.sponge.Metrics;
-import org.slf4j.Logger;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.Command;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.GameReloadEvent;
-import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStartedServerEvent;
-import org.spongepowered.api.plugin.Plugin;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.event.lifecycle.*;
+import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionDescription.Builder;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.loader.ConfigurationLoader;
+import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.jvm.Plugin;
 
-import java.io.File;
-import java.util.Collections;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Plugin(id = "skychanger")
+@Plugin("skychanger")
 public class SkyChangerPlugin implements IPlugin {
 
-    @Inject private PluginContainer plugin;
-    @Inject private Logger logger;
-    @Inject private Game game;
-    
+    private final PluginContainer plugin;
+    private final Logger logger;
+    private final Game game;
+
     @Inject
     @DefaultConfig(sharedRoot = false)
     private ConfigurationLoader<CommentedConfigurationNode> configLoader;
     @Inject
     @ConfigDir(sharedRoot = false)
-    private File configDir;
+    private Path configDir;
     
     private static SkyChangerPlugin inst;
 
     private WildcardPermissionUtil wildcardPermissionUtil;
 
-    private Metrics metrics;
+//    private final Metrics metrics;
 
     @Inject
-    public SkyChangerPlugin(Metrics.Factory metricsFactory) {
+    public SkyChangerPlugin(
+            final PluginContainer container,
+            final Logger logger,
+            final Game game//,
+//            Metrics.Factory metricsFactory
+    ) {
+        this.plugin = container;
+        this.logger = logger;
+        this.game = game;
         inst = this;
-        metrics = metricsFactory.make(3228);
+//        metrics = metricsFactory.make(3228);
     }
     
     /**
@@ -111,12 +118,12 @@ public class SkyChangerPlugin implements IPlugin {
 
     @Override
     public String getName() {
-        return plugin.getName();
+        return plugin.metadata().name().orElseThrow();
     }
 
     @Override
     public String getVersion() {
-        return plugin.getVersion().orElse("dev");
+        return plugin.metadata().version();
     }
 
     @Override
@@ -146,7 +153,7 @@ public class SkyChangerPlugin implements IPlugin {
 
     @Override
     public IWorld getWorld(String name) {
-        return this.game.getServer().getWorld(name).map(SpongeWorld::of).orElse(null);
+        return this.game.server().worldManager().world(ResourceKey.resolve(name)).map(SpongeWorld::of).orElse(null);
     }
 
     @Override
@@ -161,22 +168,22 @@ public class SkyChangerPlugin implements IPlugin {
 
     @Override
     public IOfflinePlayer getOfflinePlayer(UUID uuid) {
-        return this.game.getServer().getPlayer(uuid).map(SpongeOfflinePlayer::of).orElse(null);
+        return this.game.server().userManager().find(GameProfile.of(uuid)).map(SpongeOfflinePlayer::of).orElse(null);
     }
 
     @Override
     public IOfflinePlayer getOfflinePlayer(String name) {
-        return this.game.getServer().getPlayer(name).map(SpongeOfflinePlayer::of).orElse(null);
+        return this.game.server().userManager().find(name).map(SpongeOfflinePlayer::of).orElse(null);
     }
 
     @Override
     public List<IPlayer> getOnlinePlayers() {
-        return this.game.getServer().getOnlinePlayers().stream().map(SpongePlayer::of).collect(Collectors.toList());
+        return this.game.server().onlinePlayers().stream().map(SpongePlayer::of).collect(Collectors.toList());
     }
 
     @Override
     public List<IWorld> getWorlds() {
-        return this.game.getServer().getWorlds().stream().map(SpongeWorld::of).collect(Collectors.toList());
+        return this.game.server().worldManager().worlds().stream().map(SpongeWorld::of).collect(Collectors.toList());
     }
 
     @Override
@@ -192,59 +199,67 @@ public class SkyChangerPlugin implements IPlugin {
         return configLoader;
     }
     
-    public File getConfigDir() {
+    public Path getConfigDir() {
         return configDir;
     }
-    
+
+    // We "disable" the plugin by not initializing it.
+    boolean markedForDisable = false;
     private void disable() {
-        game.getEventManager().unregisterPluginListeners(this);
-        game.getCommandManager().getOwnedBy(this).forEach(game.getCommandManager()::removeMapping);
-        game.getScheduler().getScheduledTasks(this).forEach(Task::cancel);
+        // No-op
+        this.markedForDisable = true;
+//        game.eventManager().unregisterPluginListeners(this.plugin);
+//        game.server().scheduler().tasks(this.plugin).forEach(ScheduledTask::cancel);
     }
     
     @Listener
     @SuppressWarnings("unused")
-    public void onGamePreInitialization(GamePreInitializationEvent e){
-        logger.info("Enabling " + plugin.getName() + " version " + plugin.getVersion().orElse("dev") + ".");
+    public void onConstructPlugin(final ConstructPluginEvent event){
+        logger.info("Enabling " + plugin.metadata().name().orElseThrow() + " version " + plugin.metadata().version() + ".");
 
         this.wildcardPermissionUtil = new WildcardPermissionUtil();
 
         ConfigManager.initialize(this);
         MessageManager.initialize(this);
-        
-        Sponge.getCommandManager().register(this, new MainExecutor(this), Collections.singletonList("skychanger"));
-    }
-    
-    @Listener
-    @SuppressWarnings("unused")
-    public void onServerStart(GameStartedServerEvent event) {
-        metrics.addCustomChart(new SimplePie("used_language",
-                () -> MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable()));
     }
 
+    @Listener
+    @SuppressWarnings("unused")
+    public void onRegisterCommands(final RegisterCommandEvent<Command.Raw> event) {
+        if(!this.markedForDisable) {
+            event.register(this.plugin, new MainExecutor(this), "skychanger");
+        }
+    }
+
+//    @Listener
+//    @SuppressWarnings("unused")
+//    public void onServerStarting(final StartingEngineEvent<Server> event) {
+//        metrics.addCustomChart(new SimplePie("used_language",
+//                () -> MessageManager.Languages.getByID(ConfigManager.getInstance().getLanguage()).getReadable()));
+//    }
     
     @Listener
     @SuppressWarnings("unused")
-    public void onPostInit(GamePostInitializationEvent event) {
-        Optional<PermissionService> ops = Sponge.getServiceManager().provide(PermissionService.class);
+    public void onPostInit(final StartedEngineEvent<Server> event) {
+        Optional<PermissionService> ops = Sponge.serviceProvider().provide(PermissionService.class);
         if (ops.isPresent()) {
-            Builder opdb = ops.get().newDescriptionBuilder(this);
+            Builder opdb = ops.get().newDescriptionBuilder(this.plugin);
             if (opdb != null) {
-                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Text.of("Access to all SkyChanger commands.")).id(plugin.getId()).register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to every part of the main SkyChanger command.")).id(plugin.getId() + ".changesky").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to change your personal sky color.")).id(plugin.getId() + ".changesky.self").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to changing a specific person's sky color.")).id(plugin.getId() + ".changesky.others").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to change the sky color for players within a radius.")).id(plugin.getId() + ".changesky.radius").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to changing a specific world's sky color.")).id(plugin.getId() + ".changesky.world").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to changing the sky color of all online players.")).id(plugin.getId() + ".changesky.all").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to every part of the SkyChanger freeze and unfreeze commands.")).id(plugin.getId() + ".freeze").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to freeze/unfreeze yourself.")).id(plugin.getId() + ".freeze.self").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to freeze/unfreeze a specific person.")).id(plugin.getId() + ".freeze.others").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to freeze/unfreeze a players within a radius.")).id(plugin.getId() + ".freeze.radius").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to freeze/unfreeze a specific world.")).id(plugin.getId() + ".freeze.world").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to freeze/unfreeze all online players.")).id(plugin.getId() + ".freeze.all").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Bypass the packet range limits set in the config.yml.")).id(plugin.getId() + ".bypasslimit").register();
-                opdb.assign(PermissionDescription.ROLE_USER, true).description(Text.of("Access to reload the configuration.")).id(plugin.getId() + ".reload").register();
+                opdb.assign(PermissionDescription.ROLE_ADMIN, true).description(Component.text("Access to all SkyChanger commands.")).id(plugin.metadata().id()).register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to every part of the main SkyChanger command.")).id(plugin.metadata().id() + ".changesky").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to change your personal sky color.")).id(plugin.metadata().id() + ".changesky.self").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to changing a specific person's sky color.")).id(plugin.metadata().id() + ".changesky.others").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to change the sky color for players within a radius.")).id(plugin.metadata().id() + ".changesky.radius").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to changing a specific world's sky color.")).id(plugin.metadata().id() + ".changesky.world").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to changing the sky color of all online players.")).id(plugin.metadata().id() + ".changesky.all").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to every part of the SkyChanger freeze and unfreeze commands.")).id(plugin.metadata().id() + ".freeze").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to freeze/unfreeze yourself.")).id(plugin.metadata().id() + ".freeze.self").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to freeze/unfreeze a specific person.")).id(plugin.metadata().id() + ".freeze.others").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to freeze/unfreeze a players within a radius.")).id(plugin.metadata().id() + ".freeze.radius").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to freeze/unfreeze a specific world.")).id(plugin.metadata().id() + ".freeze.world").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to freeze/unfreeze all online players.")).id(plugin.metadata().id() + ".freeze.all").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Bypass the packet range limits set in the config.yml.")).id(plugin.metadata().id() + ".bypasslimit").register();
+                opdb.assign(PermissionDescription.ROLE_USER, true).description(Component.text("Access to reload the configuration.")).id(plugin.metadata().id() + ".reload").register();
             }
         }
     }
@@ -252,10 +267,9 @@ public class SkyChangerPlugin implements IPlugin {
     
     @Listener
     @SuppressWarnings("unused")
-    public void onReload(GameReloadEvent e){
+    public void onReload(RefreshGameEvent e){
         ConfigManager.reloadStatic();
         MessageManager.reload();
     }
 
-    
 }

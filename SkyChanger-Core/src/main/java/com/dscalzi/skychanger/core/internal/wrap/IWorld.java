@@ -28,6 +28,8 @@ import java.util.List;
 
 public interface IWorld {
 
+    Object getOriginal();
+
     String getName();
 
     List<IPlayer> getPlayers();

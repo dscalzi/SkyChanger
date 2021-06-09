@@ -24,14 +24,14 @@
 
 package com.dscalzi.skychanger.sponge.internal;
 
-import java.util.Map;
-import java.util.function.Predicate;
-
 import com.dscalzi.skychanger.core.internal.util.IWildcardPermissionUtil;
 import com.dscalzi.skychanger.core.internal.wrap.IPermissible;
 import com.dscalzi.skychanger.core.internal.wrap.IWorld;
-import org.spongepowered.api.command.source.ConsoleSource;
+import org.spongepowered.api.SystemSubject;
 import org.spongepowered.api.service.permission.Subject;
+
+import java.util.Map;
+import java.util.function.Predicate;
 
 public class WildcardPermissionUtil extends IWildcardPermissionUtil {
 
@@ -57,10 +57,10 @@ public class WildcardPermissionUtil extends IWildcardPermissionUtil {
 
         Subject p = (Subject)ip.getOriginal();
 
-        if(p instanceof ConsoleSource) {
+        if(p instanceof SystemSubject) {
             return true;
         }
-        for (Map<String, Boolean> d : p.getSubjectData().getAllPermissions().values()) {
+        for (Map<String, Boolean> d : p.subjectData().allPermissions().values()) {
             for(Map.Entry<String, Boolean> s : d.entrySet()) {
                 if(s.getKey().toLowerCase().startsWith(perm)) {
                     if(s.getValue()) {
@@ -110,16 +110,16 @@ public class WildcardPermissionUtil extends IWildcardPermissionUtil {
 
     private static boolean hasPerm(IPermissible ip, Predicate<Map.Entry<String, Boolean>> hasSpecificPermissionTest, String perm) {
         Subject p = (Subject)ip.getOriginal();
-        if(p instanceof ConsoleSource) {
+        if(p instanceof SystemSubject) {
             return true;
         }
         boolean canByRight = false;
-        for (Map<String, Boolean> d : p.getSubjectData().getAllPermissions().values()) {
+        for (Map<String, Boolean> d : p.subjectData().allPermissions().values()) {
             for(Map.Entry<String, Boolean> s : d.entrySet()) {
                 final String effective = s.getKey().toLowerCase();
                 if (effective.equals(perm)) {
                     canByRight = s.getValue();
-                } else if (effective.indexOf(perm) > -1 && hasSpecificPermissionTest.test(s)) {
+                } else if (effective.contains(perm) && hasSpecificPermissionTest.test(s)) {
                     return s.getValue();
                 }
             }

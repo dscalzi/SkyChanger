@@ -44,6 +44,11 @@ public class BukkitWorld implements IWorld {
     }
 
     @Override
+    public Object getOriginal() {
+        return w;
+    }
+
+    @Override
     public String getName() {
         return w.getName();
     }

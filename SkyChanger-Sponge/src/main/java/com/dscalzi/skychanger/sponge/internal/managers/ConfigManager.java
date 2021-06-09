@@ -24,13 +24,14 @@
 
 package com.dscalzi.skychanger.sponge.internal.managers;
 
+import com.dscalzi.skychanger.core.internal.manager.IConfigManager;
+import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.asset.Asset;
+import org.spongepowered.configurate.CommentedConfigurationNode;
+
 import java.io.File;
 import java.io.IOException;
-
-import com.dscalzi.skychanger.core.internal.manager.IConfigManager;
-import org.spongepowered.api.asset.Asset;
-import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 
 public class ConfigManager implements IConfigManager {
 
@@ -63,8 +64,9 @@ public class ConfigManager implements IConfigManager {
     }
 
     public boolean verifyFile() {
-        Asset asset = plugin.getPlugin().getAsset("skychanger.conf").orElse(null);
-        File file = new File(plugin.getConfigDir(), "skychanger.conf");
+
+        Asset asset = Sponge.assetManager().asset(plugin.getPlugin(), "skychanger.conf").orElse(null);
+        File file = plugin.getConfigDir().resolve("skychanger.conf").toFile();
 
         if (!file.exists()) {
             if(asset != null) {
@@ -119,7 +121,7 @@ public class ConfigManager implements IConfigManager {
         if(config == null) {
             return 50.0F;
         } else {
-            return Float.parseFloat(config.getNode("general_settings", "upper_limit").getString("50.0"));
+            return Float.parseFloat(config.node("general_settings", "upper_limit").getString("50.0"));
         }
     }
 
@@ -128,7 +130,7 @@ public class ConfigManager implements IConfigManager {
         if(config == null) {
             return -50.0F;
         } else {
-            return Float.parseFloat(config.getNode("general_settings", "lower_limit").getString("-50.0"));
+            return Float.parseFloat(config.node("general_settings", "lower_limit").getString("-50.0"));
         }
     }
 
@@ -137,7 +139,7 @@ public class ConfigManager implements IConfigManager {
         if(config == null) {
             return "en_US";
         } else {
-            return config.getNode("general_settings", "language").getString("en_US");
+            return config.node("general_settings", "language").getString("en_US");
         }
     }
 
@@ -151,7 +153,7 @@ public class ConfigManager implements IConfigManager {
         if(config == null) {
             return getSystemConfigVersion();
         } else {
-            return config.getNode("ConfigVersion").getDouble(getSystemConfigVersion());
+            return config.node("ConfigVersion").getDouble(getSystemConfigVersion());
         }
     }
 

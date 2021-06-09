@@ -27,66 +27,69 @@ package com.dscalzi.skychanger.sponge.internal;
 import com.dscalzi.skychanger.core.internal.command.CommandAdapter;
 import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
 import com.dscalzi.skychanger.sponge.internal.wrap.SpongeCommandSender;
-import org.spongepowered.api.command.CommandCallable;
-import org.spongepowered.api.command.CommandException;
-import org.spongepowered.api.command.CommandResult;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import net.kyori.adventure.text.Component;
+import org.spongepowered.api.command.*;
+import org.spongepowered.api.command.parameter.ArgumentReader;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class MainExecutor implements CommandCallable {
+public class MainExecutor implements Command.Raw {
 
-    private CommandAdapter adapter;
+    private final CommandAdapter adapter;
     
     public MainExecutor(SkyChangerPlugin plugin) {
         this.adapter = new CommandAdapter(plugin);
     }
     
     @Override
-    public CommandResult process(CommandSource src, String arguments) throws CommandException {
-        final String[] args = arguments.isEmpty() ? new String[0] : arguments.replaceAll("\\s{2,}", " ").split(" ");
+    public CommandResult process(CommandCause cause, ArgumentReader.Mutable arguments) {
+        String argStr = arguments.remaining();
+        final String[] args = argStr.isEmpty() ? new String[0] : argStr.replaceAll("\\s{2,}", " ").split(" ");
 
-        adapter.resolve(SpongeCommandSender.of(src), args);
+        adapter.resolve(SpongeCommandSender.of(cause), args);
 
         return CommandResult.success();
     }
 
     @Override
-    public List<String> getSuggestions(CommandSource source, String arguments, Location<World> targetPosition)
-            throws CommandException {
-        String[] argsDirty = arguments.replaceAll("\\s{2,}", " ").split(" ");
-        String[] args = arguments.endsWith(" ") ? new String[argsDirty.length + 1] : argsDirty;
+    public List<CommandCompletion> complete(CommandCause cause, ArgumentReader.Mutable arguments) {
+        String argStr = arguments.remaining();
+        String[] argsDirty = argStr.replaceAll("\\s{2,}", " ").split(" ");
+        String[] args = argStr.endsWith(" ") ? new String[argsDirty.length + 1] : argsDirty;
         if(args != argsDirty) {
             System.arraycopy(argsDirty, 0, args, 0, argsDirty.length);
-            args[args.length-1] = new String();
+            args[args.length-1] = "";
         }
 
-        return adapter.tabComplete(SpongeCommandSender.of(source), args);
+        return adapter.tabComplete(SpongeCommandSender.of(cause), args).stream().map(CommandCompletion::of).collect(Collectors.toList());
     }
 
     @Override
-    public boolean testPermission(CommandSource source) {
+    public boolean canExecute(CommandCause cause) {
         return true;
     }
 
     @Override
-    public Optional<Text> getShortDescription(CommandSource source) {
-        return Optional.of(Text.of("Change the color of the sky."));
+    public Optional<Component> shortDescription(CommandCause cause) {
+        return Optional.of(Component.text("Change the color of the sky."));
     }
 
     @Override
-    public Optional<Text> getHelp(CommandSource source) {
-    	Text t = Text.of("Run /SkyChanger to view usage.");
+    public Optional<Component> extendedDescription(CommandCause cause) {
+        return Optional.of(Component.text("Change the color of the sky."));
+    }
+
+    @Override
+    public Optional<Component> help(@SuppressWarnings("NullableProblems") CommandCause cause) {
+        Component t = Component.text("Run /SkyChanger to view usage.");
         return Optional.of(t);
     }
 
     @Override
-    public Text getUsage(CommandSource source) {
-        return Text.of("/SkyChanger <args>");
+    public Component usage(CommandCause cause) {
+        return Component.text("/SkyChanger <args>");
     }
 
 }

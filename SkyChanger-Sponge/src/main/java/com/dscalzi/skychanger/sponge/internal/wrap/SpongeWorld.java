@@ -26,31 +26,36 @@ package com.dscalzi.skychanger.sponge.internal.wrap;
 
 import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
 import com.dscalzi.skychanger.core.internal.wrap.IWorld;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerWorld;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class SpongeWorld implements IWorld {
 
-    private final World world;
+    private final ServerWorld world;
 
-    private SpongeWorld(World world) {
+    private SpongeWorld(ServerWorld world) {
         this.world = world;
     }
 
-    public static SpongeWorld of(World w) {
+    public static SpongeWorld of(ServerWorld w) {
         return w == null ? null : new SpongeWorld(w);
     }
 
     @Override
     public String getName() {
-        return world.getName();
+        return world.key().asString();
+    }
+
+    @Override
+    public Object getOriginal() {
+        return this.world;
     }
 
     @Override
     public List<IPlayer> getPlayers() {
-        return world.getPlayers().stream().map(SpongePlayer::of).collect(Collectors.toList());
+        return world.players().stream().map(SpongePlayer::of).collect(Collectors.toList());
     }
 
 }

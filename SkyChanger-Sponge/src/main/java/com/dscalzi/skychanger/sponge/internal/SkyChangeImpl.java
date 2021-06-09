@@ -27,15 +27,12 @@ package com.dscalzi.skychanger.sponge.internal;
 import com.dscalzi.skychanger.core.api.SkyAPI;
 import com.dscalzi.skychanger.core.api.SkyPacket;
 import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
+import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.api.entity.living.player.Player;
-
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.play.server.SPacketChangeGameState;
-import net.minecraft.network.play.server.SPacketRespawn;
-import net.minecraft.network.play.server.SPacketSetSlot;
-import net.minecraft.network.play.server.SPacketWindowItems;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldType;
 
 public class SkyChangeImpl implements SkyAPI {
 
@@ -60,16 +57,29 @@ public class SkyChangeImpl implements SkyAPI {
     }
 
     private boolean sendPacket(Player player, int stateIn, float number) {
-        ((EntityPlayerMP)player).connection.sendPacket(new SPacketChangeGameState(stateIn, number));
+        ClientboundGameEventPacket packet = new ClientboundGameEventPacket(new ClientboundGameEventPacket.Type(stateIn), number);
+        ((ServerPlayer)player).connection.send(packet);
         return true;
     }
 
     private boolean sendFreezePacket(Player player) {
-        World w = (World)player.getLocation().getExtent();
-        EntityPlayerMP xP = ((EntityPlayerMP)player);
-        xP.connection.sendPacket(new SPacketRespawn(w.provider.getDimensionType().getId(), w.getDifficulty(), WorldType.DEFAULT, ((EntityPlayerMP)player).interactionManager.getGameType()));
-        xP.connection.sendPacket(new SPacketWindowItems(xP.inventoryContainer.windowId, xP.inventoryContainer.getInventory()));
-        xP.connection.sendPacket(new SPacketSetSlot(-1, -1, xP.inventory.getCurrentItem()));
+
+        ServerPlayer sp = ((ServerPlayer)player);
+
+        ClientboundRespawnPacket packet = new ClientboundRespawnPacket(
+                sp.level.dimensionType(),
+                sp.level.dimension(),
+                player.world().seed(),
+                sp.gameMode.getGameModeForPlayer(),
+                sp.gameMode.getPreviousGameModeForPlayer(),
+                false,
+                false,
+                true
+        );
+
+        sp.connection.send(packet);
+        sp.connection.send(new ClientboundContainerSetContentPacket(sp.inventoryMenu.containerId, sp.inventory.items));
+        sp.connection.send(new ClientboundContainerSetSlotPacket(-1, -1, sp.inventory.getSelected()));
         return true;
     }
 

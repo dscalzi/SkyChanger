@@ -27,17 +27,17 @@ package com.dscalzi.skychanger.sponge.internal.wrap;
 import com.dscalzi.skychanger.core.internal.wrap.ILocation;
 import com.dscalzi.skychanger.core.internal.wrap.IWorld;
 import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerWorld;
 
 public class SpongeLocation implements ILocation {
 
-    private final Location<World> location;
+    private final Location<?, ?> location;
 
-    private SpongeLocation(Location<World> location) {
+    private SpongeLocation(Location<?, ?> location) {
         this.location = location;
     }
 
-    public static SpongeLocation of(Location<World> location) {
+    public static SpongeLocation of(Location<?, ?> location) {
         return location == null ? null : new SpongeLocation(location);
     }
 
@@ -48,13 +48,13 @@ public class SpongeLocation implements ILocation {
 
     @Override
     public IWorld getWorld() {
-        return SpongeWorld.of(location.getExtent());
+        return SpongeWorld.of((ServerWorld) location.world());
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     public double distanceSquared(ILocation o) {
-        return location.getPosition().distanceSquared(((Location)o.getOriginal()).getPosition());
+        return location.position().distanceSquared(((Location)o.getOriginal()).position());
     }
 
 }

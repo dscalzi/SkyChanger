@@ -29,7 +29,7 @@ import org.spongepowered.api.service.permission.Subject;
 
 public class SpongePermissible implements IPermissible {
 
-    private final Subject s;
+    protected final Subject s;
 
     protected SpongePermissible(Subject subject) {
         this.s = subject;
