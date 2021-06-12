@@ -74,7 +74,10 @@ subprojects {
     }
 
     javadoc {
-        options.encoding = 'UTF-8'
+        options.encoding('UTF-8')
+    }
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
     }
 
     jar {
@@ -83,6 +86,14 @@ subprojects {
         manifest {
             attributes 'Implementation-Version': archiveVersion, 'Specification-Version': archiveVersion
         }
+    }
+
+    assemble {
+        dependsOn clean
+        dependsOn shadowJar
+
+        jar.mustRunAfter clean
+        shadowJar.mustRunAfter jar
     }
 
     build {

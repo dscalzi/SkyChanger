@@ -85,7 +85,26 @@ public final class ReflectionUtil {
         return r;
     }
 
-    public static Class<?> getNMSClass(String localPackage) {
+    public static Class<?> getMCClass(String localPackage) {
+
+        if (nmsClasses.containsKey(localPackage))
+            return nmsClasses.get(localPackage);
+
+        String declaration = "net.minecraft." + localPackage;
+        Class<?> clazz;
+
+        try {
+            clazz = Class.forName(declaration);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return nmsClasses.put(localPackage, null);
+        }
+
+        nmsClasses.put(localPackage, clazz);
+        return clazz;
+    }
+
+    public static Class<?> getNMSClassLegacy(String localPackage) {
 
         if (nmsClasses.containsKey(localPackage))
             return nmsClasses.get(localPackage);

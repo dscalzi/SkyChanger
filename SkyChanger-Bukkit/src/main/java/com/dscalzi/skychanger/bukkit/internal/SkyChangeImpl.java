@@ -62,15 +62,21 @@ public class SkyChangeImpl implements SkyAPI {
             Object payload = null;
 
             if(major == 1) {
-                if(minor < 16) {
-                    payload = createPacket_18_to_115(packet.getValue(), number);
+                if(minor >= 17) {
+                    payload = createPacket_117_plus(packet.getValue(), number);
+                } else if(minor >= 16) {
+                    payload = createPacket_116(packet.getValue(), number);
                 } else {
-                    payload = createPacket_116_plus(packet.getValue(), number);
+                    payload = createPacket_18_to_115(packet.getValue(), number);
                 }
             }
 
             if(payload != null) {
-                deliverPacket(payload, (Player)p.getOriginal());
+                if(minor >= 17) {
+                    deliverPacket(payload, (Player)p.getOriginal());
+                } else {
+                    deliverPacketLegacy(payload, (Player)p.getOriginal());
+                }
                 return true;
             } else {
                 MessageManager.getInstance().logPacketError();
@@ -96,7 +102,7 @@ public class SkyChangeImpl implements SkyAPI {
 
     /* NMS Utility */
 
-    protected Object getConnection(Player player) throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+    protected Object getConnectionLegacy(Player player) throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
         Class<?> ocbPlayer = ReflectionUtil.getOCBClass("entity.CraftPlayer");
         Method getHandle = ReflectionUtil.getMethod(ocbPlayer, "getHandle");
         Object nmsPlayer = Objects.requireNonNull(getHandle).invoke(player);
@@ -104,10 +110,25 @@ public class SkyChangeImpl implements SkyAPI {
         return conField.get(nmsPlayer);
     }
 
+    protected Object getConnection(Player player) throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+        Class<?> ocbPlayer = ReflectionUtil.getOCBClass("entity.CraftPlayer");
+        Method getHandle = ReflectionUtil.getMethod(ocbPlayer, "getHandle");
+        Object nmsPlayer = Objects.requireNonNull(getHandle).invoke(player);
+        Field conField = nmsPlayer.getClass().getField("b");
+        return conField.get(nmsPlayer);
+    }
+
+    protected void deliverPacketLegacy(Object packet, Player player) throws NoSuchMethodException,
+            IllegalAccessException, NoSuchFieldException, InvocationTargetException {
+        Method sendPacket = ReflectionUtil.getNMSClassLegacy("PlayerConnection")
+                .getMethod( "sendPacket", ReflectionUtil.getNMSClassLegacy("Packet"));
+        sendPacket.invoke(this.getConnectionLegacy(player), packet);
+    }
+
     protected void deliverPacket(Object packet, Player player) throws NoSuchMethodException,
             IllegalAccessException, NoSuchFieldException, InvocationTargetException {
-        Method sendPacket = ReflectionUtil.getNMSClass("PlayerConnection")
-                .getMethod( "sendPacket", ReflectionUtil.getNMSClass("Packet"));
+        Method sendPacket = ReflectionUtil.getMCClass("server.network.PlayerConnection")
+                .getMethod( "sendPacket", ReflectionUtil.getMCClass("network.protocol.Packet"));
         sendPacket.invoke(this.getConnection(player), packet);
     }
 
@@ -115,14 +136,25 @@ public class SkyChangeImpl implements SkyAPI {
 
     protected Object createPacket_18_to_115(int packetNum, float number) throws NoSuchMethodException,
             IllegalAccessException, InvocationTargetException, InstantiationException {
-        Class<?> ClientboundGameEventPacket = ReflectionUtil.getNMSClass("PacketPlayOutGameStateChange");
+        Class<?> ClientboundGameEventPacket = ReflectionUtil.getNMSClassLegacy("PacketPlayOutGameStateChange");
         Constructor<?> packetConstructor = ClientboundGameEventPacket.getConstructor(int.class, float.class);
         return packetConstructor.newInstance(packetNum, number);
     }
 
-    public Object createPacket_116_plus(int packetNum, float number) throws NoSuchMethodException,
+    public Object createPacket_116(int packetNum, float number) throws NoSuchMethodException,
             IllegalAccessException, InvocationTargetException, InstantiationException {
-        Class<?> ClientboundGameEventPacket = ReflectionUtil.getNMSClass("PacketPlayOutGameStateChange");
+        Class<?> ClientboundGameEventPacket = ReflectionUtil.getNMSClassLegacy("PacketPlayOutGameStateChange");
+        Class<?> packetTypeClass = ReflectionUtil.getDeclaredClass(ClientboundGameEventPacket, "a");
+        Constructor<?> packetConstructor = ClientboundGameEventPacket.getConstructor(packetTypeClass, float.class);
+        Constructor<?> packetTypeConstructor = Objects.requireNonNull(packetTypeClass).getConstructor(int.class);
+
+        Object packetType = packetTypeConstructor.newInstance(packetNum);
+        return packetConstructor.newInstance(packetType, number);
+    }
+
+    public Object createPacket_117_plus(int packetNum, float number) throws NoSuchMethodException,
+            IllegalAccessException, InvocationTargetException, InstantiationException {
+        Class<?> ClientboundGameEventPacket = ReflectionUtil.getMCClass("network.protocol.game.PacketPlayOutGameStateChange");
         Class<?> packetTypeClass = ReflectionUtil.getDeclaredClass(ClientboundGameEventPacket, "a");
         Constructor<?> packetConstructor = ClientboundGameEventPacket.getConstructor(packetTypeClass, float.class);
         Constructor<?> packetTypeConstructor = Objects.requireNonNull(packetTypeClass).getConstructor(int.class);
@@ -157,8 +189,8 @@ public class SkyChangeImpl implements SkyAPI {
     }
 
     private Object getDimensionManager(Object worldServer) throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
-        Class<?> worldProviderClass = ReflectionUtil.getNMSClass("WorldProvider");
-        Class<?> worldClass = ReflectionUtil.getNMSClass("World");
+        Class<?> worldProviderClass = ReflectionUtil.getNMSClassLegacy("WorldProvider");
+        Class<?> worldClass = ReflectionUtil.getNMSClassLegacy("World");
         Field worldProviderField = worldClass.getDeclaredField("worldProvider");
         Object worldProvider = worldProviderField.get(worldServer);
         Method getDimensionManager = Objects.requireNonNull(ReflectionUtil.getMethod(worldProviderClass, "getDimensionManager"));
@@ -167,10 +199,10 @@ public class SkyChangeImpl implements SkyAPI {
 
     // 1.13, 1.14, 1.15
     private Object getWorldType(Object worldServer) throws InvocationTargetException, IllegalAccessException {
-        Class<?> WorldServerClass = ReflectionUtil.getNMSClass("WorldServer");
+        Class<?> WorldServerClass = ReflectionUtil.getNMSClassLegacy("WorldServer");
         Method getWorldData = Objects.requireNonNull(ReflectionUtil.getMethod(WorldServerClass, "getWorldData"));
         Object worldData = getWorldData.invoke(worldServer);
-        Class<?> worldDataClass = ReflectionUtil.getNMSClass("WorldData");
+        Class<?> worldDataClass = ReflectionUtil.getNMSClassLegacy("WorldData");
         Method getType = Objects.requireNonNull(ReflectionUtil.getMethod(worldDataClass, "getType"));
         return getType.invoke(worldData);
     }
@@ -206,32 +238,67 @@ public class SkyChangeImpl implements SkyAPI {
             MessageManager.getInstance().featureUnsupported(SkyChanger.wrapPlayer(player), FREEZE_UNSUPPORTED.toString());
         }
 
-        Class<?> ClientboundRespawnPacket = ReflectionUtil.getNMSClass("PacketPlayOutRespawn");
-
         try {
 
             Object packet;
 
+            Class<?> ClientboundRespawnPacket = minor >= 17
+                    ? ReflectionUtil.getMCClass("network.protocol.game.PacketPlayOutRespawn")
+                    : ReflectionUtil.getNMSClassLegacy("PacketPlayOutRespawn");
 
             if (major == 1) {
 
-                if (minor >= 16) {
+                if (minor >= 17) {
 
-                    // 1.16+
-                    // Works sometimes so let's just say it works.
+                    // 1.17
 
-                    Class<?> EnumGamemodeClass = ReflectionUtil.getNMSClass("EnumGamemode");
+                    Class<?> EnumGamemodeClass = ReflectionUtil.getMCClass("world.level.EnumGamemode");
                     Object worldServer = getWorldServer(player);
                     Object gameMode = getEnumGamemode(EnumGamemodeClass, player);
 
-                    Class<?> WorldClass = ReflectionUtil.getNMSClass("World");
-                    Class<?> ResourceKeyClass = ReflectionUtil.getNMSClass("ResourceKey");
+                    Class<?> WorldClass = ReflectionUtil.getMCClass("world.level.World");
+                    Class<?> ResourceKeyClass = ReflectionUtil.getMCClass("resources.ResourceKey");
+
+                    Class<?> DimensionManagerClass = ReflectionUtil.getMCClass("world.level.dimension.DimensionManager");
+
+                    Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(
+                            DimensionManagerClass,            // DimensionManager
+                            ResourceKeyClass,                 // DimensionKey
+                            long.class,                       // Seed
+                            EnumGamemodeClass,                // gameType
+                            EnumGamemodeClass,                // previousGameType
+                            boolean.class,                    // isDebug
+                            boolean.class,                    // isFlat
+                            boolean.class);                   // keepAllPlayerData
+                    packet = packetConstructor.newInstance(
+                            getDimensionManager1162Plus(WorldClass, worldServer),
+                            getDimensionKey(WorldClass, worldServer),
+                            player.getWorld().getSeed(),
+                            gameMode,
+                            gameMode,
+                            false,
+                            false,
+                            true);
+
+
+
+                } else if (minor >= 16) {
+
+                    // 1.16
+                    // Works sometimes so let's just say it works.
+
+                    Class<?> EnumGamemodeClass = ReflectionUtil.getNMSClassLegacy("EnumGamemode");
+                    Object worldServer = getWorldServer(player);
+                    Object gameMode = getEnumGamemode(EnumGamemodeClass, player);
+
+                    Class<?> WorldClass = ReflectionUtil.getNMSClassLegacy("World");
+                    Class<?> ResourceKeyClass = ReflectionUtil.getNMSClassLegacy("ResourceKey");
 
                     if(r >= 2) {
 
                         // 1.16.2+
 
-                        Class<?> DimensionManagerClass = ReflectionUtil.getNMSClass("DimensionManager");
+                        Class<?> DimensionManagerClass = ReflectionUtil.getNMSClassLegacy("DimensionManager");
 
                         Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(
                                 DimensionManagerClass,            // DimensionManager
@@ -281,12 +348,12 @@ public class SkyChangeImpl implements SkyAPI {
 
                     // 1.13, 1.14, 1.15
 
-                    Class<?> EnumGamemodeClass = ReflectionUtil.getNMSClass("EnumGamemode");
+                    Class<?> EnumGamemodeClass = ReflectionUtil.getNMSClassLegacy("EnumGamemode");
 
                     Object worldServer = getWorldServer(player);
 
-                    Class<?> DimensionManagerClass = ReflectionUtil.getNMSClass("DimensionManager");
-                    Class<?> WorldTypeClass = ReflectionUtil.getNMSClass("WorldType");
+                    Class<?> DimensionManagerClass = ReflectionUtil.getNMSClassLegacy("DimensionManager");
+                    Class<?> WorldTypeClass = ReflectionUtil.getNMSClassLegacy("WorldType");
 
                     if (minor == 15) {
                         // 1.15 Constructor
@@ -316,7 +383,7 @@ public class SkyChangeImpl implements SkyAPI {
                         // 1.13 Constructor
                         // Does not produce desired effect on 1.13
 
-                        Class<?> EnumDifficultyClass = ReflectionUtil.getNMSClass("EnumDifficulty");
+                        Class<?> EnumDifficultyClass = ReflectionUtil.getNMSClassLegacy("EnumDifficulty");
 
                         Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(
                                 DimensionManagerClass,
@@ -336,15 +403,15 @@ public class SkyChangeImpl implements SkyAPI {
                     // 1.12 and Below
                     // 1.8, 1.9, 1.10, 1.11, 1.12
 
-                    Class<?> EnumDifficultyClass = ReflectionUtil.getNMSClass("EnumDifficulty");
-                    Class<?> WorldTypeClass = ReflectionUtil.getNMSClass("WorldType");
+                    Class<?> EnumDifficultyClass = ReflectionUtil.getNMSClassLegacy("EnumDifficulty");
+                    Class<?> WorldTypeClass = ReflectionUtil.getNMSClassLegacy("WorldType");
                     final Object WorldType_NORMAL = WorldTypeClass.getField("NORMAL").get(null);
 
 
                     if(minor >= 10) {
                         // 1.10 - 1.12 Constructor
 
-                        Class<?> EnumGamemodeClass = ReflectionUtil.getNMSClass("EnumGamemode");
+                        Class<?> EnumGamemodeClass = ReflectionUtil.getNMSClassLegacy("EnumGamemode");
 
                         Constructor<?> packetConstructor = ClientboundRespawnPacket.getConstructor(int.class, EnumDifficultyClass, WorldTypeClass, EnumGamemodeClass);
                         packet = packetConstructor.newInstance(
@@ -355,7 +422,7 @@ public class SkyChangeImpl implements SkyAPI {
                     } else {
                         // 1.8 - 1.9 Constructor
 
-                        Class<?> WorldSettingsClass = ReflectionUtil.getNMSClass("WorldSettings");
+                        Class<?> WorldSettingsClass = ReflectionUtil.getNMSClassLegacy("WorldSettings");
                         Class<?> EnumGamemodeClass_Declared = ReflectionUtil.getDeclaredClass(WorldSettingsClass, "EnumGamemode");
                         Method getById = Objects.requireNonNull(ReflectionUtil.getMethod(EnumGamemodeClass_Declared, "getById", int.class));
 
@@ -376,7 +443,11 @@ public class SkyChangeImpl implements SkyAPI {
                 return false;
             }
 
-            deliverPacket(packet, player);
+            if(minor >= 17) {
+                deliverPacket(packet, player);
+            } else {
+                deliverPacketLegacy(packet, player);
+            }
             player.updateInventory();
 
             return true;
