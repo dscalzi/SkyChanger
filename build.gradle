@@ -26,8 +26,8 @@ subprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'org.cadixdev.licenser'
 
-    sourceCompatibility = JavaVersion.VERSION_16
-    targetCompatibility = JavaVersion.VERSION_16
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
     def major = '5'
     def minor = '0'
