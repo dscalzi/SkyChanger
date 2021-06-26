@@ -28,6 +28,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -58,6 +59,10 @@ public class SkyChangeImpl implements SkyAPI {
     public boolean changeSky(IPlayer p, SkyPacket packet, float number) {
         try {
             int major = ReflectionUtil.getMajor(), minor = ReflectionUtil.getMinor();
+
+            if(major > 1 || (major == 1 && minor >= 17)) {
+                MessageManager.getInstance().featureUnsupported(p, "1.17+");
+            }
 
             Object payload = null;
 
@@ -236,6 +241,10 @@ public class SkyChangeImpl implements SkyAPI {
 
         if(FREEZE_UNSUPPORTED.contains(major + "." + minor)) {
             MessageManager.getInstance().featureUnsupported(SkyChanger.wrapPlayer(player), FREEZE_UNSUPPORTED.toString());
+        } else if(major > 1 || (major == 1 && minor >= 17)) {
+            List<String> unsupportedList = new ArrayList<>(FREEZE_UNSUPPORTED);
+            unsupportedList.add("1.17+");
+            MessageManager.getInstance().featureUnsupported(SkyChanger.wrapPlayer(player), unsupportedList.toString());
         }
 
         try {

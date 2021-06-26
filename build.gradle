@@ -1,10 +1,10 @@
 plugins {
-    id 'org.cadixdev.licenser' version '0.6.0'
+    id 'org.cadixdev.licenser' version '0.6.1'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 wrapper {
-    gradleVersion = '7.0.2'
+    gradleVersion = '7.1'
     distributionType = Wrapper.DistributionType.BIN
 }
 
@@ -25,6 +25,7 @@ subprojects {
     apply plugin: 'java-library'
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'org.cadixdev.licenser'
+    apply plugin: 'maven-publish'
 
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -88,20 +89,27 @@ subprojects {
         }
     }
 
-    assemble {
-        dependsOn clean
-        dependsOn shadowJar
+    tasks.build.dependsOn tasks.shadowJar
+    tasks.assemble.dependsOn tasks.shadowJar
 
-        jar.mustRunAfter clean
-        shadowJar.mustRunAfter jar
-    }
+    publishing {
 
-    build {
-        dependsOn clean
-        dependsOn shadowJar
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/dscalzi/SkyChanger")
+                credentials {
+                    username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+                    password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+        publications {
+            gpr(MavenPublication) {
+                from(components.java)
+            }
+        }
 
-        jar.mustRunAfter clean
-        shadowJar.mustRunAfter jar
     }
     
 }

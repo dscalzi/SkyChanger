@@ -64,6 +64,7 @@ import org.spongepowered.plugin.jvm.Plugin;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -118,7 +119,7 @@ public class SkyChangerPlugin implements IPlugin {
 
     @Override
     public String getName() {
-        return plugin.metadata().name().orElseThrow();
+        return plugin.metadata().name().orElseThrow(NoSuchElementException::new);
     }
 
     @Override
@@ -215,7 +216,7 @@ public class SkyChangerPlugin implements IPlugin {
     @Listener
     @SuppressWarnings("unused")
     public void onConstructPlugin(final ConstructPluginEvent event){
-        logger.info("Enabling " + plugin.metadata().name().orElseThrow() + " version " + plugin.metadata().version() + ".");
+        logger.info("Enabling " + plugin.metadata().name().orElseThrow(NoSuchElementException::new) + " version " + plugin.metadata().version() + ".");
 
         this.wildcardPermissionUtil = new WildcardPermissionUtil();
 

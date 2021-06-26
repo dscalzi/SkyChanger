@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
 
     api project(':SkyChanger-Core')
     implementation 'org.bstats:bstats-bukkit:2.2.1'
@@ -26,7 +26,7 @@ bukkit {
     
     main = 'com.dscalzi.skychanger.bukkit.SkyChangerPlugin'
     
-    apiVersion = '1.17'
+    apiVersion = '1.13'
     
     commands {
         skychanger {

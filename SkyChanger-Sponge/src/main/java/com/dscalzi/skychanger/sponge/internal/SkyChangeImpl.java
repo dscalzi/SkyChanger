@@ -27,11 +27,13 @@ package com.dscalzi.skychanger.sponge.internal;
 import com.dscalzi.skychanger.core.api.SkyAPI;
 import com.dscalzi.skychanger.core.api.SkyPacket;
 import com.dscalzi.skychanger.core.internal.wrap.IPlayer;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.api.entity.living.player.Player;
 
 public class SkyChangeImpl implements SkyAPI {
@@ -77,9 +79,14 @@ public class SkyChangeImpl implements SkyAPI {
                 true
         );
 
+        NonNullList<ItemStack> nonNullList = NonNullList.create();
+        for(int i = 0; i < sp.inventoryMenu.slots.size(); ++i) {
+            nonNullList.add(sp.inventoryMenu.slots.get(i).getItem());
+        }
+
         sp.connection.send(packet);
-        sp.connection.send(new ClientboundContainerSetContentPacket(sp.inventoryMenu.containerId, sp.inventory.items));
-        sp.connection.send(new ClientboundContainerSetSlotPacket(-1, -1, sp.inventory.getSelected()));
+        sp.connection.send(new ClientboundContainerSetContentPacket(sp.inventoryMenu.containerId, nonNullList));
+        sp.connection.send(new ClientboundContainerSetSlotPacket(-1, -1, sp.inventory.getCarried()));
         return true;
     }
 
