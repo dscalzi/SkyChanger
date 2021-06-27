@@ -1,5 +1,6 @@
 import org.spongepowered.gradle.plugin.config.PluginLoaders
 import org.spongepowered.gradle.vanilla.repository.MinecraftPlatform
+import org.spongepowered.plugin.metadata.PluginDependency
 
 plugins {
     id 'org.spongepowered.gradle.plugin' version '1.1.1'
@@ -29,6 +30,10 @@ sponge {
         }
         contributor(project.ext.author) {
             description('Lead Developer')
+        }
+        dependency("spongeapi") {
+            loadOrder(PluginDependency.LoadOrder.AFTER)
+            optional(false)
         }
     }
 }
