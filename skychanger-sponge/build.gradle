@@ -38,7 +38,7 @@ repositories {
 }
 
 dependencies {
-    api project(':SkyChanger-Core')
+    api project(':skychanger-core')
     implementation 'org.bstats:bstats-sponge:2.2.1'
 }
 

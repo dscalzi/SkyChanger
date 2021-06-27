@@ -1,4 +1,4 @@
-rootProject.name = 'SkyChanger'
-include 'SkyChanger-Bukkit', 'SkyChanger-Sponge'
-include 'SkyChanger-Core'
+rootProject.name = 'skychanger'
+include 'skychanger-bukkit', 'skychanger-sponge'
+include 'skychanger-core'
 

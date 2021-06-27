@@ -12,7 +12,7 @@ repositories {
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
 
-    api project(':SkyChanger-Core')
+    api project(':skychanger-core')
     implementation 'org.bstats:bstats-bukkit:2.2.1'
 }
 
