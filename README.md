@@ -42,50 +42,45 @@ $ gradlew build
 
 If you want to hook SkyChanger into your own plugin or simply want to extend functionality, you may use the provided API. If you feel the API is missing anything, or should be changed, please [let us know](https://github.com/dscalzi/SkyChanger/issues).
 
-**Download Latest**:
+### GitHub Packages
 
-Bukkit: [![bintray](https://api.bintray.com/packages/dscalzi/maven/SkyChanger-Bukkit/images/download.svg)](https://bintray.com/dscalzi/maven/SkyChanger-Bukkit/_latestVersion) Sponge: [![bintray](https://api.bintray.com/packages/dscalzi/maven/SkyChanger-Sponge/images/download.svg)](https://bintray.com/dscalzi/maven/SkyChanger-Sponge/_latestVersion)
+SkyChanger 5.x+ will be hosted on GitHub packages. See https://github.com/dscalzi/SkyChanger/packages
+SkyChanger 4.x and earlier were hosted on jcenter, which shutdown.
 
 *Javadocs are not hosted, however they are provided on the maven repository.*
 
+### Gradle
+
+See https://docs.github.com/articles/configuring-gradle-for-use-with-github-package-registry/ to learn more.
+
+```gradle
+
+dependencies {
+    // For Bukkit
+    implementation 'com.dscalzi:skychanger-bukkit:VERSION'
+    // For Sponge
+    implementation 'com.dscalzi:skychanger-sponge:VERSION'
+}
+```
+
 ### Maven
 
-```XML
-<repository>
-    <id>jcenter</id>
-    <name>jcenter-bintray</name>
-    <url>https://jcenter.bintray.com</url>
-</repository>
+See https://docs.github.com/articles/configuring-apache-maven-for-use-with-github-package-registry/ to learn more.
 
+```XML
 <!-- For Bukkit -->
 <dependency>
   <groupId>com.dscalzi</groupId>
-  <artifactId>SkyChanger-Bukkit</artifactId>
+  <artifactId>skychanger-bukkit</artifactId>
   <version>VERSION</version>
 </dependency>
 
 <!-- For Sponge -->
 <dependency>
   <groupId>com.dscalzi</groupId>
-  <artifactId>SkyChanger-Sponge</artifactId>
+  <artifactId>skychanger-sponge</artifactId>
   <version>VERSION</version>
 </dependency>
-```
-
-### Gradle
-
-```gradle
-
-repositories {
-    jcenter()
-}
-
-dependencies {
-    // For Bukkit
-    implementation 'com.dscalzi:SkyChanger-Bukkit:VERSION'
-    // For Sponge
-    implementation 'com.dscalzi:SkyChanger-Sponge:VERSION'
-}
 ```
 
 ### Example Usage
