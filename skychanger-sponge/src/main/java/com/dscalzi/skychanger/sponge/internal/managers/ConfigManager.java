@@ -26,12 +26,13 @@ package com.dscalzi.skychanger.sponge.internal.managers;
 
 import com.dscalzi.skychanger.core.internal.manager.IConfigManager;
 import com.dscalzi.skychanger.sponge.SkyChangerPlugin;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.asset.Asset;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Files;
 
 public class ConfigManager implements IConfigManager {
 
@@ -40,7 +41,7 @@ public class ConfigManager implements IConfigManager {
 
     // TODO Will be implemented in a later version
     private final double configVersion = 1.0;
-    private SkyChangerPlugin plugin;
+    private final SkyChangerPlugin plugin;
     private CommentedConfigurationNode config;
 
 
@@ -65,25 +66,31 @@ public class ConfigManager implements IConfigManager {
 
     public boolean verifyFile() {
 
-        Asset asset = Sponge.assetManager().asset(plugin.getPlugin(), "skychanger.conf").orElse(null);
-        File file = plugin.getConfigDir().resolve("skychanger.conf").toFile();
+        try(InputStream conf = plugin.getPlugin().openResource(URI.create("assets/skychanger/skychanger.conf")).orElse(null)) {
+            File file = plugin.getConfigDir().resolve("skychanger.conf").toFile();
 
-        if (!file.exists()) {
-            if(asset != null) {
-                try {
-                    asset.copyToFile(file.toPath());
-                    return true;
-                } catch (IOException e) {
-                    plugin.severe("Failed to save default config.");
-                    e.printStackTrace();
+            if (!file.exists()) {
+                if(conf != null) {
+                    try {
+                        Files.copy(conf, file.toPath());
+                        return true;
+                    } catch (IOException e) {
+                        plugin.severe("Failed to save default config.");
+                        e.printStackTrace();
+                        return false;
+                    }
+                } else {
+                    plugin.severe("Failed to locate default config.");
                     return false;
                 }
-            } else {
-                plugin.severe("Failed to locate default config.");
-                return false;
             }
+
+            return true;
+        } catch (IOException e) {
+            plugin.severe("Failed to locate default config.");
+            e.printStackTrace();
+            return false;
         }
-        return true;
     }
 
     public static void initialize(SkyChangerPlugin plugin) {

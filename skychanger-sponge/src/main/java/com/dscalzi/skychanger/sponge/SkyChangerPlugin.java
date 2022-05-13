@@ -42,7 +42,6 @@ import com.dscalzi.skychanger.sponge.internal.wrap.SpongeWorld;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.Logger;
-import org.bstats.charts.SimplePie;
 import org.bstats.sponge.Metrics;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.ResourceKey;
@@ -52,7 +51,10 @@ import org.spongepowered.api.command.Command;
 import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.*;
+import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+import org.spongepowered.api.event.lifecycle.RefreshGameEvent;
+import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.service.permission.PermissionDescription.Builder;
@@ -60,7 +62,7 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.loader.ConfigurationLoader;
 import org.spongepowered.plugin.PluginContainer;
-import org.spongepowered.plugin.jvm.Plugin;
+import org.spongepowered.plugin.builtin.jvm.Plugin;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -87,20 +89,20 @@ public class SkyChangerPlugin implements IPlugin {
 
     private WildcardPermissionUtil wildcardPermissionUtil;
 
-//    private final Metrics metrics;
+    private final Metrics metrics;
 
     @Inject
     public SkyChangerPlugin(
             final PluginContainer container,
             final Logger logger,
-            final Game game//,
-//            Metrics.Factory metricsFactory
+            final Game game,
+            Metrics.Factory metricsFactory
     ) {
         this.plugin = container;
         this.logger = logger;
         this.game = game;
         inst = this;
-//        metrics = metricsFactory.make(3228);
+        metrics = metricsFactory.make(3228);
     }
     
     /**
@@ -124,7 +126,7 @@ public class SkyChangerPlugin implements IPlugin {
 
     @Override
     public String getVersion() {
-        return plugin.metadata().version();
+        return plugin.metadata().version().toString();
     }
 
     @Override
@@ -169,12 +171,20 @@ public class SkyChangerPlugin implements IPlugin {
 
     @Override
     public IOfflinePlayer getOfflinePlayer(UUID uuid) {
-        return this.game.server().userManager().find(GameProfile.of(uuid)).map(SpongeOfflinePlayer::of).orElse(null);
+        try {
+            return this.game.server().userManager().load(GameProfile.of(uuid)).get().map(SpongeOfflinePlayer::of).orElse(null);
+        } catch(Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 
     @Override
     public IOfflinePlayer getOfflinePlayer(String name) {
-        return this.game.server().userManager().find(name).map(SpongeOfflinePlayer::of).orElse(null);
+        try {
+            return this.game.server().userManager().load(name).get().map(SpongeOfflinePlayer::of).orElse(null);
+        } catch(Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 
     @Override

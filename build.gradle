@@ -1,10 +1,10 @@
 plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 wrapper {
-    gradleVersion = '7.1'
+    gradleVersion = '7.4.2'
     distributionType = Wrapper.DistributionType.BIN
 }
 
@@ -32,8 +32,8 @@ subprojects {
 
     def major = '5'
     def minor = '0'
-    def spongeRevision = '0'
-    def bukkitRevision = '0'
+    def spongeRevision = '1'
+    def bukkitRevision = '1'
 
     def rev
 
@@ -60,7 +60,7 @@ subprojects {
     }
 
     license {
-        exclude '**/config.yml'
+        exclude '**/config.yml', '**/plugin.yml'
         header = rootProject.file('HEADER.txt')
         properties {
             name = 'Daniel D. Scalzi'
