@@ -2,7 +2,7 @@
 
 [![Builds](https://github.com/dscalzi/SkyChanger/actions/workflows/build.yml/badge.svg)](https://github.com/dscalzi/SkyChanger/actions/workflows/build.yml) [![](https://pluginbadges.glitch.me/api/v1/dl/Downloads-limegreen.svg?bukkit=skychanger&spigot=skychanger.37524&ore=skychanger&github=dscalzi/SkyChanger&style=flat)](https://github.com/dscalzi/PluginBadges) [![](https://img.shields.io/github/license/dscalzi/SkyChanger.svg)](https://github.com/dscalzi/SkyChanger/blob/master/LICENSE.txt) ![](https://img.shields.io/badge/Spigot-1.8.x--1.16.x-orange.svg) [![](https://discordapp.com/api/guilds/211524927831015424/widget.png)](https://discordapp.com/invite/Fcrh6PT)
 
-SkyChanger is a light-weight plugin for Spigot and Sponge. The main function of this plugin is to change the color of the sky for yourself, a specific player, a specific world, or everyone. This plugin functions by sending packets with a specified value to the target player(s).
+SkyChanger is a lightweight plugin for Spigot and Sponge. The main function of this plugin is to change the color of the sky for yourself, a specific player, a specific world, or everyone. This plugin functions by sending packets with a specified value to the target player(s).
 
 *Like the project? Leave a ⭐ on the repository!*
 
@@ -47,7 +47,7 @@ If you want to hook SkyChanger into your own plugin or simply want to extend fun
 SkyChanger 5.x+ will be hosted on GitHub packages. See https://github.com/dscalzi/SkyChanger/packages
 SkyChanger 4.x and earlier were hosted on jcenter, which shutdown.
 
-*Javadocs are not hosted, however they are provided on the maven repository.*
+*Javadocs are not hosted, however they are provided on the Maven repository.*
 
 ### Gradle
 
